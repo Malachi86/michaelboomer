@@ -1,3 +1,34 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "course-computer-science",
+      "description": "Introduction to Computer Science",
+      "imageUrl": "https://picsum.photos/seed/cs101/600/400",
+      "imageHint": "coding computer"
+    },
+    {
+      "id": "course-art-history",
+      "description": "Renaissance Art History",
+      "imageUrl": "https://picsum.photos/seed/art/600/400",
+      "imageHint": "painting gallery"
+    },
+    {
+      "id": "course-astronomy",
+      "description": "Basics of Astronomy",
+      "imageUrl": "https://picsum.photos/seed/space/600/400",
+      "imageHint": "stars galaxy"
+    },
+    {
+      "id": "user-avatar-1",
+      "description": "Student Avatar",
+      "imageUrl": "https://picsum.photos/seed/avatar1/150/150",
+      "imageHint": "person portrait"
+    },
+    {
+      "id": "hero-education",
+      "description": "Library study hall",
+      "imageUrl": "https://picsum.photos/seed/library/1200/600",
+      "imageHint": "library university"
+    }
+  ]
 }
