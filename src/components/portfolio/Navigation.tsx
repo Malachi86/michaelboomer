@@ -25,7 +25,7 @@ export default function Navigation({ profile }: { profile: Profile }) {
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
+      setIsScrolled(window.scrollY > 20);
     };
     window.addEventListener('scroll', handleScroll);
     handleScroll();
@@ -45,41 +45,47 @@ export default function Navigation({ profile }: { profile: Profile }) {
       <motion.nav
         initial={{ y: -100 }}
         animate={{ y: 0 }}
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          isScrolled ? 'bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-sm' : 'bg-transparent'
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+          isScrolled 
+            ? 'bg-white/95 backdrop-blur-md border-b border-gray-100 shadow-md py-3' 
+            : 'bg-transparent py-6'
         }`}
       >
         <div className="max-w-[1440px] mx-auto px-6 lg:px-12">
-          <div className="flex items-center justify-between h-20">
+          <div className="flex items-center justify-between">
             <motion.a
               href="#hero"
               onClick={(e) => { e.preventDefault(); scrollTo('#hero'); }}
-              className="flex items-center gap-3 group cursor-pointer"
+              className="flex items-center gap-4 group cursor-pointer"
               whileHover={{ scale: 1.02 }}
             >
-              <div className="bg-[#E31B23] p-1.5 rounded">
-                <Car className="w-6 h-6 text-white" />
+              <div className="bg-[#E31B23] p-2 rounded-lg shadow-lg group-hover:rotate-12 transition-transform">
+                <Car className="w-7 h-7 text-white" />
               </div>
-              <span className={`text-xl font-bold tracking-tight ${isScrolled ? 'text-[#0E2356]' : 'text-[#0E2356]'}`}>
-                SUZUKI SALES
-              </span>
+              <div className="flex flex-col">
+                <span className="text-2xl font-black tracking-tighter text-[#0E2356] leading-none">
+                  SUZUKI
+                </span>
+                <span className="text-[10px] font-bold tracking-[0.3em] text-[#E31B23] leading-none mt-1">
+                  OFFICIAL SALES
+                </span>
+              </div>
             </motion.a>
 
-            <div className="hidden md:flex items-center gap-8">
+            <div className="hidden md:flex items-center gap-10">
               {navItems.map((item) => (
                 <a
                   key={item.label}
                   href={item.href}
                   onClick={(e) => { e.preventDefault(); scrollTo(item.href); }}
-                  className="text-gray-600 hover:text-[#E31B23] transition-colors relative group font-bold uppercase text-xs tracking-widest"
+                  className="text-gray-800 hover:text-[#E31B23] transition-colors relative group font-bold uppercase text-[11px] tracking-widest"
                 >
                   {item.label}
-                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#E31B23] group-hover:w-full transition-all duration-300" />
+                  <span className="absolute -bottom-2 left-0 w-0 h-0.5 bg-[#E31B23] group-hover:w-full transition-all duration-300" />
                 </a>
               ))}
               <Button
-                size="sm"
-                className="bg-[#E31B23] text-white hover:bg-[#c4171e] border-0 font-bold px-6 shadow-lg shadow-red-200"
+                className="bg-[#0E2356] text-white hover:bg-[#E31B23] border-0 font-bold px-8 h-12 rounded-xl shadow-lg transition-all"
                 onClick={() => scrollTo('#contact')}
               >
                 BOOK CONSULTATION
@@ -94,7 +100,7 @@ export default function Navigation({ profile }: { profile: Profile }) {
                   className="text-[#0E2356]"
                   onClick={() => setIsMobileOpen(!isMobileOpen)}
                 >
-                  {isMobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                  {isMobileOpen ? <X className="w-7 h-7" /> : <Menu className="w-7 h-7" />}
                 </Button>
               )}
             </div>
@@ -105,28 +111,35 @@ export default function Navigation({ profile }: { profile: Profile }) {
       <AnimatePresence>
         {hasMounted && isMobileOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="fixed inset-0 z-40 bg-white pt-24 md:hidden"
+            initial={{ opacity: 0, x: '100%' }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: '100%' }}
+            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+            className="fixed inset-0 z-[60] bg-white md:hidden"
           >
-            <div className="container mx-auto px-6">
-              <div className="flex flex-col gap-6">
+            <div className="p-6 flex justify-end">
+               <Button variant="ghost" size="icon" onClick={() => setIsMobileOpen(false)}>
+                <X className="w-8 h-8 text-[#0E2356]" />
+               </Button>
+            </div>
+            <div className="container mx-auto px-8 pt-10">
+              <div className="flex flex-col gap-8">
                 {navItems.map((item, index) => (
                   <motion.a
                     key={item.label}
                     href={item.href}
                     onClick={(e) => { e.preventDefault(); scrollTo(item.href); }}
-                    initial={{ opacity: 0, x: -20 }}
+                    initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.1 }}
-                    className="text-2xl text-[#0E2356] font-bold py-3 border-b border-gray-100 uppercase"
+                    className="text-4xl text-[#0E2356] font-black uppercase tracking-tighter py-2 border-b-2 border-gray-50 flex items-center justify-between"
                   >
                     {item.label}
+                    <ChevronRight className="w-8 h-8 text-[#E31B23]" />
                   </motion.a>
                 ))}
                 <Button
-                  className="mt-4 bg-[#E31B23] text-white h-14 text-lg font-bold"
+                  className="mt-10 bg-[#E31B23] text-white h-16 text-xl font-black rounded-2xl shadow-xl"
                   onClick={() => scrollTo('#contact')}
                 >
                   BOOK CONSULTATION
@@ -139,3 +152,5 @@ export default function Navigation({ profile }: { profile: Profile }) {
     </>
   );
 }
+
+import { ChevronRight as ChevronRightIcon } from 'lucide-react';

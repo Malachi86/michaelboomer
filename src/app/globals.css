@@ -6,13 +6,13 @@
   :root {
     /* Pure Suzuki White background */
     --background: 0 0% 100%;
-    --foreground: 222 72% 10%; /* Very dark blue for text visibility */
+    --foreground: 222 47% 11%; /* Darker Blue-Gray for better readability */
     
     --card: 0 0% 100%;
-    --card-foreground: 222 72% 10%;
+    --card-foreground: 222 47% 11%;
     
     --popover: 0 0% 100%;
-    --popover-foreground: 222 72% 10%;
+    --popover-foreground: 222 47% 11%;
     
     /* Official Suzuki Red (#E31B23) */
     --primary: 358 79% 50%;
@@ -23,7 +23,7 @@
     --secondary-foreground: 0 0% 100%;
     
     --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted-foreground: 215.4 16.3% 40%; /* Darker muted text */
     
     --accent: 210 40% 96.1%;
     --accent-foreground: 222.2 47.4% 11.2%;
@@ -46,6 +46,14 @@
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "alt" 1;
   }
+  h1, h2, h3, h4 {
+    @apply tracking-tight font-bold text-[#0E2356];
+  }
+}
+
+.showroom-shadow {
+  shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  box-shadow: 0 10px 15px -3px rgb(14 35 86 / 0.1), 0 4px 6px -4px rgb(14 35 86 / 0.1);
 }
 
 .bg-suzuki-blue {
