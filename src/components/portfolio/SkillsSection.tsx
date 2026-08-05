@@ -35,38 +35,38 @@ export default function SkillsSection({ skills = [] }: { skills: Skill[] }) {
   const sortedSkills = [...filteredSkills].sort((a, b) => (a.order || 0) - (b.order || 0));
 
   return (
-    <section id="skills" className="relative py-32 bg-white">
+    <section id="skills" className="relative py-24 bg-slate-50">
       <div className="max-w-[1440px] mx-auto px-6 lg:px-12 relative z-10 w-full">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <p className="text-[#E31B23] font-bold tracking-widest uppercase text-sm mb-4">
+          <p className="text-[#E31B23] font-black tracking-widest uppercase text-xs mb-4">
             Expertise & Reliability
           </p>
-          <h2 className="text-4xl lg:text-5xl font-bold text-[#0E2356] mb-6">
+          <h2 className="text-3xl lg:text-5xl font-bold text-[#0E2356] mb-6">
             Agent Professional Status
           </h2>
-          <p className="text-gray-700 text-lg font-medium max-w-2xl mx-auto">
+          <p className="text-gray-600 text-lg font-medium max-w-2xl mx-auto">
             Certified expertise to ensure a smooth and worry-free car buying journey.
           </p>
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="flex flex-wrap justify-center gap-3 mb-16"
+          className="flex flex-wrap justify-center gap-3 mb-12"
         >
           {categories.map((category) => (
             <Button
               key={category}
               variant={activeCategory === category ? "default" : "outline"}
               className={activeCategory === category 
-                ? "bg-[#E31B23] text-white border-0 font-bold"
-                : "border-gray-200 text-gray-700 hover:text-[#0E2356] hover:border-[#0E2356] font-bold"
+                ? "bg-[#E31B23] text-white border-0 font-bold px-6"
+                : "bg-white border-gray-200 text-gray-700 hover:text-[#0E2356] hover:border-[#0E2356] font-bold px-6"
               }
               onClick={() => setActiveCategory(category)}
             >
@@ -83,27 +83,32 @@ export default function SkillsSection({ skills = [] }: { skills: Skill[] }) {
                 <motion.div
                   key={skill.id}
                   layout
-                  initial={{ opacity: 0, scale: 0.8 }}
+                  initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
                   transition={{ duration: 0.3, delay: index * 0.05 }}
-                  whileHover={{ y: -8 }}
                   className="group"
                 >
-                  <div className="relative bg-white border border-gray-100 rounded-2xl p-6 text-center shadow-sm hover:shadow-md hover:border-[#E31B23]/30 transition-all duration-300">
-                    <div className="w-16 h-16 mx-auto mb-4 rounded-xl bg-red-50 flex items-center justify-center transition-all duration-300 group-hover:bg-[#E31B23] group-hover:text-white">
-                      <Icon className="w-8 h-8 text-[#E31B23] group-hover:text-white" />
+                  <div className="relative bg-white border border-gray-100 rounded-2xl p-6 text-center showroom-shadow hover:border-[#E31B23]/40 transition-all duration-300 h-full">
+                    {/* Icon Container for high visibility */}
+                    <div className="w-14 h-14 mx-auto mb-4 rounded-xl bg-slate-50 border border-gray-100 flex items-center justify-center transition-all duration-300 group-hover:bg-[#E31B23]">
+                      <Icon className="w-7 h-7 text-[#0E2356] group-hover:text-white transition-colors" />
                     </div>
-                    <h3 className="text-[#0E2356] font-bold text-sm uppercase tracking-tight">{skill.name}</h3>
+                    <h3 className="text-[#0E2356] font-black text-xs uppercase tracking-tight mb-3">
+                      {skill.name}
+                    </h3>
                     {skill.proficiency && (
-                      <div className="mt-4 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                        <motion.div
-                          initial={{ width: 0 }}
-                          whileInView={{ width: `${skill.proficiency}%` }}
-                          viewport={{ once: true }}
-                          transition={{ duration: 1, delay: 0.5 }}
-                          className="h-full bg-[#E31B23]"
-                        />
+                      <div className="space-y-1.5">
+                        <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                          <motion.div
+                            initial={{ width: 0 }}
+                            whileInView={{ width: `${skill.proficiency}%` }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 1, delay: 0.3 }}
+                            className="h-full bg-gradient-to-r from-[#E31B23] to-[#E31B23]/70"
+                          />
+                        </div>
+                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{skill.proficiency}% PROFICIENCY</span>
                       </div>
                     )}
                   </div>

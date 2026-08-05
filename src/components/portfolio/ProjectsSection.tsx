@@ -3,7 +3,7 @@ import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ExternalLink, Github, Play, X, Star } from 'lucide-react';
+import { ExternalLink, Play, X, Star, Car, Info } from 'lucide-react';
 import type { Project } from '@/lib/types';
 import Image from 'next/image';
 
@@ -17,9 +17,7 @@ export default function ProjectsSection({ projects = [] }: { projects: Project[]
     return ['All', ...uniqueCategories];
   }, [projects]);
 
-  if (!projects || projects.length === 0) {
-    return null;
-  }
+  if (!projects || projects.length === 0) return null;
 
   const filteredProjects = activeCategory === 'All' 
     ? projects 
@@ -32,40 +30,38 @@ export default function ProjectsSection({ projects = [] }: { projects: Project[]
   });
 
   return (
-    <section id="projects" className="relative py-32 bg-background">
-      <div className="absolute inset-0 opacity-[0.03] bg-[radial-gradient(circle_at_center,_var(--primary)_0%,_transparent_100%)]" />
-
-      <div className="relative max-w-[1440px] mx-auto px-6 lg:px-12 w-full">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-16"
-        >
-          <p className="text-accent font-medium tracking-widest uppercase text-sm mb-4">
-            Showcase
-          </p>
-          <h2 className="text-4xl lg:text-5xl font-serif text-white mb-6">
-            Featured Projects
-          </h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            A gallery of my professional work and creative experiments.
-          </p>
-        </motion.div>
-
+    <section id="projects" className="relative py-24 bg-white">
+      <div className="max-w-[1440px] mx-auto px-6 lg:px-12 w-full">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="flex flex-wrap justify-center gap-3 mb-16"
+          className="text-center mb-16"
+        >
+          <p className="text-[#E31B23] font-black tracking-widest uppercase text-xs mb-4">
+            Our Inventory
+          </p>
+          <h2 className="text-3xl lg:text-5xl font-bold text-[#0E2356] mb-6">
+            Suzuki Vehicle Catalog
+          </h2>
+          <p className="text-gray-600 text-lg font-medium max-w-2xl mx-auto leading-relaxed">
+            Hanapin ang sasakyang nababagay sa iyong lifestyle. Bawat unit ay garantisadong Suzuki Quality.
+          </p>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="flex flex-wrap justify-center gap-3 mb-12"
         >
           {dynamicCategories.map((category) => (
             <Button
               key={category}
               variant={activeCategory === category ? "default" : "outline"}
               className={activeCategory === category 
-                ? "bg-accent text-accent-foreground border-0"
-                : "border-white/10 text-muted-foreground hover:text-accent hover:border-accent/50"
+                ? "bg-[#0E2356] text-white border-0 font-bold px-6"
+                : "border-gray-200 text-gray-700 hover:text-[#0E2356] hover:border-[#0E2356] font-bold px-6"
               }
               onClick={() => setActiveCategory(category)}
             >
@@ -82,74 +78,58 @@ export default function ProjectsSection({ projects = [] }: { projects: Project[]
                 <motion.div
                   key={project.id}
                   layout
-                  initial={{ opacity: 0, y: 30 }}
+                  initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  transition={{ duration: 0.4, delay: index * 0.1 }}
-                  className="group relative"
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.4, delay: index * 0.05 }}
                 >
-                  <div className="relative bg-card border border-white/5 rounded-3xl overflow-hidden hover:border-primary/30 transition-all duration-500">
-                    <div className="relative aspect-video overflow-hidden">
+                  <div className="relative bg-white border border-gray-100 rounded-2xl overflow-hidden showroom-shadow hover:border-[#0E2356]/20 transition-all duration-300 group">
+                    <div className="relative aspect-[16/10] overflow-hidden bg-slate-50">
                       {displayImageUrl ? (
                         <Image
                           src={displayImageUrl}
                           alt={project.title}
                           fill
                           unoptimized
-                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                          className="object-cover transform group-hover:scale-110 transition-transform duration-700"
+                          className="object-cover transform group-hover:scale-105 transition-transform duration-700"
                         />
                       ) : (
-                        <div className="w-full h-full bg-muted flex items-center justify-center">
-                          <span className="text-muted-foreground/20">No Image</span>
+                        <div className="w-full h-full flex items-center justify-center">
+                          <Car className="w-12 h-12 text-gray-200" />
                         </div>
                       )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-60" />
                       
-                      <div className="absolute inset-0 flex items-center justify-center gap-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-background/60 backdrop-blur-sm">
-                        {project.video_url && (
-                          <Button
-                            size="icon"
-                            className="w-12 h-12 rounded-full bg-primary text-primary-foreground hover:scale-110 transition-transform"
-                            onClick={() => setSelectedProject(project)}
-                          >
-                            <Play className="w-5 h-5" />
-                          </Button>
-                        )}
-                        {project.live_demo_url && project.live_demo_url !== '#' && (
-                          <Button
-                            size="icon"
-                            className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20"
-                            asChild
-                          >
-                            <a href={project.live_demo_url} target="_blank" rel="noopener noreferrer">
-                              <ExternalLink className="w-5 h-5 text-white" />
-                            </a>
-                          </Button>
-                        )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
+                        <Button
+                          className="w-full bg-white text-[#0E2356] hover:bg-white/90 font-bold rounded-xl"
+                          onClick={() => setSelectedProject(project)}
+                        >
+                          <Info className="w-4 h-4 mr-2" /> VIEW SPECS
+                        </Button>
                       </div>
 
                       {project.featured && (
-                        <Badge className="absolute top-4 left-4 bg-primary text-primary-foreground border-0">
-                          <Star className='h-3 w-3 mr-1'/>
-                          Featured
+                        <Badge className="absolute top-4 left-4 bg-[#E31B23] text-white border-0 px-3 py-1 font-black uppercase text-[10px]">
+                          <Star className='h-3 w-3 mr-1 fill-white'/> HOT DEAL
                         </Badge>
                       )}
                     </div>
 
                     <div className="p-6">
-                      <Badge variant="outline" className="border-primary/30 text-primary text-xs mb-3">
-                        {project.category}
-                      </Badge>
-                      <h3 className="text-xl font-bold text-white mb-2 group-hover:text-primary transition-colors">
+                      <div className="flex justify-between items-start mb-3">
+                        <Badge variant="outline" className="border-gray-200 text-gray-500 font-bold text-[10px] uppercase">
+                          {project.category}
+                        </Badge>
+                      </div>
+                      <h3 className="text-xl font-bold text-[#0E2356] mb-3 group-hover:text-[#E31B23] transition-colors">
                         {project.title}
                       </h3>
-                      <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
+                      <p className="text-gray-600 text-sm mb-5 line-clamp-2 leading-relaxed font-medium">
                         {project.description}
                       </p>
-                      <div className="flex flex-wrap gap-2">
+                      <div className="flex flex-wrap gap-1.5 border-t border-gray-50 pt-4">
                         {project.tech_stack?.slice(0, 4).map((tech, i) => (
-                          <span key={i} className="text-xs px-2 py-1 bg-white/5 rounded-md text-muted-foreground">
+                          <span key={i} className="text-[10px] font-bold px-2.5 py-1 bg-slate-50 border border-gray-100 rounded-md text-[#0E2356]/70 uppercase tracking-tight">
                             {tech}
                           </span>
                         ))}
@@ -164,35 +144,59 @@ export default function ProjectsSection({ projects = [] }: { projects: Project[]
       </div>
 
       <AnimatePresence>
-        {selectedProject && selectedProject.video_url && (
+        {selectedProject && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-background/95 backdrop-blur-sm"
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#0E2356]/90 backdrop-blur-md"
             onClick={() => setSelectedProject(null)}
           >
             <motion.div
-              initial={{ scale: 0.9 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.9 }}
-              className="relative w-full max-w-4xl aspect-video bg-card rounded-2xl overflow-hidden shadow-2xl"
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="relative w-full max-w-4xl bg-white rounded-3xl overflow-hidden shadow-2xl max-h-[90vh] overflow-y-auto"
               onClick={(e) => e.stopPropagation()}
             >
-              <iframe
-                src={selectedProject.video_url}
-                className="w-full h-full"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
-              <Button
-                size="icon"
-                variant="ghost"
-                className="absolute top-4 right-4 text-white hover:bg-white/10"
-                onClick={() => setSelectedProject(null)}
-              >
-                <X className="w-6 h-6" />
-              </Button>
+              <div className="flex flex-col lg:flex-row">
+                <div className="lg:w-1/2 relative aspect-video lg:aspect-square bg-slate-50">
+                  <Image
+                    src={selectedProject.image_url || (selectedProject as any).imageUrl}
+                    alt={selectedProject.title}
+                    fill
+                    unoptimized
+                    className="object-cover"
+                  />
+                </div>
+                <div className="lg:w-1/2 p-8 lg:p-12">
+                  <Badge className="bg-[#E31B23] mb-4">{selectedProject.category}</Badge>
+                  <h2 className="text-3xl lg:text-4xl font-bold text-[#0E2356] mb-6 leading-tight">{selectedProject.title}</h2>
+                  <p className="text-gray-600 mb-8 leading-relaxed font-medium">{selectedProject.description}</p>
+                  
+                  <div className="space-y-6">
+                    <div>
+                      <h4 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-3">Key Features</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {selectedProject.tech_stack?.map((tech, i) => (
+                          <Badge key={i} variant="secondary" className="bg-slate-50 border-gray-100 text-[#0E2356] px-3 py-1 font-bold">
+                            {tech}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="flex gap-4 pt-4">
+                      <Button className="flex-1 bg-[#E31B23] hover:bg-[#c4171e] text-white font-bold h-12 rounded-xl" asChild>
+                         <a href="#contact" onClick={() => setSelectedProject(null)}>INQUIRE NOW</a>
+                      </Button>
+                      <Button variant="outline" className="h-12 w-12 rounded-xl border-gray-200" onClick={() => setSelectedProject(null)}>
+                        <X className="w-5 h-5 text-gray-400" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </motion.div>
           </motion.div>
         )}

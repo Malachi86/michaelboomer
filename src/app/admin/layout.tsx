@@ -15,7 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 
 const menuItems = [
   { icon: LayoutDashboard, label: 'Dashboard', href: '/admin' },
-  { icon: Car, label: 'Inventory Manager', href: '/admin/projects' },
+  { icon: Car, label: 'Vehicle Catalog', href: '/admin/projects' },
   { icon: User, label: 'Agent Profile', href: '/admin/profile' },
   { icon: Award, label: 'Happy Clients', href: '/admin/certificates' },
   { icon: MessageSquare, label: 'Inquiries', href: '/admin/messages' },
@@ -35,17 +35,17 @@ function AdminSidebar() {
   };
 
   return (
-    <div className="fixed left-0 top-0 bottom-0 w-72 bg-white border-r border-gray-200 flex flex-col z-50 shadow-sm">
-      <div className="p-8 border-b border-gray-100 bg-[#0E2356]">
+    <div className="fixed left-0 top-0 bottom-0 w-72 bg-white border-r border-gray-100 flex flex-col z-50 shadow-lg">
+      <div className="p-8 border-b border-gray-50 bg-[#0E2356]">
         <div className="flex items-center gap-4 mb-2">
-          <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-lg">
+          <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg">
             <Car className="text-[#E31B23] w-6 h-6" />
           </div>
           <div>
-            <h1 className="text-lg font-black text-white tracking-tighter leading-none">
-              SUZUKI ADMIN
+            <h1 className="text-xl font-black text-white tracking-tighter leading-none">
+              SUZUKI
             </h1>
-            <p className="text-white/50 text-[10px] uppercase tracking-[0.3em] font-bold mt-1">SALES CONSOLE</p>
+            <p className="text-white/60 text-[10px] uppercase tracking-[0.3em] font-black mt-1">ADMIN CONSOLE</p>
           </div>
         </div>
       </div>
@@ -57,37 +57,37 @@ function AdminSidebar() {
             <motion.div key={item.label} whileHover={{ x: 5 }}>
               <Link
                 href={item.href}
-                className={`flex items-center gap-4 px-5 py-3.5 rounded-xl transition-all ${
+                className={`flex items-center gap-4 px-5 py-3.5 rounded-2xl transition-all ${
                   isActive 
                     ? 'bg-[#E31B23] text-white shadow-lg shadow-red-200' 
-                    : 'text-gray-700 hover:text-[#0E2356] hover:bg-gray-50'
+                    : 'text-[#0E2356] hover:text-[#E31B23] hover:bg-red-50'
                 }`}
               >
-                <item.icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-gray-400'}`} />
-                <span className="font-bold text-sm tracking-tight">{item.label}</span>
+                <item.icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-[#0E2356]/40'}`} />
+                <span className="font-black text-xs uppercase tracking-tight">{item.label}</span>
               </Link>
             </motion.div>
           );
         })}
       </nav>
 
-      <div className="p-6 border-t border-gray-100 space-y-3 bg-gray-50/50">
+      <div className="p-6 border-t border-gray-50 space-y-3 bg-slate-50">
         <Link href="/">
           <Button 
             variant="outline" 
-            className="w-full border-gray-200 bg-white text-gray-700 hover:text-[#0E2356] hover:border-[#0E2356] justify-start h-12 rounded-xl shadow-sm"
+            className="w-full border-gray-200 bg-white text-[#0E2356] hover:text-[#E31B23] hover:border-[#E31B23] justify-start h-12 rounded-xl shadow-sm font-bold"
           >
             <Eye className="w-4 h-4 mr-3" />
-            <span className="font-bold">Live Website</span>
+            Live Website
           </Button>
         </Link>
         <Button 
           variant="ghost" 
           onClick={handleLogout}
-          className="w-full text-red-600 hover:text-red-700 hover:bg-red-50 justify-start h-12 rounded-xl"
+          className="w-full text-red-600 hover:text-red-700 hover:bg-red-50 justify-start h-12 rounded-xl font-bold"
         >
           <LogOut className="w-4 h-4 mr-3" />
-          <span className="font-bold">Logout</span>
+          Logout
         </Button>
       </div>
     </div>
@@ -131,7 +131,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900">
+    <div className="min-h-screen bg-slate-50 text-gray-900">
       <AdminSidebar />
       <main className="ml-72 p-12">
         <div className="max-w-7xl mx-auto">
