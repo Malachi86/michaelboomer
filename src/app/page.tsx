@@ -5,7 +5,6 @@ import Navigation from '@/components/portfolio/Navigation';
 import HeroSection from '@/components/portfolio/HeroSection';
 import SkillsSection from '@/components/portfolio/SkillsSection';
 import ProjectsSection from '@/components/portfolio/ProjectsSection';
-import CertificatesSection from '@/components/portfolio/CertificatesSection';
 import TestimonialsSection from '@/components/portfolio/TestimonialsSection';
 import ContactSection from '@/components/portfolio/ContactSection';
 import Footer from '@/components/portfolio/Footer';
@@ -28,18 +27,14 @@ export default function Home() {
   const projectsQuery = useMemo(() => query(collection(db, 'projects'), orderBy('order', 'asc')), [db]);
   const { data: projectsData, loading: projectsLoading } = useCollection(projectsQuery);
 
-  const certsQuery = useMemo(() => query(collection(db, 'certificates'), orderBy('order', 'asc')), [db]);
-  const { data: certsData, loading: certsLoading } = useCollection(certsQuery);
-
   const testimonialsQuery = useMemo(() => query(collection(db, 'testimonials'), orderBy('createdAt', 'desc')), [db]);
   const { data: testimonialsData, loading: testimonialsLoading } = useCollection(testimonialsQuery);
 
-  const isLoading = profileLoading || skillsLoading || projectsLoading || certsLoading || testimonialsLoading;
+  const isLoading = profileLoading || skillsLoading || projectsLoading || testimonialsLoading;
 
   const profile = profileData || defaultProfile;
   const skills = skillsData || [];
   const projects = projectsData || [];
-  const certificates = certsData || [];
   const testimonials = testimonialsData || [];
 
   if (isLoading) {
@@ -58,9 +53,7 @@ export default function Home() {
         <HeroSection profile={profile} />
         {/* Inventory / Vehicles */}
         <ProjectsSection projects={projects} />
-        {/* Happy Clients / Turnovers */}
-        <CertificatesSection certificates={certificates} />
-        {/* Agent Status / Skills */}
+        {/* Agent Status / Skills - Updated with pic 2 request */}
         <SkillsSection skills={skills} />
         <TestimonialsSection testimonials={testimonials} />
         <ContactSection profile={profile} />
