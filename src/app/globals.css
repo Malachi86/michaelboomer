@@ -4,39 +4,39 @@
 
 @layer base {
   :root {
-    /* Suzuki Navy Blue background variant */
-    --background: 222 61% 4%; 
-    --foreground: 0 0% 100%;
+    /* Suzuki White background as requested */
+    --background: 0 0% 100%;
+    --foreground: 222 72% 10%;
     
-    /* Suzuki Blue (Navy) #0E2356 as Card background */
-    --card: 222 61% 8%;
-    --card-foreground: 0 0% 100%;
+    /* Suzuki Blue (#0E2356) for card elements if needed, or white for clean look */
+    --card: 0 0% 100%;
+    --card-foreground: 222 72% 10%;
     
-    --popover: 222 61% 4%;
-    --popover-foreground: 0 0% 100%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 72% 10%;
     
-    /* Suzuki Red #E31B23 */
+    /* Suzuki Red (#E31B23) */
     --primary: 358 79% 50%;
     --primary-foreground: 0 0% 100%;
     
-    /* Suzuki Blue #0E2356 */
-    --secondary: 222 61% 14%;
+    /* Suzuki Blue (#0E2356) */
+    --secondary: 222 72% 20%;
     --secondary-foreground: 0 0% 100%;
     
-    --muted: 222 30% 12%;
-    --muted-foreground: 222 10% 70%;
+    --muted: 222 20% 96%;
+    --muted-foreground: 222 10% 40%;
     
-    /* Alternative Suzuki Blue #003399 variant */
-    --accent: 220 100% 30%;
-    --accent-foreground: 0 0% 100%;
+    /* Light accent using Suzuki Blue hue */
+    --accent: 222 72% 95%;
+    --accent-foreground: 222 72% 20%;
     
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
     
-    --border: 222 30% 18%;
-    --input: 222 30% 18%;
+    --border: 222 20% 90%;
+    --input: 222 20% 90%;
     --ring: 358 79% 50%;
-    --radius: 1rem;
+    --radius: 0.75rem;
   }
 }
 
@@ -54,10 +54,13 @@
 }
 
 .text-gradient {
-  @apply bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent bg-[length:200%_auto] animate-text-shine;
+  @apply bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent;
 }
 
-@keyframes text-shine {
-  from { background-position: 0 0; }
-  to { background-position: 200% 0; }
+.bg-suzuki-blue {
+  background-color: #0E2356;
+}
+
+.bg-suzuki-red {
+  background-color: #E31B23;
 }

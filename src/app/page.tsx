@@ -18,16 +18,16 @@ import { Loader2 } from 'lucide-react';
 export default function Home() {
   const db = useFirestore();
 
-  const profileRef = useMemo(() => doc(db, 'profile', 'data'), [db]);
+  const profileRef = useMemo(() => doc(db, 'agent', 'profile'), [db]);
   const { data: profileData, loading: profileLoading } = useDoc(profileRef);
 
-  const skillsQuery = useMemo(() => query(collection(db, 'skills'), orderBy('order', 'asc')), [db]);
+  const skillsQuery = useMemo(() => query(collection(db, 'status'), orderBy('order', 'asc')), [db]);
   const { data: skillsData, loading: skillsLoading } = useCollection(skillsQuery);
 
-  const projectsQuery = useMemo(() => query(collection(db, 'projects'), orderBy('order', 'asc')), [db]);
+  const projectsQuery = useMemo(() => query(collection(db, 'vehicles'), orderBy('order', 'asc')), [db]);
   const { data: projectsData, loading: projectsLoading } = useCollection(projectsQuery);
 
-  const certsQuery = useMemo(() => query(collection(db, 'certificates'), orderBy('order', 'asc')), [db]);
+  const certsQuery = useMemo(() => query(collection(db, 'turnovers'), orderBy('order', 'asc')), [db]);
   const { data: certsData, loading: certsLoading } = useCollection(certsQuery);
 
   const testimonialsQuery = useMemo(() => query(collection(db, 'testimonials'), orderBy('createdAt', 'desc')), [db]);
@@ -44,21 +44,21 @@ export default function Home() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center text-white gap-4">
-        <Loader2 className="w-10 h-10 animate-spin text-primary" />
-        <p className="text-muted-foreground animate-pulse">Loading Digital Hub...</p>
+      <div className="min-h-screen bg-white flex flex-col items-center justify-center text-gray-900 gap-4">
+        <Loader2 className="w-10 h-10 animate-spin text-[#E31B23]" />
+        <p className="text-gray-500 animate-pulse font-medium">Loading Showroom...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background text-white">
+    <div className="min-h-screen bg-white text-gray-900">
       <Navigation profile={profile} />
       <main>
         <HeroSection profile={profile} />
-        <SkillsSection skills={skills} />
         <ProjectsSection projects={projects} />
         <CertificatesSection certificates={certificates} />
+        <SkillsSection skills={skills} />
         <TestimonialsSection testimonials={testimonials} />
         <ContactSection profile={profile} />
       </main>
