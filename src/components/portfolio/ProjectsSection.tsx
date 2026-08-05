@@ -1,3 +1,4 @@
+
 'use client';
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -19,9 +20,12 @@ export default function ProjectsSection({ projects = [] }: { projects: Project[]
 
   if (!projects || projects.length === 0) return null;
 
+  // Remove the second project (pic 2) as requested
+  const visibleProjects = projects.slice(0, 1);
+
   const filteredProjects = activeCategory === 'All' 
-    ? projects 
-    : projects.filter(p => p.category === activeCategory);
+    ? visibleProjects 
+    : visibleProjects.filter(p => p.category === activeCategory);
 
   const sortedProjects = [...filteredProjects].sort((a, b) => {
     if (a.featured && !b.featured) return -1;
@@ -41,7 +45,7 @@ export default function ProjectsSection({ projects = [] }: { projects: Project[]
           <p className="text-[#E31B23] font-black tracking-widest uppercase text-xs mb-4">
             Our Inventory
           </p>
-          <h2 className="text-3xl lg:text-5xl font-bold text-[#0E2356] mb-6">
+          <h2 className="text-3xl lg:text-5xl font-bold text-[#0E2356] mb-6 block">
             Suzuki Vehicle Catalog
           </h2>
           <p className="text-gray-600 text-lg font-medium max-w-2xl mx-auto leading-relaxed">

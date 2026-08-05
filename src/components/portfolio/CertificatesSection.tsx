@@ -1,3 +1,4 @@
+
 'use client';
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -23,8 +24,8 @@ export default function CertificatesSection({ certificates = [] }: { certificate
           viewport={{ once: true }}
           className="text-center mb-20"
         >
-          <p className="text-[#E31B23] font-bold tracking-[0.2em] uppercase text-xs mb-4">Credentials</p>
-          <h2 className="text-4xl lg:text-5xl font-serif text-[#0E2356] mb-6">Certifications</h2>
+          <p className="text-[#E31B23] font-black tracking-[0.2em] uppercase text-xs mb-4">Credentials</p>
+          <h2 className="text-4xl lg:text-5xl font-serif text-[#0E2356] mb-6 block">Certifications</h2>
           <div className="w-24 h-1 bg-gradient-to-r from-[#E31B23] to-[#0E2356] mx-auto" />
         </motion.div>
 

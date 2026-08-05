@@ -1,3 +1,4 @@
+
 'use client';
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -46,7 +47,7 @@ export default function SkillsSection({ skills = [] }: { skills: Skill[] }) {
           <p className="text-[#E31B23] font-black tracking-widest uppercase text-xs mb-4">
             Expertise & Reliability
           </p>
-          <h2 className="text-3xl lg:text-5xl font-bold text-[#0E2356] mb-6">
+          <h2 className="text-3xl lg:text-5xl font-bold text-[#0E2356] mb-6 block">
             Agent Professional Status
           </h2>
           <p className="text-gray-600 text-lg font-medium max-w-2xl mx-auto">
