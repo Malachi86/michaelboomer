@@ -1,25 +1,16 @@
 'use client';
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Github, Linkedin, Mail, MessageSquare, Phone, FileText, ChevronRight, CheckCircle } from 'lucide-react';
+import { ChevronRight, CheckCircle } from 'lucide-react';
 import type { Profile } from '@/lib/types';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-
-const socialIcons: Record<string, any> = {
-  github: Github,
-  linkedin: Linkedin,
-  email: Mail,
-  message: MessageSquare,
-  phone: Phone
-};
 
 export default function HeroSection({ profile }: { profile: Profile }) {
   const hasProfileImage = profile?.profile_image && profile.profile_image.trim() !== "";
 
   return (
     <section id="hero" className="relative min-h-[90vh] flex items-center bg-white overflow-hidden pt-20">
-      {/* Subtle Pattern Overlay */}
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/grid-me.png')]" />
       
       <div className="max-w-[1440px] mx-auto px-6 lg:px-12 py-20 relative z-10 w-full">
@@ -41,11 +32,11 @@ export default function HeroSection({ profile }: { profile: Profile }) {
                 <span className="text-[#E31B23]">Dream Suzuki</span> Today
               </h1>
               
-              <p className="text-xl lg:text-2xl font-medium text-gray-600 mb-8">
-                {profile?.full_name || "Marvin Paul Orozco"} — {profile?.title || "Senior Sales Executive"}
+              <p className="text-xl lg:text-2xl font-semibold text-gray-800 mb-8">
+                {profile?.full_name || "Marvin Paul Orozco"} — <span className="text-[#0E2356]">{profile?.title || "Senior Sales Executive"}</span>
               </p>
               
-              <p className="text-lg text-gray-500 mb-10 max-w-xl leading-relaxed">
+              <p className="text-lg text-gray-700 font-medium mb-10 max-w-xl leading-relaxed">
                 Expert guidance for your vehicle purchase. Fast approvals, competitive rates, and seamless turnover service.
               </p>
 
@@ -60,7 +51,7 @@ export default function HeroSection({ profile }: { profile: Profile }) {
                 
                 <Button
                   variant="outline"
-                  className="border-[#0E2356] text-[#0E2356] hover:bg-[#0E2356] hover:text-white font-bold h-14 px-8 rounded-lg transition-all text-lg"
+                  className="border-[#0E2356] text-[#0E2356] hover:bg-[#0E2356] hover:text-white font-bold h-14 px-8 rounded-lg transition-all text-lg border-2"
                   onClick={() => document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth' })}
                 >
                   GET A QUOTE
@@ -69,12 +60,12 @@ export default function HeroSection({ profile }: { profile: Profile }) {
 
               <div className="flex items-center gap-6 justify-center lg:justify-start">
                 <div className="flex items-center gap-2">
-                  <CheckCircle className="w-5 h-5 text-green-500" />
-                  <span className="text-sm font-bold text-gray-700">100+ Delivered</span>
+                  <CheckCircle className="w-5 h-5 text-green-600" />
+                  <span className="text-sm font-bold text-gray-800">100+ Delivered</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <CheckCircle className="w-5 h-5 text-green-500" />
-                  <span className="text-sm font-bold text-gray-700">Fast Approval</span>
+                  <CheckCircle className="w-5 h-5 text-green-600" />
+                  <span className="text-sm font-bold text-gray-800">Fast Approval</span>
                 </div>
               </div>
             </motion.div>
@@ -88,7 +79,6 @@ export default function HeroSection({ profile }: { profile: Profile }) {
               className="flex-shrink-0 order-1 lg:order-2"
             >
               <div className="relative w-[320px] h-[480px] lg:w-[450px] lg:h-[600px]">
-                {/* Suzuki Branding Red Box Behind */}
                 <div className="absolute -top-6 -right-6 w-full h-full bg-[#E31B23]/10 rounded-2xl -z-10" />
                 <div className="absolute -bottom-6 -left-6 w-1/2 h-1/2 border-l-4 border-b-4 border-[#0E2356]/20 rounded-bl-2xl -z-10" />
                 
@@ -101,8 +91,7 @@ export default function HeroSection({ profile }: { profile: Profile }) {
                     unoptimized
                     className="object-cover object-top"
                   />
-                  {/* Subtle Gradient Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0E2356]/20 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0E2356]/30 to-transparent" />
                 </div>
               </div>
             </motion.div>

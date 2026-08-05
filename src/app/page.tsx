@@ -18,16 +18,17 @@ import { Loader2 } from 'lucide-react';
 export default function Home() {
   const db = useFirestore();
 
-  const profileRef = useMemo(() => doc(db, 'agent', 'profile'), [db]);
+  // Path alignment: Adjusted to match backend.json and firestore.rules
+  const profileRef = useMemo(() => doc(db, 'profile', 'data'), [db]);
   const { data: profileData, loading: profileLoading } = useDoc(profileRef);
 
-  const skillsQuery = useMemo(() => query(collection(db, 'status'), orderBy('order', 'asc')), [db]);
+  const skillsQuery = useMemo(() => query(collection(db, 'skills'), orderBy('order', 'asc')), [db]);
   const { data: skillsData, loading: skillsLoading } = useCollection(skillsQuery);
 
-  const projectsQuery = useMemo(() => query(collection(db, 'vehicles'), orderBy('order', 'asc')), [db]);
+  const projectsQuery = useMemo(() => query(collection(db, 'projects'), orderBy('order', 'asc')), [db]);
   const { data: projectsData, loading: projectsLoading } = useCollection(projectsQuery);
 
-  const certsQuery = useMemo(() => query(collection(db, 'turnovers'), orderBy('order', 'asc')), [db]);
+  const certsQuery = useMemo(() => query(collection(db, 'certificates'), orderBy('order', 'asc')), [db]);
   const { data: certsData, loading: certsLoading } = useCollection(certsQuery);
 
   const testimonialsQuery = useMemo(() => query(collection(db, 'testimonials'), orderBy('createdAt', 'desc')), [db]);
@@ -35,7 +36,6 @@ export default function Home() {
 
   const isLoading = profileLoading || skillsLoading || projectsLoading || certsLoading || testimonialsLoading;
 
-  // Use Firestore data if available, otherwise use empty arrays or default profile
   const profile = profileData || defaultProfile;
   const skills = skillsData || [];
   const projects = projectsData || [];
@@ -44,20 +44,23 @@ export default function Home() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-white flex flex-col items-center justify-center text-gray-900 gap-4">
+      <div className="min-h-screen bg-white flex flex-col items-center justify-center text-[#0E2356] gap-4">
         <Loader2 className="w-10 h-10 animate-spin text-[#E31B23]" />
-        <p className="text-gray-500 animate-pulse font-medium">Loading Showroom...</p>
+        <p className="text-[#0E2356] animate-pulse font-bold tracking-widest">OPENING SUZUKI SHOWROOM...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-white text-gray-900">
+    <div className="min-h-screen bg-white text-[#0E2356]">
       <Navigation profile={profile} />
       <main>
         <HeroSection profile={profile} />
+        {/* Inventory / Vehicles */}
         <ProjectsSection projects={projects} />
+        {/* Happy Clients / Turnovers */}
         <CertificatesSection certificates={certificates} />
+        {/* Agent Status / Skills */}
         <SkillsSection skills={skills} />
         <TestimonialsSection testimonials={testimonials} />
         <ContactSection profile={profile} />

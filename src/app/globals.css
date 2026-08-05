@@ -4,37 +4,35 @@
 
 @layer base {
   :root {
-    /* Suzuki White background as requested */
+    /* Pure Suzuki White background */
     --background: 0 0% 100%;
-    --foreground: 222 72% 10%;
+    --foreground: 222 72% 10%; /* Very dark blue for text visibility */
     
-    /* Suzuki Blue (#0E2356) for card elements if needed, or white for clean look */
     --card: 0 0% 100%;
     --card-foreground: 222 72% 10%;
     
     --popover: 0 0% 100%;
     --popover-foreground: 222 72% 10%;
     
-    /* Suzuki Red (#E31B23) */
+    /* Official Suzuki Red (#E31B23) */
     --primary: 358 79% 50%;
     --primary-foreground: 0 0% 100%;
     
-    /* Suzuki Blue (#0E2356) */
+    /* Official Suzuki Blue (#0E2356) */
     --secondary: 222 72% 20%;
     --secondary-foreground: 0 0% 100%;
     
-    --muted: 222 20% 96%;
-    --muted-foreground: 222 10% 40%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
     
-    /* Light accent using Suzuki Blue hue */
-    --accent: 222 72% 95%;
-    --accent-foreground: 222 72% 20%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
     
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
-    
-    --border: 222 20% 90%;
-    --input: 222 20% 90%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
     --ring: 358 79% 50%;
     --radius: 0.75rem;
   }
@@ -48,13 +46,6 @@
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "alt" 1;
   }
-  html {
-    scroll-behavior: smooth;
-  }
-}
-
-.text-gradient {
-  @apply bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent;
 }
 
 .bg-suzuki-blue {
@@ -63,4 +54,12 @@
 
 .bg-suzuki-red {
   background-color: #E31B23;
+}
+
+.text-suzuki-blue {
+  color: #0E2356;
+}
+
+.text-suzuki-red {
+  color: #E31B23;
 }
