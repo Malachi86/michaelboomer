@@ -1,0 +1,118 @@
+{
+  "profile": {
+    "full_name": "Marvin Paul Orozco",
+    "title": "Web Developer & VA ",
+    "subtitle": "Fullstack Developer & Virtual Assistant",
+    "bio": "I am a first-year BS Computer Engineering student with a strong interest in web development and technology. I have foundational knowledge in HTML, CSS, JavaScript, React, TypeScript, Python, and Tailwind CSS, and I enjoy building responsive and user-friendly websites and web applications. As a Computer Engineering student, I continuously study and improve my programming and development skills to become a better web developer.\n\nIn addition, I have experience using Canva and CapCut to create social media graphics, presentations, and simple video edits. These skills allow me to also assist with creative tasks and visual content when needed. I am a fast learner, adaptable, and highly motivated to gain more experience and provide reliable support as a Virtual Assistant.",
+    "profile_image": "/uploads/1771907306928.jpg",
+    "resume_url": "https://www.canva.com/design/DAG94RU1eww/6qIWQFTp2I1vOiNHTAKv6Q/edit?utm_content=DAG94RU1eww&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton",
+    "email": "orozcomarvinpaul@gmail.com",
+    "social_links": [
+      {
+        "platform": "github",
+        "url": "https://github.com/Malachi86",
+        "icon": "github"
+      },
+      {
+        "platform": "linkedin",
+        "url": "https://www.linkedin.com/in/marvin-paul-orozco-57bb77392/",
+        "icon": "linkedin"
+      },
+      {
+        "platform": "email",
+        "url": "mailto:orozcomarvinpaul@gmail.com",
+        "icon": "email"
+      }
+    ]
+  },
+  "skills": [
+    {
+      "id": "skill-1",
+      "name": "React / Next.js",
+      "icon": "Code",
+      "category": "Development",
+      "proficiency": 95,
+      "order": 1
+    },
+    {
+      "id": "skill-2",
+      "name": "Node.js",
+      "icon": "Server",
+      "category": "Development",
+      "proficiency": 85,
+      "order": 2
+    },
+    {
+      "id": "skill-3",
+      "name": "Tailwind CSS",
+      "icon": "Layout",
+      "category": "Design",
+      "proficiency": 98,
+      "order": 3
+    },
+    {
+      "id": "skill-4",
+      "name": "Figma",
+      "icon": "Figma",
+      "category": "Design",
+      "proficiency": 90,
+      "order": 4
+    }
+  ],
+  "projects": [
+    {
+      "title": "AMACC: SPM",
+      "description": "This project is a web-based school management system designed to streamline school operations. It provides features for students, teachers, library administrators, and system administrators, including the management of subjects, enrollments, attendance, library resources, and laboratory requests. It is a multi-tenant portal developed for AMACC to digitize academic and administrative processes. Teachers can manage subjects, schedules, and QR-based attendance, while students can view subjects, track attendance, request lab resources, and borrow books. The library module supports barcode-based borrowing and returns, and system administrators oversee users, resources, and logs to ensure security and operational efficiency.",
+      "category": "Web App",
+      "image_url": "/uploads/1772810878181.jpeg",
+      "video_url": "",
+      "live_demo_url": "https://9000-firebase-amacc-spm-1771649949458.cluster-cd3bsnf6r5bemwki2bxljme5as.cloudworkstations.dev/?monospaceUid=839778",
+      "github_url": "",
+      "tech_stack": [
+        "Next.js",
+        "React",
+        "Tailwind CSS",
+        "TypeScript",
+        "CSS",
+        "Firebase"
+      ],
+      "featured": false,
+      "order": 0,
+      "id": "proj-1772811444215"
+    },
+    {
+      "title": "Church-System",
+      "description": "Church Presentation System\nA worship presentation platform including Bible search, song management, sermon preparation, and smart display controls  all with role‑based access for streamlined worship services.",
+      "category": "Web App",
+      "image_url": "/uploads/1772814994558.png",
+      "video_url": "",
+      "live_demo_url": "https://church-system-38975674-6b4c7.web.app/",
+      "github_url": "",
+      "tech_stack": [
+        "Next.js",
+        "Firebase",
+        "Tailwind CSS",
+        "TypeScript",
+        "JavaScript",
+        "React",
+        "CSS"
+      ],
+      "featured": false,
+      "order": 1,
+      "id": "proj-1772815605202"
+    }
+  ],
+  "testimonials": [],
+  "certificates": [
+    {
+      "title": "Web Design",
+      "issuer": "AMA Computer College (AMACC)",
+      "issueDate": "FEB.12,2026",
+      "imageUrl": "/uploads/1772812291987.jpg",
+      "credentialUrl": "",
+      "order": 1,
+      "id": "cert-1772812588749",
+      "rotation": 270
+    }
+  ]
+}

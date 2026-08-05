@@ -1,10 +1,8 @@
-
 import type {Config} from 'tailwindcss';
 
 export default {
   darkMode: ['class'],
   content: [
-    './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
@@ -12,7 +10,8 @@ export default {
     extend: {
       fontFamily: {
         body: ['Inter', 'sans-serif'],
-        headline: ['Alegreya', 'serif'],
+        headline: ['"Space Grotesk"', 'sans-serif'],
+        serif: ['"DM Serif Display"', 'serif'],
         code: ['monospace'],
       },
       colors: {
@@ -89,10 +88,15 @@ export default {
             height: '0',
           },
         },
+        'text-shine': {
+          '0%': { backgroundPosition: '200% 0' },
+          '100%': { backgroundPosition: '-200% 0' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
+        'text-shine': 'text-shine 3s linear infinite',
       },
     },
   },

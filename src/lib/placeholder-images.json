@@ -1,34 +1,64 @@
 {
   "placeholderImages": [
     {
-      "id": "course-computer-science",
-      "description": "Introduction to Computer Science",
-      "imageUrl": "https://picsum.photos/seed/cs101/600/400",
-      "imageHint": "coding computer"
+      "id": "avatar",
+      "description": "Avatar for Marvin Paul Orasco",
+      "imageUrl": "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxtYW4lMjBwb3J0cmFpdHxlbnwwfHx8fDE3NzA4NDk1Mjd8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "man portrait"
     },
     {
-      "id": "course-art-history",
-      "description": "Renaissance Art History",
-      "imageUrl": "https://picsum.photos/seed/art/600/400",
-      "imageHint": "painting gallery"
+      "id": "project1",
+      "description": "Placeholder for ShopSphere e-commerce project",
+      "imageUrl": "https://images.unsplash.com/photo-1580828343064-fde4fc206bc6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxvbmxpbmUlMjBzdG9yZXxlbnwwfHx8fDE3NzA4NzEwNzZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "online store"
     },
     {
-      "id": "course-astronomy",
-      "description": "Basics of Astronomy",
-      "imageUrl": "https://picsum.photos/seed/space/600/400",
-      "imageHint": "stars galaxy"
+      "id": "project2",
+      "description": "Placeholder for Innovate brand story video",
+      "imageUrl": "https://images.unsplash.com/photo-1723808556184-86e0398d7c32?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxhYnN0cmFjdCUyMG1vdGlvbnxlbnwwfHx8fDE3NzA4MTQwNzl8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "abstract motion"
     },
     {
-      "id": "user-avatar-1",
-      "description": "Student Avatar",
-      "imageUrl": "https://picsum.photos/seed/avatar1/150/150",
-      "imageHint": "person portrait"
+      "id": "project3",
+      "description": "Placeholder for photographer portfolio",
+      "imageUrl": "https://images.unsplash.com/photo-1593704212686-6d52058fb516?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxjYW1lcmElMjBsZW5zfGVufDB8fHx8MTc3MDkwMjE5N3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "camera lens"
     },
     {
-      "id": "hero-education",
-      "description": "Library study hall",
-      "imageUrl": "https://picsum.photos/seed/library/1200/600",
-      "imageHint": "library university"
+      "id": "project4",
+      "description": "Placeholder for corporate training series",
+      "imageUrl": "https://images.unsplash.com/photo-1606836591695-4d58a73eba1e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxvZmZpY2UlMjBtZWV0aW5nfGVufDB8fHx8MTc3MDg4MTY1MXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "office meeting"
+    },
+    {
+      "id": "testimonial1",
+      "description": "Avatar for Jane Doe",
+      "imageUrl": "https://images.unsplash.com/photo-1592621385612-4d7129426394?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHx3b21hbiUyMHNtaWxpbmd8ZW58MHx8fHwxNzcwODYyMjEwfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "woman smiling"
+    },
+    {
+      "id": "testimonial2",
+      "description": "Avatar for John Smith",
+      "imageUrl": "https://images.unsplash.com/photo-1624797432677-6f803a98acb3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxtYW4lMjBidXNpbmVzc3xlbnwwfHx8fDE3NzA4ODM0Njd8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "man business"
+    },
+    {
+      "id": "testimonial3",
+      "description": "Avatar for Emily White",
+      "imageUrl": "https://images.unsplash.com/photo-1513673054901-2b5f51551112?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHx3b21hbiUyMGdsYXNzZXN8ZW58MHx8fHwxNzcwODA2MDA3fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "woman glasses"
+    },
+    {
+      "id": "certificate1",
+      "description": "Placeholder for React Developer certificate",
+      "imageUrl": "https://images.unsplash.com/photo-1518818608552-195ed130cdf4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxjb2RlJTIwY2VydGlmaWNhdGV8ZW58MHx8fHwxNzcwOTEzOTQ4fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "code certificate"
+    },
+    {
+      "id": "certificate2",
+      "description": "Placeholder for Adobe Premiere Pro certificate",
+      "imageUrl": "https://images.unsplash.com/photo-1652955058906-b42fa699fa15?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxkZXNpZ24lMjBhd2FyZHxlbnwwfHx8fDE3NzA5MTM5NDh8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "design award"
     }
   ]
 }

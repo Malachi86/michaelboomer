@@ -1,51 +1,42 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 228 20% 96%;
-    --foreground: 227 60% 10%;
-    --card: 0 0% 100%;
-    --card-foreground: 227 60% 10%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 227 60% 10%;
-    --primary: 227 60% 40%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 227 20% 90%;
-    --secondary-foreground: 227 60% 20%;
-    --muted: 227 20% 92%;
-    --muted-foreground: 227 20% 40%;
-    --accent: 199 100% 56%;
-    --accent-foreground: 227 60% 10%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 227 30% 88%;
-    --input: 227 30% 88%;
-    --ring: 227 60% 40%;
-    --radius: 0.75rem;
-  }
-  .dark {
-    --background: 227 60% 5%;
-    --foreground: 210 40% 98%;
-    --card: 227 60% 7%;
-    --card-foreground: 210 40% 98%;
-    --popover: 227 60% 7%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 199 100% 56%;
-    --primary-foreground: 227 60% 10%;
-    --secondary: 227 60% 15%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 227 60% 15%;
-    --muted-foreground: 227 20% 60%;
-    --accent: 227 60% 40%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 227 60% 15%;
-    --input: 227 60% 15%;
-    --ring: 199 100% 56%;
+    /* Suzuki Navy Blue background variant */
+    --background: 222 61% 4%; 
+    --foreground: 0 0% 100%;
+    
+    /* Suzuki Blue (Navy) #0E2356 as Card background */
+    --card: 222 61% 8%;
+    --card-foreground: 0 0% 100%;
+    
+    --popover: 222 61% 4%;
+    --popover-foreground: 0 0% 100%;
+    
+    /* Suzuki Red #E31B23 */
+    --primary: 358 79% 50%;
+    --primary-foreground: 0 0% 100%;
+    
+    /* Suzuki Blue #0E2356 */
+    --secondary: 222 61% 14%;
+    --secondary-foreground: 0 0% 100%;
+    
+    --muted: 222 30% 12%;
+    --muted-foreground: 222 10% 70%;
+    
+    /* Alternative Suzuki Blue #003399 variant */
+    --accent: 220 100% 30%;
+    --accent-foreground: 0 0% 100%;
+    
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    
+    --border: 222 30% 18%;
+    --input: 222 30% 18%;
+    --ring: 358 79% 50%;
+    --radius: 1rem;
   }
 }
 
@@ -55,5 +46,18 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "alt" 1;
   }
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+.text-gradient {
+  @apply bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent bg-[length:200%_auto] animate-text-shine;
+}
+
+@keyframes text-shine {
+  from { background-position: 0 0; }
+  to { background-position: 200% 0; }
 }

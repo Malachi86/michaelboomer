@@ -1,0 +1,127 @@
+
+{
+  "entities": {
+    "Profile": {
+      "title": "Profile",
+      "description": "User profile information",
+      "type": "object",
+      "properties": {
+        "full_name": { "type": "string" },
+        "title": { "type": "string" },
+        "subtitle": { "type": "string" },
+        "bio": { "type": "string" },
+        "profile_image": { "type": "string" },
+        "resume_url": { "type": "string" },
+        "email": { "type": "string" },
+        "social_links": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "platform": { "type": "string" },
+              "url": { "type": "string" },
+              "icon": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "Skill": {
+      "title": "Skill",
+      "description": "Technical skill",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "icon": { "type": "string" },
+        "category": { "type": "string", "enum": ["Development", "Design", "VA Tools", "Other"] },
+        "proficiency": { "type": "number" },
+        "order": { "type": "number" }
+      }
+    },
+    "Project": {
+      "title": "Project",
+      "description": "Portfolio project",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "category": { "type": "string" },
+        "image_url": { "type": "string" },
+        "video_url": { "type": "string" },
+        "live_demo_url": { "type": "string" },
+        "github_url": { "type": "string" },
+        "tech_stack": { "type": "array", "items": { "type": "string" } },
+        "featured": { "type": "boolean" },
+        "order": { "type": "number" }
+      }
+    },
+    "Certificate": {
+      "title": "Certificate",
+      "description": "Professional certificate or award",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "issuer": { "type": "string" },
+        "issueDate": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "credentialUrl": { "type": "string" },
+        "order": { "type": "number" }
+      }
+    },
+    "Message": {
+      "title": "Message",
+      "description": "Contact form submission",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "message": { "type": "string" },
+        "read": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "Testimonial": {
+      "title": "Testimonial",
+      "description": "Client feedback",
+      "type": "object",
+      "properties": {
+        "clientName": { "type": "string" },
+        "company": { "type": "string" },
+        "feedback": { "type": "string" },
+        "rating": { "type": "number" },
+        "avatarUrl": { "type": "string" },
+        "approved": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
+    }
+  },
+  "auth": {
+    "providers": ["google.com", "password"]
+  },
+  "firestore": {
+    "/profile/data": {
+      "schema": "#/entities/Profile",
+      "description": "Global profile data"
+    },
+    "/skills": {
+      "schema": "#/entities/Skill",
+      "description": "Collection of skills"
+    },
+    "/projects": {
+      "schema": "#/entities/Project",
+      "description": "Collection of projects"
+    },
+    "/certificates": {
+      "schema": "#/entities/Certificate",
+      "description": "Collection of certificates"
+    },
+    "/messages": {
+      "schema": "#/entities/Message",
+      "description": "User messages"
+    },
+    "/testimonials": {
+      "schema": "#/entities/Testimonial",
+      "description": "Client reviews"
+    }
+  }
+}

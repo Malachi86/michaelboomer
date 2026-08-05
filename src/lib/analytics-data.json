@@ -1,0 +1,54 @@
+[
+  {
+    "event_type": "page_view",
+    "page": "/",
+    "visitor_id": "visitor_1771915492323_bud0oob4t",
+    "metadata": {
+      "referrer": "https://6000-firebase-myportfolio-1771912494218.cluster-y75up3teuvc62qmnwys4deqv6y.cloudworkstations.dev/",
+      "timestamp": "2026-03-06T17:52:53.893Z"
+    },
+    "id": "evt-1772819575552-hcms0hwyx",
+    "createdAt": "2026-03-06T17:52:55.552Z"
+  },
+  {
+    "event_type": "page_view",
+    "page": "/",
+    "visitor_id": "visitor_1771915492323_bud0oob4t",
+    "metadata": {
+      "referrer": "https://6000-firebase-myportfolio-1771912494218.cluster-y75up3teuvc62qmnwys4deqv6y.cloudworkstations.dev/",
+      "timestamp": "2026-03-06T17:52:53.869Z"
+    },
+    "id": "evt-1772819575416-n998dr40g",
+    "createdAt": "2026-03-06T17:52:55.416Z"
+  },
+  {
+    "event_type": "page_view",
+    "page": "/",
+    "visitor_id": "visitor_1771917947106_1hkdwdmmr",
+    "metadata": {
+      "referrer": "https://6000-firebase-myportfolio-1771912494218.cluster-y75up3teuvc62qmnwys4deqv6y.cloudworkstations.dev/capra/?origin=https%3A%2F%2Fstudio.firebase.google.com",
+      "timestamp": "2026-03-06T17:51:55.693Z"
+    },
+    "id": "evt-1772819524664-ddoj403v8",
+    "createdAt": "2026-03-06T17:52:04.664Z"
+  },
+  {
+    "event_type": "page_view",
+    "page": "/",
+    "visitor_id": "visitor_1771917947106_1hkdwdmmr",
+    "metadata": {
+      "referrer": "https://6000-firebase-myportfolio-1771912494218.cluster-y75up3teuvc62qmnwys4deqv6y.cloudworkstations.dev/capra/?origin=https%3A%2F%2Fstudio.firebase.google.com",
+      "timestamp": "2026-03-06T17:51:55.677Z"
+    },
+    "id": "evt-1772819524511-scogm3hun",
+    "createdAt": "2026-03-06T17:52:04.511Z"
+  },
+  {
+    "event_type": "time_spent",
+    "page": "/",
+    "duration": 231,
+    "visitor_id": "visitor_1771917947106_1hkdwdmmr",
+    "id": "evt-1772819518398-j8k12xcio",
+    "createdAt": "2026-03-06T17:51:58.398Z"
+  }
+]

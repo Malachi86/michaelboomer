@@ -1,11 +1,12 @@
-
-import type {Metadata} from 'next';
+import type { Metadata } from 'next';
+import { Toaster } from "@/components/ui/toaster"
 import './globals.css';
-import {Toaster} from '@/components/ui/toaster';
+import { AnalyticsTracker } from '@/components/analytics/AnalyticsTracker';
+import { FirebaseClientProvider } from '@/firebase/client-provider';
 
 export const metadata: Metadata = {
-  title: 'Lumina Academy',
-  description: 'AI-Powered Excellence in Learning',
+  title: 'My Digital Hub | Marvin Paul Orozco',
+  description: 'Fullstack Developer & Virtual Assistant portfolio',
 };
 
 export default function RootLayout({
@@ -14,15 +15,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Alegreya:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Space+Grotesk:wght@400;500;700&family=DM+Serif+Display&display=swap" rel="stylesheet" />
+        <link rel="icon" href="/icon.svg" type="image/svg+xml" />
       </head>
-      <body className="font-body antialiased bg-background text-foreground">
-        {children}
-        <Toaster />
+      <body className="font-body antialiased">
+        <FirebaseClientProvider>
+          <AnalyticsTracker>
+            {children}
+          </AnalyticsTracker>
+          <Toaster />
+        </FirebaseClientProvider>
       </body>
     </html>
   );

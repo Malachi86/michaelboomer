@@ -1,0 +1,56 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper function to check if the user is the authorized admin
+    function isAdmin() {
+      return request.auth != null && request.auth.token.email == 'orozcomarvinpaul@gmail.com';
+    }
+
+    // Profile data: Anyone can read, only admin can write
+    match /profile/data {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Collections: Anyone can read, only admin can write
+    match /skills/{allPaths=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /projects/{allPaths=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /certificates/{allPaths=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Testimonials: Anyone can read and create, only admin can update/delete
+    match /testimonials/{allPaths=**} {
+      allow read: if true;
+      allow create: if true;
+      allow update, delete: if isAdmin();
+    }
+
+    // Messages: Anyone can create, only admin can read/delete
+    match /messages/{allPaths=**} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // Analytics: Anyone can create, only admin can read
+    match /analytics/{allPaths=**} {
+      allow create: if true;
+      allow read: if isAdmin();
+    }
+
+    // Default deny for everything else, except for the admin
+    match /{document=**} {
+      allow read, write: if isAdmin();
+    }
+  }
+}
