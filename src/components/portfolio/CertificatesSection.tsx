@@ -1,4 +1,3 @@
-
 'use client';
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -14,7 +13,7 @@ export default function CertificatesSection({ certificates = [] }: { certificate
   if (!certificates || certificates.length === 0) return null;
 
   return (
-    <section id="certificates" className="py-32 bg-white relative overflow-hidden">
+    <section id="certificates" className="py-32 bg-slate-50 relative overflow-hidden">
       <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-[100px] -z-10" />
       
       <div className="max-w-[1440px] mx-auto px-6 lg:px-12 w-full">
@@ -24,9 +23,12 @@ export default function CertificatesSection({ certificates = [] }: { certificate
           viewport={{ once: true }}
           className="text-center mb-20"
         >
-          <p className="text-[#E31B23] font-black tracking-[0.2em] uppercase text-xs mb-4">Credentials</p>
-          <h2 className="text-4xl lg:text-5xl font-serif text-[#0E2356] mb-6 block">Certifications</h2>
-          <div className="w-24 h-1 bg-gradient-to-r from-[#E31B23] to-[#0E2356] mx-auto" />
+          <p className="text-[#E31B23] font-black tracking-[0.2em] uppercase text-xs mb-4">Expertise & Reliability</p>
+          <h2 className="text-4xl lg:text-5xl font-bold text-[#0E2356] mb-6">Agent Professional Status</h2>
+          <p className="text-gray-600 text-lg font-medium max-w-2xl mx-auto mb-8">
+            Certified expertise to ensure a smooth and worry-free car buying journey.
+          </p>
+          <div className="w-24 h-1 bg-[#E31B23] mx-auto" />
         </motion.div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">

@@ -3,8 +3,8 @@
 import React, { useMemo } from 'react';
 import Navigation from '@/components/portfolio/Navigation';
 import HeroSection from '@/components/portfolio/HeroSection';
-import SkillsSection from '@/components/portfolio/SkillsSection';
 import ProjectsSection from '@/components/portfolio/ProjectsSection';
+import CertificatesSection from '@/components/portfolio/CertificatesSection';
 import TestimonialsSection from '@/components/portfolio/TestimonialsSection';
 import ContactSection from '@/components/portfolio/ContactSection';
 import Footer from '@/components/portfolio/Footer';
@@ -21,20 +21,20 @@ export default function Home() {
   const profileRef = useMemo(() => doc(db, 'profile', 'data'), [db]);
   const { data: profileData, loading: profileLoading } = useDoc(profileRef);
 
-  const skillsQuery = useMemo(() => query(collection(db, 'skills'), orderBy('order', 'asc')), [db]);
-  const { data: skillsData, loading: skillsLoading } = useCollection(skillsQuery);
-
   const projectsQuery = useMemo(() => query(collection(db, 'projects'), orderBy('order', 'asc')), [db]);
   const { data: projectsData, loading: projectsLoading } = useCollection(projectsQuery);
+
+  const certificatesQuery = useMemo(() => query(collection(db, 'certificates'), orderBy('order', 'asc')), [db]);
+  const { data: certificatesData, loading: certificatesLoading } = useCollection(certificatesQuery);
 
   const testimonialsQuery = useMemo(() => query(collection(db, 'testimonials'), orderBy('createdAt', 'desc')), [db]);
   const { data: testimonialsData, loading: testimonialsLoading } = useCollection(testimonialsQuery);
 
-  const isLoading = profileLoading || skillsLoading || projectsLoading || testimonialsLoading;
+  const isLoading = profileLoading || projectsLoading || certificatesLoading || testimonialsLoading;
 
   const profile = profileData || defaultProfile;
-  const skills = skillsData || [];
   const projects = projectsData || [];
+  const certificates = certificatesData || [];
   const testimonials = testimonialsData || [];
 
   if (isLoading) {
@@ -53,8 +53,8 @@ export default function Home() {
         <HeroSection profile={profile} />
         {/* Inventory / Vehicles */}
         <ProjectsSection projects={projects} />
-        {/* Agent Status / Skills - Updated with pic 2 request */}
-        <SkillsSection skills={skills} />
+        {/* Agent Professional Status / Certificates */}
+        <CertificatesSection certificates={certificates} />
         <TestimonialsSection testimonials={testimonials} />
         <ContactSection profile={profile} />
       </main>
