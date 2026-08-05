@@ -60,7 +60,7 @@ export default function TestimonialsSection({ testimonials = [] }: { testimonial
   };
 
   return (
-    <section id="testimonials" className="relative py-32 bg-background overflow-hidden">
+    <section id="testimonials" className="relative py-32 bg-slate-50 overflow-hidden">
       <div className="relative max-w-[1440px] mx-auto px-6 lg:px-12 w-full">
         <div className="text-center mb-20">
           <motion.div
@@ -68,25 +68,25 @@ export default function TestimonialsSection({ testimonials = [] }: { testimonial
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <p className="text-primary font-medium tracking-widest uppercase text-sm mb-4">
+            <p className="text-[#E31B23] font-black tracking-[0.2em] uppercase text-xs mb-4">
               Feedback
             </p>
-            <h2 className="text-4xl lg:text-5xl font-bold text-white mb-4">
+            <h2 className="text-4xl lg:text-5xl font-bold text-[#0E2356] mb-4">
               What Our Clients Say
             </h2>
-            <div className="w-24 h-1 bg-primary mx-auto mb-8" />
+            <div className="w-24 h-1 bg-[#E31B23] mx-auto mb-8" />
           </motion.div>
 
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline" className="border-primary/50 text-primary hover:bg-primary hover:text-primary-foreground font-bold px-8 rounded-full">
+              <Button variant="outline" className="border-[#E31B23] text-[#E31B23] hover:bg-[#E31B23] hover:text-white font-black px-8 rounded-xl h-12 shadow-lg transition-all">
                 <Plus className="w-5 h-5 mr-2" />
                 Leave a Review
               </Button>
             </DialogTrigger>
-            <DialogContent className="bg-card border-border/50 text-white sm:max-w-md">
+            <DialogContent className="bg-white border-none text-[#0E2356] sm:max-w-md shadow-2xl">
               <DialogHeader>
-                <DialogTitle className="text-2xl font-serif">Share Your Experience</DialogTitle>
+                <DialogTitle className="text-2xl font-bold text-[#0E2356]">Share Your Experience</DialogTitle>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-6 py-4">
                 <div className="flex justify-center gap-2 mb-4">
@@ -102,8 +102,8 @@ export default function TestimonialsSection({ testimonials = [] }: { testimonial
                       <Star
                         className={`w-8 h-8 ${
                           star <= (hoverRating || rating)
-                            ? 'text-primary fill-primary'
-                            : 'text-muted-foreground/30'
+                            ? 'text-[#E31B23] fill-[#E31B23]'
+                            : 'text-gray-200'
                         }`}
                       />
                     </button>
@@ -111,42 +111,42 @@ export default function TestimonialsSection({ testimonials = [] }: { testimonial
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Full Name *</Label>
+                  <Label className="text-[#0E2356] font-bold">Full Name *</Label>
                   <Input
                     required
                     value={formData.clientName}
                     onChange={e => setFormData({ ...formData, clientName: e.target.value })}
                     placeholder="Your name"
-                    className="bg-muted border-border/50"
+                    className="bg-slate-50 border-gray-100 h-12 rounded-xl"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Company / Organization</Label>
+                  <Label className="text-[#0E2356] font-bold">Company / Organization</Label>
                   <Input
                     value={formData.company}
                     onChange={e => setFormData({ ...formData, company: e.target.value })}
                     placeholder="Company name (optional)"
-                    className="bg-muted border-border/50"
+                    className="bg-slate-50 border-gray-100 h-12 rounded-xl"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Your Message *</Label>
+                  <Label className="text-[#0E2356] font-bold">Your Message *</Label>
                   <Textarea
                     required
                     value={formData.feedback}
                     onChange={e => setFormData({ ...formData, feedback: e.target.value })}
                     placeholder="Tell others about your experience..."
                     rows={4}
-                    className="bg-muted border-border/50 resize-none"
+                    className="bg-slate-50 border-gray-100 rounded-xl resize-none p-4"
                   />
                 </div>
 
                 <Button 
                   type="submit" 
                   disabled={isSubmitting}
-                  className="w-full bg-primary text-primary-foreground h-12 font-bold"
+                  className="w-full bg-[#E31B23] hover:bg-[#c4171e] text-white h-14 font-black rounded-xl shadow-xl transition-all"
                 >
                   {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : <MessageSquare className="w-5 h-5 mr-2" />}
                   Submit Review
@@ -160,10 +160,10 @@ export default function TestimonialsSection({ testimonials = [] }: { testimonial
           <motion.div 
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
-            className="max-w-2xl mx-auto bg-card border border-white/5 rounded-3xl p-16 text-center"
+            className="max-w-2xl mx-auto bg-white border border-gray-100 rounded-3xl p-16 text-center shadow-xl"
           >
-            <Quote className="w-12 h-12 text-primary/20 mx-auto mb-6" />
-            <p className="text-muted-foreground text-lg">No reviews yet. Be the first to share your experience!</p>
+            <Quote className="w-12 h-12 text-gray-100 mx-auto mb-6" />
+            <p className="text-gray-500 text-lg font-medium italic">No reviews yet. Be the first to share your experience!</p>
           </motion.div>
         ) : (
           <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
@@ -176,30 +176,30 @@ export default function TestimonialsSection({ testimonials = [] }: { testimonial
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.1 }}
                 >
-                  <Card className="bg-card border border-white/10 rounded-2xl h-full transition-all duration-500 hover:border-primary/20 hover:shadow-[0_10px_40px_rgba(0,0,0,0.3)]">
+                  <Card className="bg-white border border-gray-100 rounded-3xl h-full transition-all duration-500 hover:border-[#E31B23]/20 showroom-shadow">
                     <CardContent className="p-8 flex flex-col h-full">
-                      <div className="flex gap-1 mb-4">
+                      <div className="flex gap-1 mb-6">
                         {[...Array(5)].map((_, i) => (
                           <Star 
                             key={i} 
-                            className={`w-4 h-4 ${i < (item.rating || 5) ? 'text-primary fill-primary' : 'text-muted'}`} 
+                            className={`w-4 h-4 ${i < (item.rating || 5) ? 'text-[#E31B23] fill-[#E31B23]' : 'text-gray-200'}`} 
                           />
                         ))}
                       </div>
-                      <p className="text-muted-foreground text-lg leading-relaxed mb-8 flex-grow">
+                      <p className="text-gray-700 text-lg leading-relaxed mb-8 flex-grow italic font-medium">
                         "{item.feedback}"
                       </p>
 
-                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+                      <div className="flex items-center gap-4 pt-6 border-t border-gray-50">
+                        <div className="w-12 h-12 rounded-2xl bg-[#0E2356] flex items-center justify-center text-white font-black text-xl shadow-lg">
                           {item.clientName.charAt(0)}
                         </div>
                         <div>
-                          <h4 className="text-white font-bold">
+                          <h4 className="text-[#0E2356] font-black tracking-tight">
                             {item.clientName}
                           </h4>
                           {item.company && (
-                            <p className="text-muted-foreground/50 text-sm">
+                            <p className="text-gray-400 text-xs font-bold uppercase tracking-widest mt-0.5">
                               {item.company}
                             </p>
                           )}

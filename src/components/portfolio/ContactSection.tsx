@@ -19,7 +19,7 @@ function SubmitButton() {
     <Button
       type="submit"
       disabled={pending}
-      className="w-full bg-primary text-primary-foreground hover:bg-primary/90 border-0 h-12 font-bold"
+      className="w-full bg-[#E31B23] text-white hover:bg-[#c4171e] h-14 font-black rounded-xl shadow-xl transition-all"
     >
       {pending ? (
         <>
@@ -61,7 +61,7 @@ export default function ContactSection({ profile }: { profile: Profile }) {
   }, [state, toast, router]);
 
   return (
-    <section id="contact" className="relative py-32 bg-background overflow-hidden">
+    <section id="contact" className="relative py-32 bg-white overflow-hidden">
       <div className="relative max-w-[1440px] mx-auto px-6 lg:px-12 z-10 w-full">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -69,14 +69,14 @@ export default function ContactSection({ profile }: { profile: Profile }) {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <p className="text-primary font-medium tracking-widest uppercase text-sm mb-4">
+          <p className="text-[#E31B23] font-black tracking-[0.2em] uppercase text-xs mb-4">
             Connect
           </p>
-          <h2 className="text-4xl lg:text-5xl font-serif text-white mb-6">
+          <h2 className="text-4xl lg:text-5xl font-bold text-[#0E2356] mb-6">
             Get In Touch
           </h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Ready to start a new project? Let's discuss your vision.
+          <p className="text-gray-600 text-lg max-w-2xl mx-auto font-medium leading-relaxed">
+            Ang iyong bagong sasakyan ay isang mensahe lang ang layo. Makipag-ugnayan sa amin ngayon.
           </p>
         </motion.div>
 
@@ -89,26 +89,26 @@ export default function ContactSection({ profile }: { profile: Profile }) {
           >
             <div className="space-y-6">
               {profile?.email && (
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <Mail className="w-5 h-5 text-primary" />
+                <div className="flex items-start gap-4 p-6 bg-slate-50 rounded-3xl border border-gray-100">
+                  <div className="w-12 h-12 rounded-2xl bg-[#0E2356] flex items-center justify-center flex-shrink-0 shadow-lg">
+                    <Mail className="w-5 h-5 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-white font-medium mb-1">Email</h3>
-                    <a href={`mailto:${profile.email}`} className="text-muted-foreground hover:text-primary transition-colors">
+                    <h3 className="text-[#0E2356] font-black text-sm uppercase tracking-wider mb-1">Email</h3>
+                    <a href={`mailto:${profile.email}`} className="text-gray-600 font-bold hover:text-[#E31B23] transition-colors break-all">
                       {profile.email}
                     </a>
                   </div>
                 </div>
               )}
               
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center flex-shrink-0">
-                  <MapPin className="w-5 h-5 text-accent" />
+              <div className="flex items-start gap-4 p-6 bg-slate-50 rounded-3xl border border-gray-100">
+                <div className="w-12 h-12 rounded-2xl bg-[#E31B23] flex items-center justify-center flex-shrink-0 shadow-lg">
+                  <MapPin className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-white font-medium mb-1">Location</h3>
-                  <p className="text-muted-foreground">Available Worldwide (Remote)</p>
+                  <h3 className="text-[#0E2356] font-black text-sm uppercase tracking-wider mb-1">Location</h3>
+                  <p className="text-gray-600 font-bold">Authorized Suzuki Sales Branch</p>
                 </div>
               </div>
             </div>
@@ -120,44 +120,45 @@ export default function ContactSection({ profile }: { profile: Profile }) {
             viewport={{ once: true }}
             className="lg:col-span-3"
           >
-            <form ref={formRef} action={formAction} className="space-y-6 bg-card border border-white/5 rounded-3xl p-8 shadow-2xl">
+            <form ref={formRef} action={formAction} className="space-y-6 bg-white border border-gray-100 rounded-3xl p-8 showroom-shadow">
               <div className="grid sm:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <Label htmlFor="firstName" className="text-muted-foreground">First Name</Label>
+                  <Label htmlFor="firstName" className="text-[#0E2356] font-black text-xs uppercase">First Name</Label>
                   <Input
                     id="firstName"
                     name="firstName"
                     required
-                    className="bg-white/5 border-white/10 text-white focus:border-primary"
+                    className="bg-slate-50 border-gray-100 h-12 rounded-xl focus:border-[#0E2356]"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="lastName" className="text-muted-foreground">Last Name</Label>
+                  <Label htmlFor="lastName" className="text-[#0E2356] font-black text-xs uppercase">Last Name</Label>
                   <Input
                     id="lastName"
                     name="lastName"
-                    className="bg-white/5 border-white/10 text-white focus:border-primary"
+                    className="bg-slate-50 border-gray-100 h-12 rounded-xl focus:border-[#0E2356]"
                   />
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-muted-foreground">Email</Label>
+                <Label htmlFor="email" className="text-[#0E2356] font-black text-xs uppercase">Email Address</Label>
                 <Input
                   id="email"
                   type="email"
                   name="email"
                   required
-                  className="bg-white/5 border-white/10 text-white focus:border-primary"
+                  className="bg-slate-50 border-gray-100 h-12 rounded-xl focus:border-[#0E2356]"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="message" className="text-muted-foreground">Message</Label>
+                <Label htmlFor="message" className="text-[#0E2356] font-black text-xs uppercase">Inquiry Message</Label>
                 <Textarea
                   id="message"
                   name="message"
                   required
                   rows={6}
-                  className="bg-white/5 border-white/10 text-white focus:border-primary resize-none"
+                  placeholder="Tell us about the vehicle you're interested in..."
+                  className="bg-slate-50 border-gray-100 h-12 rounded-xl focus:border-[#0E2356] resize-none p-4 min-h-[150px]"
                 />
               </div>
               <SubmitButton />
