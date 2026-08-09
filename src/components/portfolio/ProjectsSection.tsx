@@ -4,7 +4,7 @@ import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { X, Star, Car, Info } from 'lucide-react';
+import { X, Star, Car, ExternalLink, MessageSquare } from 'lucide-react';
 import type { Project } from '@/lib/types';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
@@ -19,7 +19,6 @@ export default function ProjectsSection({ projects = [] }: { projects: Project[]
     return ['ALL', ...uniqueCategories];
   }, [projects]);
 
-  // Use all projects but ensure they fit the new car focus
   const displayProjects = projects.length > 0 ? projects : [];
 
   const filteredProjects = activeCategory === 'ALL' 
@@ -31,6 +30,15 @@ export default function ProjectsSection({ projects = [] }: { projects: Project[]
     if (!a.featured && b.featured) return 1;
     return (a.order || 0) - (b.order || 0);
   });
+
+  const handleInquiryLink = (url: string | undefined) => {
+    if (url && url !== '#') {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    } else {
+      document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth' });
+    }
+    setSelectedProject(null);
+  };
 
   return (
     <section id="projects" className="relative py-24 bg-white">
@@ -53,7 +61,6 @@ export default function ProjectsSection({ projects = [] }: { projects: Project[]
           <div className="w-16 h-1 bg-[#E31B23] mx-auto rounded-full" />
         </motion.div>
 
-        {/* Pill Filters */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -105,7 +112,6 @@ export default function ProjectsSection({ projects = [] }: { projects: Project[]
                         </div>
                       )}
                       
-                      {/* Floating Category Badge */}
                       <div className="absolute top-4 left-4 z-10">
                         <Badge className="bg-[#0E2356] text-white border-0 px-3 py-1 text-[9px] font-black uppercase tracking-widest rounded-lg">
                           {project.category}
@@ -178,30 +184,58 @@ export default function ProjectsSection({ projects = [] }: { projects: Project[]
                     className="object-cover"
                   />
                 </div>
-                <div className="lg:w-1/2 p-8 lg:p-12">
-                  <Badge className="bg-[#E31B23] mb-4 text-[10px] font-black uppercase tracking-widest">{selectedProject.category}</Badge>
-                  <h2 className="text-3xl lg:text-4xl font-serif text-[#0E2356] mb-6 leading-tight">{selectedProject.title}</h2>
-                  <p className="text-gray-500 mb-8 leading-relaxed font-medium">{selectedProject.description}</p>
+                <div className="lg:w-1/2 p-8 lg:p-12 relative flex flex-col justify-center">
+                  <div className="mb-6">
+                    <Badge className="bg-[#E31B23] mb-4 text-[10px] font-black uppercase tracking-widest">{selectedProject.category}</Badge>
+                    <h2 className="text-3xl lg:text-4xl font-black text-[#0E2356] mb-4 leading-tight uppercase tracking-tighter">
+                      {selectedProject.title}
+                    </h2>
+                    <p className="text-gray-500 text-sm leading-relaxed font-medium mb-8">
+                      {selectedProject.description}
+                    </p>
+                  </div>
                   
-                  <div className="space-y-6">
+                  <div className="space-y-8">
                     <div>
-                      <h4 className="text-[10px] font-black text-gray-300 uppercase tracking-[0.2em] mb-4">Unit Specifications</h4>
+                      <h4 className="text-[9px] font-black text-gray-300 uppercase tracking-[0.3em] mb-4">Unit Specifications</h4>
                       <div className="flex flex-wrap gap-2">
                         {selectedProject.tech_stack?.map((tech, i) => (
-                          <Badge key={i} variant="secondary" className="bg-slate-50 border-gray-100 text-[#0E2356] px-4 py-1.5 rounded-lg text-[11px] font-bold">
+                          <Badge key={i} variant="secondary" className="bg-slate-50 border-gray-100 text-[#0E2356] px-4 py-1.5 rounded-lg text-[10px] font-black uppercase">
                             {tech}
                           </Badge>
                         ))}
                       </div>
                     </div>
 
-                    <div className="flex gap-4 pt-6">
-                      <Button className="flex-1 bg-[#E31B23] hover:bg-[#c4171e] text-white font-black h-14 rounded-2xl shadow-xl shadow-red-100 text-sm tracking-widest" asChild>
-                         <a href="#contact" onClick={() => setSelectedProject(null)}>BOOK RESERVATION</a>
+                    <div className="space-y-3 pt-4">
+                      <Button 
+                        className="w-full bg-[#E31B23] hover:bg-[#c4171e] text-white font-black h-16 rounded-2xl shadow-xl shadow-red-100 text-sm tracking-widest group"
+                        onClick={() => handleInquiryLink(selectedProject.live_demo_url)}
+                      >
+                        PROCEED TO INQUIRY FORM
+                        <ExternalLink className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
                       </Button>
-                      <Button variant="outline" className="h-14 w-14 rounded-2xl border-gray-100 text-gray-400 hover:text-[#E31B23]" onClick={() => setSelectedProject(null)}>
-                        <X className="w-6 h-6" />
-                      </Button>
+                      
+                      <div className="flex gap-3">
+                        <Button 
+                          variant="outline" 
+                          className="flex-1 h-14 rounded-2xl border-gray-200 text-[#0E2356] font-black text-[11px] tracking-widest hover:bg-slate-50"
+                          onClick={() => {
+                            setSelectedProject(null);
+                            document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth' });
+                          }}
+                        >
+                          <MessageSquare className="w-4 h-4 mr-2" />
+                          MESSAGE DIRECTLY
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          className="h-14 w-14 rounded-2xl border-gray-200 text-gray-400 hover:text-[#E31B23]" 
+                          onClick={() => setSelectedProject(null)}
+                        >
+                          <X className="w-6 h-6" />
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </div>
