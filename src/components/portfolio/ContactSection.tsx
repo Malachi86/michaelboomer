@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Send, Mail, MapPin, Loader2 } from 'lucide-react';
+import { Send, Mail, MapPin, Loader2, Facebook, Linkedin, MessageCircle } from 'lucide-react';
 import type { Profile } from '@/lib/types';
 import { submitContactForm } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
@@ -19,7 +19,7 @@ function SubmitButton() {
     <Button
       type="submit"
       disabled={pending}
-      className="w-full bg-[#E31B23] text-white hover:bg-[#c4171e] h-14 font-black rounded-xl shadow-xl transition-all"
+      className="w-full bg-[#E31B23] text-white hover:bg-[#c4171e] h-14 font-black rounded-xl shadow-xl transition-all uppercase tracking-widest text-xs"
     >
       {pending ? (
         <>
@@ -35,6 +35,18 @@ function SubmitButton() {
     </Button>
   );
 }
+
+const ContactInfoCard = ({ icon: Icon, label, value, color, bgColor }: { icon: any, label: string, value: string, color: string, bgColor: string }) => (
+  <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl border border-gray-100/50 shadow-sm hover:shadow-md transition-shadow">
+    <div className={`w-12 h-12 rounded-xl ${bgColor} flex items-center justify-center flex-shrink-0 shadow-sm`}>
+      <Icon className={`w-6 h-6 ${color}`} />
+    </div>
+    <div className="min-w-0">
+      <h3 className="text-gray-400 font-black text-[10px] uppercase tracking-widest mb-0.5">{label}</h3>
+      <p className="text-[#0E2356] font-bold text-sm truncate">{value}</p>
+    </div>
+  </div>
+);
 
 export default function ContactSection({ profile }: { profile: Profile }) {
   const { toast } = useToast();
@@ -69,98 +81,103 @@ export default function ContactSection({ profile }: { profile: Profile }) {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <p className="text-[#E31B23] font-black tracking-[0.2em] uppercase text-xs mb-4">
-            Connect
-          </p>
-          <h2 className="text-4xl lg:text-5xl font-bold text-[#0E2356] mb-6">
+          <h2 className="text-5xl lg:text-7xl font-serif text-[#0E2356] mb-6">
             Get In Touch
           </h2>
-          <p className="text-gray-600 text-lg max-w-2xl mx-auto font-medium leading-relaxed">
+          <p className="text-gray-400 text-lg max-w-2xl mx-auto font-medium leading-relaxed mb-6">
             Ang iyong bagong sasakyan ay isang mensahe lang ang layo. Makipag-ugnayan sa amin ngayon.
           </p>
+          <div className="w-12 h-1 bg-[#E31B23] mx-auto rounded-full" />
         </motion.div>
 
-        <div className="grid lg:grid-cols-5 gap-12 max-w-6xl mx-auto">
+        <div className="grid lg:grid-cols-2 gap-12 max-w-6xl mx-auto items-start">
+          {/* Left Column: Contact Cards */}
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            className="lg:col-span-2 space-y-8"
+            className="space-y-4"
           >
-            <div className="space-y-6">
-              {profile?.email && (
-                <div className="flex items-start gap-4 p-6 bg-slate-50 rounded-3xl border border-gray-100">
-                  <div className="w-12 h-12 rounded-2xl bg-[#0E2356] flex items-center justify-center flex-shrink-0 shadow-lg">
-                    <Mail className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="text-[#0E2356] font-black text-sm uppercase tracking-wider mb-1">Email</h3>
-                    <a href={`mailto:${profile.email}`} className="text-gray-600 font-bold hover:text-[#E31B23] transition-colors break-all">
-                      {profile.email}
-                    </a>
-                  </div>
-                </div>
-              )}
-              
-              <div className="flex items-start gap-4 p-6 bg-slate-50 rounded-3xl border border-gray-100">
-                <div className="w-12 h-12 rounded-2xl bg-[#E31B23] flex items-center justify-center flex-shrink-0 shadow-lg">
-                  <MapPin className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <h3 className="text-[#0E2356] font-black text-sm uppercase tracking-wider mb-1">Location</h3>
-                  <p className="text-gray-600 font-bold">Authorized Suzuki Sales Branch</p>
-                </div>
-              </div>
-            </div>
+            <ContactInfoCard 
+              icon={Mail} 
+              label="Gmail" 
+              value={profile?.email || "orozcomarvinpaul@gmail.com"} 
+              color="text-white" 
+              bgColor="bg-[#EA4335]" 
+            />
+            <ContactInfoCard 
+              icon={Facebook} 
+              label="Facebook" 
+              value="fb.com/marvinpaul.orozco" 
+              color="text-white" 
+              bgColor="bg-[#1877F2]" 
+            />
+            <ContactInfoCard 
+              icon={MessageCircle} 
+              label="Viber" 
+              value="+63 9XX XXX XXXX" 
+              color="text-white" 
+              bgColor="bg-[#7360F2]" 
+            />
+            <ContactInfoCard 
+              icon={Linkedin} 
+              label="Linkedin" 
+              value="linkedin.com/in/marvinpaulorozco" 
+              color="text-white" 
+              bgColor="bg-[#0A66C2]" 
+            />
+            <ContactInfoCard 
+              icon={MapPin} 
+              label="Location" 
+              value="Authorized Suzuki Sales Branch" 
+              color="text-white" 
+              bgColor="bg-[#E31B23]" 
+            />
           </motion.div>
 
+          {/* Right Column: Inquiry Form */}
           <motion.div
             initial={{ opacity: 0, x: 30 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            className="lg:col-span-3"
           >
-            <form ref={formRef} action={formAction} className="space-y-6 bg-white border border-gray-100 rounded-3xl p-8 showroom-shadow">
+            <form ref={formRef} action={formAction} className="space-y-6 bg-white border border-gray-100/50 rounded-[40px] p-10 shadow-2xl shadow-slate-200/50">
               <div className="grid sm:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <Label htmlFor="firstName" className="text-[#0E2356] font-black text-xs uppercase">First Name</Label>
+                  <Label htmlFor="firstName" className="text-[#0E2356] font-black text-[10px] uppercase tracking-[0.15em]">Full Name</Label>
                   <Input
                     id="firstName"
                     name="firstName"
+                    placeholder="Juan dela Cruz"
                     required
-                    className="bg-slate-50 border-gray-100 h-12 rounded-xl focus:border-[#0E2356]"
+                    className="bg-slate-50 border-gray-100 h-14 rounded-xl focus:border-[#0E2356] placeholder:text-gray-300"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="lastName" className="text-[#0E2356] font-black text-xs uppercase">Last Name</Label>
+                  <Label htmlFor="email" className="text-[#0E2356] font-black text-[10px] uppercase tracking-[0.15em]">Email Address</Label>
                   <Input
-                    id="lastName"
-                    name="lastName"
-                    className="bg-slate-50 border-gray-100 h-12 rounded-xl focus:border-[#0E2356]"
+                    id="email"
+                    type="email"
+                    name="email"
+                    placeholder="juan@email.com"
+                    required
+                    className="bg-slate-50 border-gray-100 h-14 rounded-xl focus:border-[#0E2356] placeholder:text-gray-300"
                   />
                 </div>
               </div>
+              
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-[#0E2356] font-black text-xs uppercase">Email Address</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  name="email"
-                  required
-                  className="bg-slate-50 border-gray-100 h-12 rounded-xl focus:border-[#0E2356]"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="message" className="text-[#0E2356] font-black text-xs uppercase">Inquiry Message</Label>
+                <Label htmlFor="message" className="text-[#0E2356] font-black text-[10px] uppercase tracking-[0.15em]">Inquiry Message</Label>
                 <Textarea
                   id="message"
                   name="message"
                   required
                   rows={6}
                   placeholder="Tell us about the vehicle you're interested in..."
-                  className="bg-slate-50 border-gray-100 h-12 rounded-xl focus:border-[#0E2356] resize-none p-4 min-h-[150px]"
+                  className="bg-slate-50 border-gray-100 rounded-xl focus:border-[#0E2356] resize-none p-4 min-h-[160px] placeholder:text-gray-300"
                 />
               </div>
+              
               <SubmitButton />
             </form>
           </motion.div>

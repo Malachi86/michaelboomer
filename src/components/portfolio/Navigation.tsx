@@ -47,7 +47,7 @@ export default function Navigation({ profile }: { profile: Profile }) {
         animate={{ y: 0 }}
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           isScrolled 
-            ? 'bg-white/80 backdrop-blur-md py-3 shadow-sm' 
+            ? 'bg-white/90 backdrop-blur-md py-3 shadow-sm' 
             : 'bg-white/50 py-5'
         }`}
       >
@@ -77,13 +77,15 @@ export default function Navigation({ profile }: { profile: Profile }) {
                   key={item.label}
                   href={item.href}
                   onClick={(e) => { e.preventDefault(); scrollTo(item.href); }}
-                  className="text-[#0E2356] hover:text-[#E31B23] transition-colors font-bold text-[11px] tracking-widest"
+                  className={`transition-colors font-bold text-[11px] tracking-widest ${
+                    item.label === 'CONTACT' ? 'text-[#E31B23]' : 'text-[#0E2356] hover:text-[#E31B23]'
+                  }`}
                 >
                   {item.label}
                 </a>
               ))}
               <Button
-                className="bg-[#0E2356] text-white hover:bg-[#1a2f6b] font-bold px-6 h-10 rounded-md text-[11px] uppercase tracking-widest shadow-lg"
+                className="bg-[#0E2356] text-white hover:bg-[#1a2f6b] font-bold px-6 h-10 rounded-md text-[10px] uppercase tracking-widest shadow-lg"
                 onClick={() => scrollTo('#contact')}
               >
                 BOOK CONSULTATION
@@ -129,7 +131,9 @@ export default function Navigation({ profile }: { profile: Profile }) {
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.1 }}
-                    className="text-2xl text-[#0E2356] font-black uppercase tracking-tighter py-4 border-b border-gray-50 flex items-center justify-between"
+                    className={`text-2xl font-black uppercase tracking-tighter py-4 border-b border-gray-50 flex items-center justify-between ${
+                      item.label === 'CONTACT' ? 'text-[#E31B23]' : 'text-[#0E2356]'
+                    }`}
                   >
                     {item.label}
                     <ChevronRight className="w-6 h-6 text-[#E31B23]" />
