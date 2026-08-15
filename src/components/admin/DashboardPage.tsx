@@ -26,7 +26,7 @@ export function DashboardPage() {
   if (loading) return (
     <div className="flex flex-col items-center justify-center h-[60vh] gap-4">
       <Loader2 className="w-10 h-10 animate-spin text-[#E31B23]" />
-      <p className="text-[#0E2356] font-black tracking-widest text-[10px] uppercase animate-pulse">Initializing Showroom Console...</p>
+      <p className="text-[#0E2356] font-black tracking-widest text-[10px] uppercase animate-pulse">Initializing Console...</p>
     </div>
   );
 
@@ -44,7 +44,7 @@ export function DashboardPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-4xl font-black text-[#0E2356] tracking-tighter mb-2 uppercase">Sales Dashboard</h1>
-          <p className="text-gray-400 font-medium">Manage your Suzuki inventory and buyer inquiries.</p>
+          <p className="text-gray-400 font-medium">Real-time overview of your Suzuki business operations.</p>
         </div>
       </div>
 
@@ -69,9 +69,9 @@ export function DashboardPage() {
         <Card className="bg-white border-none shadow-xl shadow-slate-200/50 rounded-[32px] overflow-hidden">
           <CardHeader className="bg-[#0E2356] p-8"><CardTitle className="text-white text-lg font-black tracking-tight uppercase">Quick Actions</CardTitle></CardHeader>
           <CardContent className="p-8 flex flex-col gap-4">
-            <Button variant="outline" className="justify-start h-14 border-gray-100 text-[#0E2356] font-black text-[11px] tracking-widest uppercase hover:bg-red-50 hover:text-[#E31B23] rounded-2xl" asChild><Link href="/admin/profile"><User className="mr-3 h-4 w-4" />Update Profile</Link></Button>
+            <Button variant="outline" className="justify-start h-14 border-gray-100 text-[#0E2356] font-black text-[11px] tracking-widest uppercase hover:bg-red-50 hover:text-[#E31B23] rounded-2xl" asChild><Link href="/admin/profile"><User className="mr-3 h-4 w-4" />Update Agent Profile</Link></Button>
             <Button variant="outline" className="justify-start h-14 border-gray-100 text-[#0E2356] font-black text-[11px] tracking-widest uppercase hover:bg-red-50 hover:text-[#E31B23] rounded-2xl" asChild><Link href="/admin/projects"><Car className="mr-3 h-4 w-4" />Add New Vehicle</Link></Button>
-            <Button variant="outline" className="justify-start h-14 border-gray-100 text-[#0E2356] font-black text-[11px] tracking-widest uppercase hover:bg-red-50 hover:text-[#E31B23] rounded-2xl" asChild><Link href="/admin/certificates"><Award className="mr-3 h-4 w-4" />Post Turnover</Link></Button>
+            <Button variant="outline" className="justify-start h-14 border-gray-100 text-[#0E2356] font-black text-[11px] tracking-widest uppercase hover:bg-red-50 hover:text-[#E31B23] rounded-2xl" asChild><Link href="/admin/certificates"><Award className="mr-3 h-4 w-4" />Post Happy Buyer</Link></Button>
           </CardContent>
         </Card>
 
@@ -79,7 +79,7 @@ export function DashboardPage() {
           <CardHeader className="flex flex-row items-center justify-between p-8 border-b border-gray-50">
             <CardTitle className="text-[#0E2356] text-lg font-black tracking-tight uppercase flex items-center gap-3">
               <MessageSquare className="h-5 w-5 text-[#E31B23]" />
-              Recent Inquiries
+              Recent leads
             </CardTitle>
             <Link href="/admin/messages" className="text-[10px] font-black text-[#E31B23] hover:underline uppercase tracking-widest">View All Leads</Link>
           </CardHeader>

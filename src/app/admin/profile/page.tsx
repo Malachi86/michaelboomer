@@ -66,30 +66,25 @@ export default function AdminProfilePage() {
 
     setIsUploading(true);
     try {
-      // Create a unique file path in Firebase Storage
       const fileExtension = file.name.split('.').pop();
       const fileName = `profile-${Date.now()}.${fileExtension}`;
       const storageRef = ref(storage, `uploads/profile/${fileName}`);
       
-      // Upload the file
       await uploadBytes(storageRef, file);
-      
-      // Get the download URL
       const downloadURL = await getDownloadURL(storageRef);
 
       const updatedProfile = { ...profile, profile_image: downloadURL };
       setProfile(updatedProfile);
       
-      // Auto-save the image path to the database
       await updateProfile(updatedProfile);
       
       toast({ 
         title: 'Success', 
-        description: 'Profile picture uploaded and saved to database successfully!' 
+        description: 'Profile picture uploaded and saved!' 
       });
     } catch (error: any) {
       console.error('Upload error:', error);
-      toast({ variant: 'destructive', title: 'Error', description: error.message || 'Failed to upload image to Firebase Storage.' });
+      toast({ variant: 'destructive', title: 'Error', description: error.message || 'Failed to upload image.' });
     } finally {
       setIsUploading(false);
     }
@@ -115,8 +110,8 @@ export default function AdminProfilePage() {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center h-[60vh] gap-4">
-        <Loader2 className="w-10 h-10 animate-spin text-primary" />
-        <p className="text-muted-foreground text-sm">Loading profile data...</p>
+        <Loader2 className="w-10 h-10 animate-spin text-[#E31B23]" />
+        <p className="text-[#0E2356] text-sm font-bold uppercase tracking-widest">Loading Profile...</p>
       </div>
     );
   }
@@ -128,32 +123,32 @@ export default function AdminProfilePage() {
           <motion.h1 
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-3xl font-bold text-white mb-2"
+            className="text-4xl font-black text-[#0E2356] tracking-tighter mb-2 uppercase"
           >
-            Profile Settings
+            Agent Profile
           </motion.h1>
-          <p className="text-muted-foreground">Manage your personal information</p>
+          <p className="text-gray-400 font-medium">Manage your personal and professional information</p>
         </div>
         <Button 
           onClick={handleSave}
           disabled={isSaving || isUploading}
-          className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground"
+          className="bg-[#E31B23] hover:bg-[#c4171e] text-white font-black px-8 h-12 rounded-xl shadow-lg uppercase tracking-widest text-xs"
         >
           {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
           Save Changes
         </Button>
       </div>
 
-      <div className="space-y-6">
+      <div className="space-y-8">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-          <Card className="bg-card border-border/50 text-white">
-            <CardHeader>
-              <CardTitle>Profile Photo</CardTitle>
-              <CardDescription>This will be displayed on your portfolio hero section. Uploading a new photo will auto-save it to the database.</CardDescription>
+          <Card className="bg-white border-none shadow-xl shadow-slate-200/50 rounded-[32px] overflow-hidden">
+            <CardHeader className="p-8">
+              <CardTitle className="text-[#0E2356] font-black uppercase tracking-tight text-xl">Profile Photo</CardTitle>
+              <CardDescription className="text-gray-400 font-medium">This will be displayed on your showroom hero section.</CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-6">
-                <div className="relative w-32 h-32 rounded-full overflow-hidden bg-muted border-2 border-border shadow-inner">
+            <CardContent className="p-8 pt-0">
+              <div className="flex items-center gap-8">
+                <div className="relative w-32 h-32 rounded-[24px] overflow-hidden bg-slate-50 border-4 border-white shadow-xl">
                   {profile.profile_image ? (
                     <Image 
                       src={profile.profile_image} 
@@ -163,13 +158,13 @@ export default function AdminProfilePage() {
                       className="object-cover" 
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                    <div className="w-full h-full flex items-center justify-center text-slate-200">
                       <Plus className="w-8 h-8" />
                     </div>
                   )}
                   {isUploading && (
-                    <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
-                      <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                    <div className="absolute inset-0 bg-[#0E2356]/60 flex items-center justify-center">
+                      <Loader2 className="w-8 h-8 animate-spin text-white" />
                     </div>
                   )}
                 </div>
@@ -183,14 +178,14 @@ export default function AdminProfilePage() {
                     disabled={isUploading}
                   />
                   <Label htmlFor="profile-upload">
-                    <Button variant="outline" className="border-border/50 text-muted-foreground hover:text-white" asChild disabled={isUploading}>
+                    <Button variant="outline" className="h-12 border-gray-100 text-[#0E2356] font-black text-[10px] tracking-widest uppercase rounded-xl" asChild disabled={isUploading}>
                       <span>
                         {isUploading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}
-                        Upload Photo
+                        Upload New Photo
                       </span>
                     </Button>
                   </Label>
-                  <p className="text-muted-foreground text-xs mt-2 opacity-70">Recommended: Square image (400x400px)</p>
+                  <p className="text-gray-400 text-[10px] mt-2 font-bold uppercase tracking-widest opacity-60">Recommended: Square image (400x400px)</p>
                 </div>
               </div>
             </CardContent>
@@ -198,77 +193,79 @@ export default function AdminProfilePage() {
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-            <Card className="bg-card border-border/50 text-white">
-                <CardHeader><CardTitle>Basic Information</CardTitle></CardHeader>
-                <CardContent className="space-y-4">
-                    <div className="grid md:grid-cols-2 gap-4">
+            <Card className="bg-white border-none shadow-xl shadow-slate-200/50 rounded-[32px] overflow-hidden text-[#0E2356]">
+                <CardHeader className="p-8"><CardTitle className="font-black uppercase tracking-tight text-xl">Basic Information</CardTitle></CardHeader>
+                <CardContent className="p-8 pt-0 space-y-6">
+                    <div className="grid md:grid-cols-2 gap-6">
                         <div className="space-y-2">
-                            <Label>Full Name</Label>
-                            <Input value={profile.full_name} onChange={(e) => setProfile({...profile, full_name: e.target.value})} placeholder="Ex: Marvin Paul Orozco" className="bg-muted border-border/50"/>
+                            <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Full Name</Label>
+                            <Input value={profile.full_name} onChange={(e) => setProfile({...profile, full_name: e.target.value})} placeholder="Marvin Paul Orozco" className="h-12 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356]"/>
                         </div>
                         <div className="space-y-2">
-                            <Label>Email</Label>
-                            <Input type="email" value={profile.email} onChange={(e) => setProfile({...profile, email: e.target.value})} className="bg-muted border-border/50"/>
-                        </div>
-                    </div>
-                    <div className="grid md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <Label>Title</Label>
-                            <Input value={profile.title} onChange={(e) => setProfile({...profile, title: e.target.value})} placeholder="Ex: Web Developer & VA" className="bg-muted border-border/50"/>
-                        </div>
-                        <div className="space-y-2">
-                            <Label>Subtitle</Label>
-                            <Input value={profile.subtitle} onChange={(e) => setProfile({...profile, subtitle: e.target.value})} placeholder="Ex: Fullstack Developer" className="bg-muted border-border/50"/>
+                            <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Email Address</Label>
+                            <Input type="email" value={profile.email} onChange={(e) => setProfile({...profile, email: e.target.value})} className="h-12 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356]"/>
                         </div>
                     </div>
-                    <div className="space-y-2">
-                        <Label>Bio</Label>
-                        <Textarea value={profile.bio} onChange={(e) => setProfile({...profile, bio: e.target.value})} placeholder="Tell something about yourself..." rows={6} className="bg-muted border-border/50 resize-none"/>
+                    <div className="grid md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                            <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Main Title</Label>
+                            <Input value={profile.title} onChange={(e) => setProfile({...profile, title: e.target.value})} placeholder="Authorized Suzuki Executive" className="h-12 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356]"/>
+                        </div>
+                        <div className="space-y-2">
+                            <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Subtitle</Label>
+                            <Input value={profile.subtitle} onChange={(e) => setProfile({...profile, subtitle: e.target.value})} placeholder="Sales Consultant" className="h-12 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356]"/>
+                        </div>
                     </div>
                     <div className="space-y-2">
-                        <Label>Resume URL (Canva, Google Drive, etc.)</Label>
-                        <Input value={profile.resume_url} onChange={(e) => setProfile({...profile, resume_url: e.target.value})} placeholder="https://..." className="bg-muted border-border/50"/>
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Professional Bio</Label>
+                        <Textarea value={profile.bio} onChange={(e) => setProfile({...profile, bio: e.target.value})} placeholder="Tell your clients about your expertise..." rows={6} className="bg-slate-50 border-gray-100 rounded-xl resize-none p-4 font-bold text-[#0E2356] leading-relaxed"/>
+                    </div>
+                    <div className="space-y-2">
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Resume/Credential URL</Label>
+                        <Input value={profile.resume_url} onChange={(e) => setProfile({...profile, resume_url: e.target.value})} placeholder="https://..." className="h-12 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356]"/>
                     </div>
                 </CardContent>
             </Card>
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-            <Card className="bg-card border-border/50 text-white">
-                <CardHeader className="flex flex-row items-center justify-between">
+            <Card className="bg-white border-none shadow-xl shadow-slate-200/50 rounded-[32px] overflow-hidden text-[#0E2356]">
+                <CardHeader className="p-8 flex flex-row items-center justify-between">
                     <div>
-                        <CardTitle>Social Links</CardTitle>
-                        <CardDescription>Add links to your social profiles</CardDescription>
+                        <CardTitle className="font-black uppercase tracking-tight text-xl">Social Links</CardTitle>
+                        <CardDescription className="text-gray-400 font-medium">Links for client communication</CardDescription>
                     </div>
-                    <Button variant="outline" size="sm" className="border-border/50" onClick={addSocialLink}><Plus className="w-4 h-4 mr-2" />Add Link</Button>
+                    <Button variant="outline" size="sm" className="h-10 border-gray-100 rounded-xl font-black text-[10px] uppercase tracking-widest text-[#0E2356] hover:bg-slate-50" onClick={addSocialLink}><Plus className="w-4 h-4 mr-2" />Add Link</Button>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="p-8 pt-0 space-y-4">
                 {profile.social_links?.length === 0 ? (
-                    <p className="text-muted-foreground text-center py-8">No social links added yet</p>
+                    <div className="text-center py-10 bg-slate-50 rounded-[24px] border-2 border-dashed border-slate-100">
+                      <p className="text-gray-400 font-bold uppercase tracking-widest text-[10px]">No links added yet</p>
+                    </div>
                 ) : (
                     profile.social_links.map((link, index) => (
-                      <div key={index} className="flex items-center gap-4 p-4 bg-muted/30 rounded-xl border border-white/5">
+                      <div key={index} className="flex items-center gap-4 p-5 bg-slate-50 rounded-[20px] border border-slate-100">
                         <div className="flex-1 grid md:grid-cols-2 gap-4">
                           <Input
                             value={link.platform}
                             onChange={(e) => updateSocialLink(index, 'platform', e.target.value)}
-                            placeholder="Platform (github, linkedin, etc.)"
-                            className="bg-muted border-border/50 text-white"
+                            placeholder="Platform (e.g. Facebook)"
+                            className="h-12 bg-white border-gray-100 rounded-xl font-bold text-[#0E2356]"
                           />
                           <Input
                             value={link.url}
                             onChange={(e) => updateSocialLink(index, 'url', e.target.value)}
                             placeholder="Full URL (https://...)"
-                            className="bg-muted border-border/50 text-white"
+                            className="h-12 bg-white border-gray-100 rounded-xl font-bold text-[#0E2356]"
                           />
                         </div>
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                          className="text-red-500 hover:text-red-700 hover:bg-red-50 rounded-xl"
                           onClick={() => removeSocialLink(index)}
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Trash2 className="w-5 h-5" />
                         </Button>
                       </div>
                     ))
