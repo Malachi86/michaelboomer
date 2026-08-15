@@ -129,34 +129,37 @@ export function AdminCertificatesPage() {
     };
 
     if (isLoading) {
-        return <div className="flex items-center justify-center h-full"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+        return <div className="flex flex-col items-center justify-center h-[60vh] gap-4">
+          <Loader2 className="w-10 h-10 animate-spin text-[#E31B23]" />
+          <p className="text-[#0E2356] text-sm font-bold uppercase tracking-widest">Loading Records...</p>
+        </div>;
     }
 
     return (
         <>
-            <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center justify-between mb-12">
                 <div>
                     <motion.h1 
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="text-3xl font-bold text-white mb-2"
+                    className="text-4xl font-black text-[#0E2356] tracking-tighter mb-2 uppercase"
                     >
-                    Certificates
+                    Happy Clients
                     </motion.h1>
-                    <p className="text-muted-foreground">Manage your professional credentials</p>
+                    <p className="text-gray-400 font-medium italic">Showcase your successful turnovers and credentials.</p>
                 </div>
                 <Button 
                     onClick={openCreateDialog}
-                    className="bg-gradient-to-r from-primary to-accent text-primary-foreground"
+                    className="bg-[#E31B23] hover:bg-[#c4171e] text-white font-black h-14 px-8 rounded-2xl shadow-xl shadow-red-100 uppercase tracking-widest text-xs"
                 >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add Certificate
+                    <Plus className="w-5 h-5 mr-2" />
+                    Add New Record
                 </Button>
             </div>
             
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                 <AnimatePresence>
-                  {certificates.sort((a, b) => a.order - b.order).map((cert, index) => (
+                  {certificates.sort((a, b) => (a.order || 0) - (b.order || 0)).map((cert, index) => (
                     <motion.div
                       key={cert.id}
                       layout
@@ -165,30 +168,30 @@ export function AdminCertificatesPage() {
                       exit={{ opacity: 0, scale: 0.9 }}
                       transition={{ delay: index * 0.05 }}
                     >
-                      <Card className="bg-card border-border/50 overflow-hidden group">
-                        <div className="relative aspect-[4/3] bg-muted overflow-hidden">
+                      <Card className="bg-white border-none shadow-xl shadow-slate-200/50 overflow-hidden group rounded-[32px] hover:shadow-red-50 transition-all border-2 border-transparent hover:border-red-100">
+                        <div className="relative aspect-[4/3] bg-slate-50 overflow-hidden">
                           {cert.imageUrl ? (
                             <div className="w-full h-full relative" style={{ transform: `rotate(${cert.rotation || 0}deg)` }}>
-                                <Image src={cert.imageUrl} alt={cert.title} fill unoptimized className="object-contain" />
+                                <Image src={cert.imageUrl} alt={cert.title} fill unoptimized className="object-contain p-4" />
                             </div>
                           ) : (
-                            <div className="w-full h-full flex items-center justify-center text-muted-foreground/50">
+                            <div className="w-full h-full flex items-center justify-center text-slate-200">
                               <Award className="w-12 h-12" />
                             </div>
                           )}
-                          <div className="absolute inset-0 bg-background/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
-                            <Button size="icon" variant="outline" onClick={() => openEditDialog(cert)}>
+                          <div className="absolute inset-0 bg-[#0E2356]/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4 backdrop-blur-sm">
+                            <Button size="icon" className="bg-white text-[#0E2356] hover:bg-[#E31B23] hover:text-white rounded-xl shadow-xl" onClick={() => openEditDialog(cert)}>
                               <Edit2 className="w-4 h-4" />
                             </Button>
-                            <Button size="icon" variant="outline" className="border-destructive text-destructive hover:bg-destructive/10" onClick={() => handleDelete(cert.id)}>
+                            <Button size="icon" className="bg-white text-[#E31B23] hover:bg-red-600 hover:text-white rounded-xl shadow-xl" onClick={() => handleDelete(cert.id)}>
                               <Trash2 className="w-4 h-4" />
                             </Button>
                           </div>
                         </div>
-                        <CardContent className="p-4">
-                          <h3 className="text-white font-bold truncate">{cert.title}</h3>
-                          <p className="text-primary text-sm font-medium">{cert.issuer}</p>
-                          <p className="text-muted-foreground text-xs mt-1">{cert.issueDate}</p>
+                        <CardContent className="p-6">
+                          <h3 className="text-[#0E2356] font-black uppercase text-sm mb-1 truncate">{cert.title}</h3>
+                          <p className="text-[#E31B23] text-[10px] font-black uppercase tracking-widest">{cert.issuer}</p>
+                          <p className="text-gray-400 text-[10px] mt-2 font-bold uppercase">{cert.issueDate}</p>
                         </CardContent>
                       </Card>
                     </motion.div>
@@ -197,76 +200,80 @@ export function AdminCertificatesPage() {
             </div>
 
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogContent className="bg-card border-border/50 text-white max-w-md max-h-[90vh] overflow-y-auto">
+                <DialogContent className="bg-white border-none text-[#0E2356] max-w-md max-h-[90vh] overflow-y-auto rounded-[40px] shadow-2xl p-10">
                 <DialogHeader>
-                    <DialogTitle>{editingCert ? 'Edit Certificate' : 'Add Certificate'}</DialogTitle>
+                    <DialogTitle className="text-2xl font-black uppercase tracking-tighter text-[#0E2356]">
+                      {editingCert ? 'Edit Certificate' : 'Add New Record'}
+                    </DialogTitle>
                 </DialogHeader>
-                <div className="space-y-6 py-4">
+                <div className="space-y-6 py-6">
                     <div className="space-y-4">
-                        <Label>Certificate Image</Label>
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Record Image</Label>
                         <div className="flex flex-col gap-4">
                             <div className="flex items-center gap-4">
-                                <div className="relative w-24 h-24 rounded-lg overflow-hidden bg-muted border border-border flex-shrink-0">
+                                <div className="relative w-24 h-24 rounded-2xl overflow-hidden bg-slate-50 border border-gray-100 flex-shrink-0 shadow-inner">
                                     {formData.imageUrl && (
                                         <div className="w-full h-full relative transition-transform duration-300" style={{ transform: `rotate(${formData.rotation || 0}deg)` }}>
-                                            <Image src={formData.imageUrl} alt="Preview" fill unoptimized className="object-contain" />
+                                            <Image src={formData.imageUrl} alt="Preview" fill unoptimized className="object-contain p-2" />
                                         </div>
                                     )}
                                 </div>
                                 <div className="flex-1 flex flex-col gap-2">
                                     <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" id="cert-image" />
                                     <Label htmlFor="cert-image">
-                                        <Button variant="outline" size="sm" asChild disabled={uploading} className="w-full">
+                                        <Button variant="outline" size="sm" asChild disabled={uploading} className="w-full h-12 border-gray-100 font-black text-[10px] tracking-widest uppercase rounded-xl">
                                             <span>{uploading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}Upload</span>
                                         </Button>
                                     </Label>
                                     {formData.imageUrl && (
-                                        <Button variant="secondary" size="sm" onClick={rotateImage} className="w-full">
+                                        <Button variant="secondary" size="sm" onClick={rotateImage} className="w-full h-12 bg-[#0E2356] hover:bg-[#1a2f6b] text-white font-black text-[10px] tracking-widest uppercase rounded-xl">
                                             <RotateCw className="w-4 h-4 mr-2" /> Rotate
                                         </Button>
                                     )}
                                 </div>
                             </div>
                             <div className="space-y-2">
-                                <Label className="text-xs text-muted-foreground">Or provide Image URL</Label>
+                                <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Or provide Image URL</Label>
                                 <div className="relative">
-                                    <LinkIcon className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
+                                    <LinkIcon className="absolute left-3 top-3.5 w-4 h-4 text-gray-300" />
                                     <Input 
                                         value={formData.imageUrl} 
                                         onChange={e => setFormData({...formData, imageUrl: e.target.value})} 
                                         placeholder="https://..." 
-                                        className="bg-muted border-border/50 pl-10" 
+                                        className="h-12 bg-slate-50 border-gray-100 pl-10 rounded-xl font-bold text-[#0E2356]" 
                                     />
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div className="space-y-2">
-                        <Label>Title</Label>
-                        <Input value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} placeholder="Certification Name" className="bg-muted border-border/50" />
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Title / Award Name</Label>
+                        <Input value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} placeholder="e.g. Sales Executive of the Month" className="h-12 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356]" />
                     </div>
                     <div className="space-y-2">
-                        <Label>Issuer</Label>
-                        <Input value={formData.issuer} onChange={e => setFormData({...formData, issuer: e.target.value})} placeholder="Organization / Platform" className="bg-muted border-border/50" />
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Issuer / Branch</Label>
+                        <Input value={formData.issuer} onChange={e => setFormData({...formData, issuer: e.target.value})} placeholder="e.g. Suzuki Auto Branch" className="h-12 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356]" />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                            <Label>Issue Date</Label>
-                            <Input value={formData.issueDate} onChange={e => setFormData({...formData, issueDate: e.target.value})} placeholder="Month Year" className="bg-muted border-border/50" />
+                            <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Date Issued</Label>
+                            <Input value={formData.issueDate} onChange={e => setFormData({...formData, issueDate: e.target.value})} placeholder="Feb 2026" className="h-12 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356]" />
                         </div>
                         <div className="space-y-2">
-                            <Label>Order</Label>
-                            <Input type="number" value={formData.order} onChange={e => setFormData({...formData, order: parseInt(e.target.value) || 0})} className="bg-muted border-border/50" />
+                            <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Sort Order</Label>
+                            <Input type="number" value={formData.order} onChange={e => setFormData({...formData, order: parseInt(e.target.value) || 0})} className="h-12 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356]" />
                         </div>
                     </div>
                     <div className="space-y-2">
-                        <Label>Credential Link (Optional)</Label>
-                        <Input value={formData.credentialUrl} onChange={e => setFormData({...formData, credentialUrl: e.target.value})} placeholder="https://..." className="bg-muted border-border/50" />
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Verify Link (Optional)</Label>
+                        <Input value={formData.credentialUrl} onChange={e => setFormData({...formData, credentialUrl: e.target.value})} placeholder="https://..." className="h-12 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356]" />
                     </div>
                 </div>
-                <DialogFooter>
-                    <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
-                    <Button onClick={handleSave} disabled={isSaving} className="bg-primary text-primary-foreground">
+                <DialogFooter className="pt-4 flex items-center justify-end gap-3">
+                    <Button variant="ghost" onClick={() => setIsDialogOpen(false)} className="h-12 px-6 font-black uppercase tracking-widest text-[10px] text-gray-400 hover:bg-slate-50 rounded-xl">
+                      Cancel
+                    </Button>
+                    <Button onClick={handleSave} disabled={isSaving} className="bg-[#E31B23] hover:bg-[#c4171e] text-white font-black h-12 px-8 rounded-xl shadow-xl shadow-red-100 uppercase tracking-widest text-[10px]">
                         {isSaving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                         {editingCert ? 'Update' : 'Create'}
                     </Button>
