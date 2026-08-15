@@ -13,15 +13,14 @@ import { Badge } from "@/components/ui/badge";
 import { 
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter 
 } from "@/components/ui/dialog";
-import { Plus, Trash2, Edit2, Loader2, Upload, ExternalLink, Github, Play, Star, FolderKanban, Link as LinkIcon } from 'lucide-react';
+import { Plus, Trash2, Edit2, Loader2, Upload, ExternalLink, Github, Play, Star, Car, Link as LinkIcon, Info } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getProjects, addProject, updateProject, deleteProject } from '@/app/admin/actions';
 import { useStorage } from '@/firebase';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import type { Project } from '@/lib/types';
 
-
-const categories = ['Web App', 'Mobile App', 'E-commerce', 'VA Project', 'Other'];
+const categories = ['HATCHBACK', 'SEDAN', 'SUV', 'MPV', 'VAN', 'PICKUP'];
 
 export function AdminProjectsPage() {
     const { toast } = useToast();
@@ -37,7 +36,7 @@ export function AdminProjectsPage() {
     const [formData, setFormData] = useState<Omit<Project, 'id'>>({
         title: '',
         description: '',
-        category: 'Web App',
+        category: 'SUV',
         image_url: '',
         video_url: '',
         live_demo_url: '',
@@ -62,7 +61,7 @@ export function AdminProjectsPage() {
         setFormData({
             title: '',
             description: '',
-            category: 'Web App',
+            category: 'SUV',
             image_url: '',
             video_url: '',
             live_demo_url: '',
@@ -86,7 +85,7 @@ export function AdminProjectsPage() {
         setFormData({
             title: project.title || '',
             description: project.description || '',
-            category: project.category || 'Web App',
+            category: project.category || 'SUV',
             image_url: project.image_url || '',
             video_url: project.video_url || '',
             live_demo_url: project.live_demo_url || '',
@@ -102,10 +101,10 @@ export function AdminProjectsPage() {
         setIsSaving(true);
         if (editingProject) {
             await updateProject(editingProject.id, formData);
-            toast({ title: 'Success', description: 'Project updated.' });
+            toast({ title: 'Success', description: 'Vehicle unit updated.' });
         } else {
             await addProject(formData);
-            toast({ title: 'Success', description: 'Project added.' });
+            toast({ title: 'Success', description: 'New vehicle unit added.' });
         }
         await fetchProjects();
         setIsSaving(false);
@@ -116,7 +115,7 @@ export function AdminProjectsPage() {
     const handleDelete = async (id: string) => {
         await deleteProject(id);
         await fetchProjects();
-        toast({ title: 'Success', description: 'Project deleted.'});
+        toast({ title: 'Success', description: 'Vehicle unit removed.'});
     }
 
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -126,14 +125,14 @@ export function AdminProjectsPage() {
         setUploading(true);
         try {
           const fileExtension = file.name.split('.').pop();
-          const fileName = `project-${Date.now()}.${fileExtension}`;
-          const storageRef = ref(storage, `uploads/projects/${fileName}`);
+          const fileName = `vehicle-${Date.now()}.${fileExtension}`;
+          const storageRef = ref(storage, `uploads/vehicles/${fileName}`);
           
           await uploadBytes(storageRef, file);
           const downloadURL = await getDownloadURL(storageRef);
           
           setFormData(prev => ({ ...prev, image_url: downloadURL }));
-          toast({ title: 'Success', description: 'Image uploaded to cloud storage.' });
+          toast({ title: 'Success', description: 'Vehicle photo uploaded.' });
         } catch (err: any) {
           console.error('Upload error:', err);
           toast({ variant: 'destructive', title: 'Error', description: err.message || 'Upload failed.' });
@@ -154,53 +153,50 @@ export function AdminProjectsPage() {
           tech_stack: prev.tech_stack.filter(tech => tech !== techToRemove)
         }));
     };
-    
-    const sortedProjects = [...projects].sort((a, b) => {
-        if (a.featured && !b.featured) return -1;
-        if (!a.featured && b.featured) return 1;
-        return (a.order || 0) - (b.order || 0);
-      });
 
     if (isLoading) {
-        return <div className="flex items-center justify-center h-full"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+        return <div className="flex flex-col items-center justify-center h-full gap-4 text-[#0E2356] font-black uppercase tracking-widest text-[10px]">
+          <Loader2 className="w-8 h-8 animate-spin text-[#E31B23]" />
+          Loading Inventory...
+        </div>;
     }
 
     return (
         <>
-            <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center justify-between mb-12">
                 <div>
                     <motion.h1 
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="text-3xl font-bold text-white mb-2"
+                    className="text-4xl font-black text-[#0E2356] tracking-tighter mb-2 uppercase"
                     >
-                    Projects Management
+                    Vehicle Catalog
                     </motion.h1>
-                    <p className="text-muted-foreground">Showcase your work with rich media</p>
+                    <p className="text-gray-400 font-medium italic">Display your Suzuki units for potential buyers.</p>
                 </div>
                 <Button 
                     onClick={openCreateDialog}
-                    className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground"
+                    className="bg-[#E31B23] hover:bg-[#c4171e] text-white font-black h-14 px-8 rounded-2xl shadow-xl shadow-red-100 uppercase tracking-widest text-xs"
                 >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add Project
+                    <Plus className="w-5 h-5 mr-2" />
+                    Add Vehicle Unit
                 </Button>
             </div>
             
             {projects.length === 0 ? (
-                <Card className="bg-card border-border/50">
-                    <CardContent className="py-20 text-center">
-                    <FolderKanban className="w-12 h-12 mx-auto text-muted-foreground/50 mb-4" />
-                    <p className="text-muted-foreground mb-4">No projects yet</p>
-                    <Button onClick={openCreateDialog} variant="outline" className="border-border/50">
-                        Add Your First Project
+                <Card className="bg-white border-none shadow-xl shadow-slate-200/50 rounded-[40px]">
+                    <CardContent className="py-24 text-center">
+                    <Car className="w-16 h-16 mx-auto text-slate-100 mb-6" />
+                    <p className="text-gray-400 font-black uppercase text-[10px] tracking-widest mb-6">Your inventory is empty.</p>
+                    <Button onClick={openCreateDialog} variant="outline" className="border-gray-100 text-[#0E2356] font-black uppercase tracking-widest text-xs h-12 rounded-xl">
+                        Add Your First Suzuki Unit
                     </Button>
                     </CardContent>
                 </Card>
             ) : (
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                 <AnimatePresence>
-                  {sortedProjects.map((project, index) => (
+                  {projects.sort((a, b) => (a.order || 0) - (b.order || 0)).map((project, index) => (
                     <motion.div
                       key={project.id}
                       layout
@@ -208,85 +204,68 @@ export function AdminProjectsPage() {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.9 }}
                       transition={{ delay: index * 0.05 }}
-                      className="group relative"
+                      className="group"
                     >
-                      <Card className="bg-card border-border/50 overflow-hidden hover:border-accent/30 transition-all">
-                        <div className="relative aspect-video overflow-hidden bg-muted">
+                      <Card className="bg-white border-none shadow-xl shadow-slate-200/50 rounded-[32px] overflow-hidden hover:shadow-red-50 transition-all border-2 border-transparent hover:border-red-100">
+                        <div className="relative aspect-video overflow-hidden bg-slate-50">
                           {project.image_url ? (
-                            <Image src={project.image_url} alt={project.title} fill unoptimized className="object-cover" />
+                            <Image src={project.image_url} alt={project.title} fill unoptimized className="object-cover group-hover:scale-105 transition-transform duration-500" />
                           ) : (
-                            <div className="w-full h-full flex items-center justify-center text-muted-foreground/50">
-                              <FolderKanban className="w-12 h-12" />
+                            <div className="w-full h-full flex items-center justify-center text-slate-200">
+                              <Car className="w-12 h-12" />
                             </div>
                           )}
                           
-                          <div className="absolute inset-0 bg-background/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                          <div className="absolute inset-0 bg-[#0E2356]/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4 backdrop-blur-sm">
                             <Button
                               size="icon"
-                              variant="outline"
-                              className="border-white/20 text-white hover:bg-white/10"
+                              className="bg-white text-[#0E2356] hover:bg-[#E31B23] hover:text-white rounded-xl shadow-xl"
                               onClick={() => openEditDialog(project)}
                             >
                               <Edit2 className="w-4 h-4" />
                             </Button>
                             <Button
                               size="icon"
-                              variant="outline"
-                              className="border-destructive/50 text-destructive hover:bg-destructive/10"
+                              className="bg-white text-[#E31B23] hover:bg-red-600 hover:text-white rounded-xl shadow-xl"
                               onClick={() => handleDelete(project.id)}
                             >
                               <Trash2 className="w-4 h-4" />
                             </Button>
                           </div>
     
+                          <Badge className="absolute top-4 left-4 bg-[#0E2356] text-white border-none font-black text-[9px] px-3 py-1.5 rounded-lg tracking-widest">
+                            {project.category}
+                          </Badge>
+    
                           {project.featured && (
-                            <Badge className="absolute top-3 left-3 bg-gradient-to-r from-primary to-accent border-0 text-primary-foreground">
-                              <Star className="w-3 h-3 mr-1" />
-                              Featured
+                            <Badge className="absolute top-4 right-4 bg-[#E31B23] text-white border-none font-black text-[9px] px-3 py-1.5 rounded-lg tracking-widest">
+                              <Star className="w-3 h-3 mr-1 fill-white" />
+                              HOT DEAL
                             </Badge>
                           )}
                         </div>
     
-                        <CardContent className="p-4">
-                          <div className="flex items-start justify-between mb-2">
-                            <div>
-                              <h3 className="text-white font-bold">{project.title}</h3>
-                              <Badge variant="outline" className="border-accent/30 text-accent text-xs mt-1">
-                                {project.category}
-                              </Badge>
-                            </div>
-                            <div className="flex gap-1">
-                              {project.live_demo_url && (
-                                <a href={project.live_demo_url} target="_blank" rel="noopener noreferrer">
-                                  <Button size="icon" variant="ghost" className="h-8 w-8 text-muted-foreground hover:text-white">
-                                    <ExternalLink className="w-4 h-4" />
-                                  </Button>
-                                </a>
-                              )}
-                              {project.github_url && (
-                                <a href={project.github_url} target="_blank" rel="noopener noreferrer">
-                                  <Button size="icon" variant="ghost" className="h-8 w-8 text-muted-foreground hover:text-white">
-                                    <Github className="w-4 h-4" />
-                                  </Button>
-                                </a>
-                              )}
-                              {project.video_url && (
-                                <Button size="icon" variant="ghost" className="h-8 w-8 text-muted-foreground hover:text-white">
-                                  <Play className="w-4 h-4" />
-                                </Button>
-                              )}
-                            </div>
-                          </div>
-                          <p className="text-muted-foreground text-sm line-clamp-2 mb-3">{project.description}</p>
-                          <div className="flex flex-wrap gap-1">
+                        <CardContent className="p-8">
+                          <h3 className="text-xl font-black text-[#0E2356] uppercase tracking-tight mb-2 truncate">{project.title}</h3>
+                          <p className="text-gray-400 text-xs font-medium line-clamp-2 mb-6 leading-relaxed">{project.description}</p>
+                          
+                          <div className="flex flex-wrap gap-2 mb-6">
                             {project.tech_stack?.slice(0, 3).map((tech, i) => (
-                              <span key={i} className="text-xs px-2 py-0.5 bg-muted rounded text-muted-foreground">
+                              <span key={i} className="text-[9px] font-black px-3 py-1 bg-slate-50 rounded-lg text-[#0E2356] border border-gray-100 uppercase tracking-wider">
                                 {tech}
                               </span>
                             ))}
-                            {project.tech_stack?.length > 3 && (
-                              <span className="text-xs text-muted-foreground/50">+{project.tech_stack.length - 3}</span>
-                            )}
+                          </div>
+
+                          <div className="flex items-center justify-between border-t border-gray-50 pt-6">
+                            <span className="text-[#E31B23] font-black text-lg tracking-tighter">
+                              ₱{(project.order ? project.order * 100000 : 798000).toLocaleString()}
+                            </span>
+                            <div className="flex gap-2">
+                                {project.live_demo_url && (
+                                    <Badge variant="outline" className="border-green-100 bg-green-50 text-green-600 text-[8px] font-black">FORM LINKED</Badge>
+                                )}
+                            </div>
                           </div>
                         </CardContent>
                       </Card>
@@ -297,66 +276,67 @@ export function AdminProjectsPage() {
             )}
 
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogContent className="bg-card border-border/50 text-white max-w-2xl max-h-[90vh] overflow-y-auto">
+                <DialogContent className="bg-white border-none text-[#0E2356] max-w-2xl max-h-[90vh] overflow-y-auto rounded-[40px] shadow-2xl p-10">
                 <DialogHeader>
-                    <DialogTitle>{editingProject ? 'Edit Project' : 'Add New Project'}</DialogTitle>
+                    <DialogTitle className="text-3xl font-black uppercase tracking-tighter text-[#0E2356]">
+                      {editingProject ? 'Edit Vehicle Unit' : 'New Suzuki Listing'}
+                    </DialogTitle>
                 </DialogHeader>
-                <div className="space-y-6 py-4">
+                <div className="space-y-8 py-6">
                     <div className="space-y-4">
-                    <Label>Project Image</Label>
-                    <div className="flex items-start gap-6">
-                        <div className="relative w-40 h-24 rounded-lg overflow-hidden bg-muted border border-border flex-shrink-0">
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Main Vehicle Photo</Label>
+                    <div className="flex items-start gap-8">
+                        <div className="relative w-48 h-32 rounded-3xl overflow-hidden bg-slate-50 border border-gray-100 flex-shrink-0 shadow-inner">
                         {formData.image_url ? (
                             <Image src={formData.image_url} alt="Preview" fill unoptimized className="object-cover" />
                         ) : (
-                            <div className="w-full h-full flex items-center justify-center text-muted-foreground/50">
-                            <FolderKanban className="w-6 h-6" />
+                            <div className="w-full h-full flex items-center justify-center text-slate-100">
+                            <Car className="w-8 h-8" />
                             </div>
                         )}
                         </div>
-                        <div className="flex-1 space-y-3">
-                            <div className="flex items-center gap-2">
+                        <div className="flex-1 space-y-4">
+                            <div className="flex items-center gap-3">
                                 <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" id="project-image" />
                                 <Label htmlFor="project-image">
-                                    <Button variant="outline" className="border-border/50" asChild disabled={uploading}>
+                                    <Button variant="outline" className="h-12 border-gray-100 font-black text-[10px] tracking-widest uppercase rounded-xl" asChild disabled={uploading}>
                                     <span>
                                         {uploading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}
                                         Upload Image
                                     </span>
                                     </Button>
                                 </Label>
-                                <span className="text-muted-foreground text-xs">or paste a link below</span>
                             </div>
                             <div className="relative">
-                                <LinkIcon className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
+                                <LinkIcon className="absolute left-3 top-3.5 w-4 h-4 text-gray-300" />
                                 <Input
                                     value={formData.image_url}
                                     onChange={(e) => setFormData(prev => ({ ...prev, image_url: e.target.value }))}
-                                    placeholder="https://images.unsplash.com/..."
-                                    className="bg-muted border-border/50 pl-10 h-10"
+                                    placeholder="External Image URL (e.g. Unsplash)"
+                                    className="h-12 bg-slate-50 border-gray-100 pl-10 rounded-xl font-medium text-sm"
                                 />
                             </div>
                         </div>
                     </div>
                     </div>
 
-                    <div className="grid md:grid-cols-2 gap-4">
+                    <div className="grid md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                        <Label>Title</Label>
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Vehicle Model</Label>
                         <Input
                         value={formData.title}
                         onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                        placeholder="Project name"
-                        className="bg-muted border-border/50"
+                        placeholder="e.g. Suzuki Jimny 5-Door"
+                        className="h-12 bg-slate-50 border-gray-100 rounded-xl font-medium"
                         />
                     </div>
                     <div className="space-y-2">
-                        <Label>Category</Label>
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Body Type</Label>
                         <Select value={formData.category} onValueChange={(v: any) => setFormData(prev => ({ ...prev, category: v }))}>
-                        <SelectTrigger className="bg-muted border-border/50">
+                        <SelectTrigger className="h-12 bg-slate-50 border-gray-100 rounded-xl font-black text-[10px] uppercase">
                             <SelectValue />
                         </SelectTrigger>
-                        <SelectContent className="bg-card border-border/50 text-white">
+                        <SelectContent className="bg-white border-gray-100 text-[#0E2356] font-black text-[10px]">
                             {categories.map(cat => (
                             <SelectItem key={cat} value={cat}>{cat}</SelectItem>
                             ))}
@@ -366,92 +346,89 @@ export function AdminProjectsPage() {
                     </div>
 
                     <div className="space-y-2">
-                    <Label>Description</Label>
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Marketing Description</Label>
                     <Textarea
                         value={formData.description}
                         onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                        placeholder="Describe your project..."
-                        rows={3}
-                        className="bg-muted border-border/50 resize-none"
+                        placeholder="Describe the unit's key features, special promos, etc."
+                        rows={4}
+                        className="bg-slate-50 border-gray-100 rounded-xl resize-none p-4 font-medium text-sm leading-relaxed"
                     />
                     </div>
 
-                    <div className="grid md:grid-cols-2 gap-4">
+                    <div className="grid md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                        <Label>Live Demo URL</Label>
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 flex items-center gap-2">
+                          Inquiry Form Link
+                          <Info className="w-3 h-3 text-red-400" />
+                        </Label>
                         <Input
                         value={formData.live_demo_url}
                         onChange={(e) => setFormData(prev => ({ ...prev, live_demo_url: e.target.value }))}
-                        placeholder="https://..."
-                        className="bg-muted border-border/50"
+                        placeholder="Google Form / External Link"
+                        className="h-12 bg-slate-50 border-gray-100 rounded-xl font-medium text-sm"
                         />
                     </div>
                     <div className="space-y-2">
-                        <Label>GitHub URL</Label>
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Sort Order / Price ID</Label>
                         <Input
-                        value={formData.github_url}
-                        onChange={(e) => setFormData(prev => ({ ...prev, github_url: e.target.value }))}
-                        placeholder="https://github.com/..."
-                        className="bg-muted border-border/50"
+                        type="number"
+                        value={formData.order}
+                        onChange={(e) => setFormData(prev => ({ ...prev, order: parseInt(e.target.value) || 0 }))}
+                        className="h-12 bg-slate-50 border-gray-100 rounded-xl font-medium"
                         />
                     </div>
                     </div>
 
-                    <div className="space-y-2">
-                    <Label>Video URL (YouTube/Vimeo embed)</Label>
-                    <Input
-                        value={formData.video_url}
-                        onChange={(e) => setFormData(prev => ({ ...prev, video_url: e.target.value }))}
-                        placeholder="https://youtube.com/embed/..."
-                        className="bg-muted border-border/50"
-                    />
-                    </div>
-
-                    <div className="space-y-2">
-                    <Label>Tech Stack</Label>
-                    <div className="flex gap-2">
+                    <div className="space-y-4">
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Key Specifications (e.g. 7-Seater, Automatic)</Label>
+                    <div className="flex gap-3">
                         <Input
                         value={techInput}
                         onChange={(e) => setTechInput(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTech())}
-                        placeholder="Add technology..."
-                        className="bg-muted border-border/50"
+                        placeholder="Add spec badge..."
+                        className="h-12 bg-slate-50 border-gray-100 rounded-xl font-medium"
                         />
-                        <Button type="button" onClick={addTech} variant="outline" className="border-border/50">
+                        <Button type="button" onClick={addTech} variant="outline" className="h-12 border-gray-100 px-6 rounded-xl font-black text-[10px] uppercase">
                         Add
                         </Button>
                     </div>
-                    <div className="flex flex-wrap gap-2 mt-2">
+                    <div className="flex flex-wrap gap-2 mt-4">
                         {formData.tech_stack.map((tech, i) => (
-                        <Badge key={i} variant="secondary" className="bg-muted border-white/5 text-muted-foreground">
+                        <Badge key={i} className="bg-blue-50 text-[#0E2356] border-none font-black text-[9px] px-3 py-1.5 rounded-lg uppercase tracking-wider">
                             {tech}
-                            <button onClick={() => removeTech(tech)} className="ml-2 hover:text-destructive">×</button>
+                            <button onClick={() => removeTech(tech)} className="ml-2 hover:text-[#E31B23]">×</button>
                         </Badge>
                         ))}
                     </div>
                     </div>
 
-                    <div className="flex items-center gap-3 pt-2">
+                    <div className="flex items-center gap-4 p-5 bg-red-50 rounded-3xl border border-red-100">
                     <Switch
                         checked={formData.featured}
                         onCheckedChange={(v) => setFormData(prev => ({ ...prev, featured: v }))}
+                        className="data-[state=checked]:bg-[#E31B23]"
                     />
-                    <Label>Featured Project</Label>
+                    <div>
+                        <Label className="text-xs font-black text-[#0E2356] uppercase">Hot Deal / Featured Unit</Label>
+                        <p className="text-[10px] text-[#E31B23] font-medium">This will show a badge on the unit photo.</p>
+                    </div>
                     </div>
                 </div>
-                <DialogFooter>
-                    <Button variant="outline" onClick={() => setIsDialogOpen(false)} className="border-border/50">
-                    Cancel
+                <DialogFooter className="pt-6 border-t border-gray-50">
+                    <Button variant="ghost" onClick={() => setIsDialogOpen(false)} className="h-14 font-black uppercase tracking-widest text-xs text-gray-400">
+                      Cancel
                     </Button>
                     <Button 
                     onClick={handleSave}
                     disabled={isSaving}
-                    className="bg-accent hover:bg-accent/90 text-accent-foreground"
+                    className="bg-[#E31B23] hover:bg-[#c4171e] text-white font-black h-14 px-12 rounded-2xl shadow-xl shadow-red-100 uppercase tracking-widest text-xs"
                     >
                     {isSaving && (
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                     )}
-                    {editingProject ? 'Update' : 'Create'}
+                    {editingProject ? 'Update Vehicle' : 'Save Vehicle'}
                     </Button>
                 </DialogFooter>
                 </DialogContent>
