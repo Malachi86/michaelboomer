@@ -66,7 +66,7 @@ export default function Navigation({ profile }: { profile: Profile }) {
                   SUZUKI
                 </span>
                 <span className="text-[9px] font-bold tracking-widest text-[#E31B23] leading-none mt-0.5 uppercase">
-                  Official Sales
+                  Auto Lipa
                 </span>
               </div>
             </motion.a>

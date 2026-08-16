@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { 
   LayoutDashboard, User, MessageSquare, LogOut, Eye, BarChart3, Car,
-  Loader2, Award, Settings, ShoppingBag, Users
+  Loader2, Award, Star, MessageCircle
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useUser, useAuth } from '@/firebase';
@@ -18,6 +18,7 @@ const menuItems = [
   { icon: Car, label: 'VEHICLE CATALOG', href: '/admin/projects' },
   { icon: User, label: 'AGENT PROFILE', href: '/admin/profile' },
   { icon: Award, label: 'HAPPY CLIENTS', href: '/admin/certificates' },
+  { icon: Star, label: 'CLIENT REVIEWS', href: '/admin/testimonials' },
   { icon: MessageSquare, label: 'INQUIRIES', href: '/admin/messages' },
   { icon: BarChart3, label: 'SALES ANALYTICS', href: '/admin/analytics' },
 ];
