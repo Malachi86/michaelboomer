@@ -9,14 +9,14 @@ import { Button } from '@/components/ui/button';
 export default function HeroSection({ profile }: { profile: Profile }) {
   const hasProfileImage = profile?.profile_image && profile.profile_image.trim() !== "";
 
-  // Helper to get brand styles based on platform name
+  // Helper function to map platform names to specific brand styles
   const getPlatformStyles = (platform: string) => {
     const p = platform.toLowerCase();
     if (p.includes('facebook')) return { icon: <Facebook className="w-4 h-4" />, bgColor: "bg-[#1877F2] hover:bg-[#1565d0]" };
     if (p.includes('viber')) return { icon: <MessageCircle className="w-4 h-4" />, bgColor: "bg-[#7360F2] hover:bg-[#6251d1]" };
     if (p.includes('linkedin')) return { icon: <Linkedin className="w-4 h-4" />, bgColor: "bg-[#0A66C2] hover:bg-[#08529d]" };
     if (p.includes('gmail') || p.includes('email')) return { icon: <Mail className="w-4 h-4" />, bgColor: "bg-[#E31B23] hover:bg-[#c4171e]" };
-    return { icon: <Globe className="w-4 h-4" />, bgColor: "bg-[#0E2356] hover:bg-[#1a2f6b]" }; // Default
+    return { icon: <Globe className="w-4 h-4" />, bgColor: "bg-[#0E2356] hover:bg-[#1a2f6b]" }; // Default Suzuki Blue
   };
 
   return (
@@ -35,13 +35,13 @@ export default function HeroSection({ profile }: { profile: Profile }) {
               <span className="text-[#E31B23] text-[10px] font-black uppercase tracking-widest">Authorized Suzuki Executive</span>
             </div>
 
-            <h1 className="text-5xl lg:text-[92px] font-serif text-[#0E2356] leading-[1.05] tracking-tight mb-8">
+            <h1 className="text-5xl lg:text-[82px] font-serif text-[#0E2356] leading-[1.1] tracking-tight mb-8">
               Experience <br />
               <span className="text-[#E31B23] font-serif italic">Suzuki Excellence</span>
             </h1>
             
             <div className="space-y-4 mb-10">
-              <h2 className="text-xl font-black text-[#0E2356] tracking-tight">
+              <h2 className="text-xl font-black text-[#0E2356] tracking-tight uppercase">
                 {profile?.full_name || "Marvin Paul Orozco"}
               </h2>
               <p className="text-gray-500 text-lg font-medium max-w-lg leading-relaxed">
@@ -49,14 +49,14 @@ export default function HeroSection({ profile }: { profile: Profile }) {
               </p>
             </div>
 
-            {/* Dynamic Social Link Buttons */}
+            {/* Dynamic Social Link Buttons: Synchronized with Admin Panel */}
             <div className="flex flex-wrap gap-3 mb-10">
               {profile?.social_links?.map((link, index) => {
                 const styles = getPlatformStyles(link.platform);
                 return (
                   <Button 
                     key={index}
-                    className={`${styles.bgColor} text-white font-bold px-6 gap-2 rounded-full text-xs h-12 shadow-sm transition-all hover:scale-105 active:scale-95`}
+                    className={`${styles.bgColor} text-white font-bold px-6 gap-2 rounded-full text-xs h-12 shadow-md transition-all hover:scale-105 active:scale-95`}
                     asChild
                   >
                     <a href={link.url} target="_blank" rel="noopener noreferrer">
@@ -110,7 +110,7 @@ export default function HeroSection({ profile }: { profile: Profile }) {
               className="relative order-1 lg:order-2 flex justify-center lg:justify-end"
             >
               <div className="relative w-[320px] h-[480px] lg:w-[440px] lg:h-[620px] p-4">
-                {/* Image Card */}
+                {/* Image Card with Premium Border */}
                 <div className="relative w-full h-full rounded-[40px] overflow-hidden border-8 border-white shadow-2xl z-20">
                   <Image
                     src={profile.profile_image}
