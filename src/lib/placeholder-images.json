@@ -2,7 +2,7 @@
   "placeholderImages": [
     {
       "id": "avatar",
-      "description": "Avatar for Marvin Paul Orasco",
+      "description": "Avatar for Michael Gabriel Orozco",
       "imageUrl": "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxtYW4lMjBwb3J0cmFpdHxlbnwwfHx8fDE3NzA4NDk1Mjd8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "man portrait"
     },
@@ -15,13 +15,13 @@
     {
       "id": "project2",
       "description": "Placeholder for Innovate brand story video",
-      "imageUrl": "https://images.unsplash.com/photo-1723808556184-86e0398d7c32?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxhYnN0cmFjdCUyMG1vdGlvbnxlbnwwfHx8fDE3NzA4MTQwNzl8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1723808556184-86e0398d7c32?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxhYnN0cmFjdCUyMG1vdGlvbnxlbnwwfHx8fDE3NzA4MTQwNzl8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "abstract motion"
     },
     {
       "id": "project3",
       "description": "Placeholder for photographer portfolio",
-      "imageUrl": "https://images.unsplash.com/photo-1593704212686-6d52058fb516?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxjYW1lcmElMjBsZW5zfGVufDB8fHx8MTc3MDkwMjE5N3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1593704212686-6d52058fb516?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxjYW1lcmElMjBsZW5zfGVufDB8fHx8MTc3MDkwMjE5N3ww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "camera lens"
     },
     {
@@ -45,7 +45,7 @@
     {
       "id": "testimonial3",
       "description": "Avatar for Emily White",
-      "imageUrl": "https://images.unsplash.com/photo-1513673054901-2b5f51551112?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHx3b21hbiUyMGdsYXNzZXN8ZW58MHx8fHwxNzcwODA2MDA3fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1513673054901-2b5f51551112?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHx3b21hbiUyMGdsYXNzZXN8ZW58MHx8fHwxNzcwODA2MDA3fDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "woman glasses"
     },
     {

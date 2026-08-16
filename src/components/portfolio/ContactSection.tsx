@@ -163,7 +163,7 @@ export default function ContactSection({ profile }: { profile: Profile }) {
             <ContactInfoCard 
               icon={MapPin} 
               label="Location" 
-              value="Authorized Suzuki Sales Branch" 
+              value="Suzuki Auto Lipa" 
               bgColor="bg-[#E31B23]" 
             />
           </motion.div>

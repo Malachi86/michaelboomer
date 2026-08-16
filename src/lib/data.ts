@@ -1,7 +1,7 @@
 import type { Profile, Skill, Project, Message, Analytics, Testimonial } from './types';
 
 export const profile: Profile = {
-  "full_name": "Marvin Paul Orozco",
+  "full_name": "Michael Gabriel Orozco",
   "title": "Web Developer & VA Specialist",
   "subtitle": "Fullstack Developer & Virtual Assistant",
   "bio": "I craft high-performance digital experiences and provide top-tier virtual assistance. With a focus on efficiency and creativity, I help businesses grow their online presence.",

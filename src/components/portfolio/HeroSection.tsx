@@ -60,7 +60,7 @@ export default function HeroSection({ profile }: { profile: Profile }) {
             
             <div className="space-y-4 mb-10">
               <h2 className="text-xl font-black text-[#0E2356] tracking-tight uppercase">
-                {profile?.full_name || "Marvin Paul Orozco"}
+                {profile?.full_name || "Michael Gabriel Orozco"}
               </h2>
               <p className="text-gray-500 text-lg font-medium max-w-lg leading-relaxed">
                 {profile?.bio || "Ang iyong katuwang sa pagkamit ng pangarap na sasakyan. Mabilis na approval, low downpayment, at de-kalidad na serbisyo."}

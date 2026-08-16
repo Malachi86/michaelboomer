@@ -17,7 +17,7 @@ import type { Profile } from '@/lib/types';
 import Image from 'next/image';
 
 const DEFAULT_PROFILE: Profile = {
-  full_name: '',
+  full_name: 'Michael Gabriel Orozco',
   title: '',
   subtitle: '',
   bio: '',
@@ -199,7 +199,7 @@ export default function AdminProfilePage() {
                     <div className="grid md:grid-cols-2 gap-6">
                         <div className="space-y-2">
                             <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Full Name</Label>
-                            <Input value={profile.full_name} onChange={(e) => setProfile({...profile, full_name: e.target.value})} placeholder="Marvin Paul Orozco" className="h-12 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356]"/>
+                            <Input value={profile.full_name} onChange={(e) => setProfile({...profile, full_name: e.target.value})} placeholder="Michael Gabriel Orozco" className="h-12 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356]"/>
                         </div>
                         <div className="space-y-2">
                             <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Email Address</Label>

@@ -77,7 +77,7 @@ export default function Footer({ profile }: { profile: Profile }) {
 
           {/* Center: Copyright Section */}
           <div className="text-gray-400 text-[11px] font-bold flex items-center gap-2 uppercase tracking-wider">
-            © {year} {profile?.full_name || "Marvin Paul Orozco"}. All rights reserved.
+            © {year} {profile?.full_name || "Michael Gabriel Orozco"}. All rights reserved.
             <Link href="/login" className="opacity-0 group-hover:opacity-100 transition-opacity p-2 hover:bg-slate-50 rounded-lg">
               <Lock className="w-3 h-3 text-[#0E2356]" />
             </Link>
