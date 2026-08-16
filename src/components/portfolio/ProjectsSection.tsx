@@ -3,15 +3,14 @@ import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { X, Star, Car, MessageSquare, ChevronRight } from 'lucide-react';
+import { Star, Car, ChevronRight } from 'lucide-react';
 import type { Project } from '@/lib/types';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
-import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import Link from 'next/link';
 
 export default function ProjectsSection({ projects = [] }: { projects: Project[] }) {
   const [activeCategory, setActiveCategory] = useState('ALL');
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
   const dynamicCategories = useMemo(() => {
     if (!projects || projects.length === 0) return ['ALL'];
@@ -30,15 +29,6 @@ export default function ProjectsSection({ projects = [] }: { projects: Project[]
     if (!a.featured && b.featured) return 1;
     return (a.order || 0) - (b.order || 0);
   });
-
-  const handleInquiryLink = (url: string | undefined) => {
-    if (url && url !== '#') {
-      window.open(url, '_blank', 'noopener,noreferrer');
-    } else {
-      document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth' });
-    }
-    setSelectedProject(null);
-  };
 
   return (
     <section id="projects" className="relative py-32 bg-white overflow-hidden">
@@ -93,7 +83,7 @@ export default function ProjectsSection({ projects = [] }: { projects: Project[]
                   exit={{ opacity: 0, scale: 0.9 }}
                   transition={{ duration: 0.4, delay: index * 0.05 }}
                 >
-                  <div className="bg-white rounded-[40px] overflow-hidden showroom-shadow border border-gray-100/50 group transition-all duration-500 hover:shadow-2xl hover:-translate-y-2">
+                  <div className="bg-white rounded-[40px] overflow-hidden showroom-shadow border border-gray-100/50 group transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 h-full flex flex-col">
                     <div className="relative aspect-[4/3] overflow-hidden bg-slate-50">
                       {displayImageUrl ? (
                         <Image
@@ -124,7 +114,7 @@ export default function ProjectsSection({ projects = [] }: { projects: Project[]
                       )}
                     </div>
 
-                    <div className="p-8">
+                    <div className="p-8 flex flex-col flex-grow">
                       <h3 className="text-2xl font-black text-[#0E2356] mb-3 leading-tight uppercase tracking-tight">
                         {project.title}
                       </h3>
@@ -139,12 +129,13 @@ export default function ProjectsSection({ projects = [] }: { projects: Project[]
                             ₱{(project.price || 0).toLocaleString()}
                           </span>
                         </div>
-                        <Button
-                          className="bg-[#E31B23] hover:bg-[#c4171e] text-white font-black text-xs tracking-widest px-8 h-14 rounded-2xl shadow-xl shadow-red-100 transition-all active:scale-95"
-                          onClick={() => setSelectedProject(project)}
-                        >
-                          INQUIRE
-                        </Button>
+                        <Link href={`/inventory/${project.id}`}>
+                          <Button
+                            className="bg-[#E31B23] hover:bg-[#c4171e] text-white font-black text-xs tracking-widest px-8 h-14 rounded-2xl shadow-xl shadow-red-100 transition-all active:scale-95"
+                          >
+                            INQUIRE
+                          </Button>
+                        </Link>
                       </div>
                     </div>
                   </div>
@@ -154,100 +145,6 @@ export default function ProjectsSection({ projects = [] }: { projects: Project[]
           </AnimatePresence>
         </div>
       </div>
-
-      <AnimatePresence>
-        {selectedProject && (
-          <Dialog open={!!selectedProject} onOpenChange={() => setSelectedProject(null)}>
-            <DialogContent className="max-w-6xl w-[95vw] bg-white border-none p-0 overflow-hidden text-[#0E2356] shadow-2xl rounded-[40px]">
-              <div className="flex flex-col lg:flex-row h-full max-h-[90vh] overflow-y-auto lg:overflow-hidden">
-                <div className="lg:w-3/5 relative aspect-video lg:aspect-auto bg-slate-50 min-h-[400px]">
-                  <Image
-                    src={selectedProject.image_url || (selectedProject as any).imageUrl}
-                    alt={selectedProject.title}
-                    fill
-                    unoptimized
-                    className="object-cover"
-                  />
-                  <Button 
-                    variant="outline" 
-                    className="absolute top-6 left-6 h-12 w-12 rounded-2xl border-none bg-white/80 backdrop-blur-md text-[#0E2356] shadow-xl lg:hidden"
-                    onClick={() => setSelectedProject(null)}
-                  >
-                    <X className="w-6 h-6" />
-                  </Button>
-                </div>
-                
-                <div className="lg:w-2/5 p-8 lg:p-16 flex flex-col justify-center bg-white relative">
-                  <Button 
-                    variant="ghost" 
-                    className="absolute top-10 right-10 h-12 w-12 rounded-2xl text-gray-400 hover:text-[#E31B23] hidden lg:flex"
-                    onClick={() => setSelectedProject(null)}
-                  >
-                    <X className="w-8 h-8" />
-                  </Button>
-
-                  <div className="mb-10">
-                    <Badge className="bg-[#0E2356] text-white mb-6 text-[10px] font-black uppercase tracking-[0.2em] px-5 py-2 rounded-xl">
-                      {selectedProject.category}
-                    </Badge>
-                    <DialogTitle className="text-4xl lg:text-6xl font-black text-[#0E2356] mb-6 leading-none uppercase tracking-tighter">
-                      {selectedProject.title}
-                    </DialogTitle>
-                    <DialogDescription className="text-gray-500 text-lg leading-relaxed font-medium">
-                      {selectedProject.description}
-                    </DialogDescription>
-                  </div>
-                  
-                  <div className="space-y-10">
-                    <div className="p-8 bg-[#FFFBFA] rounded-[32px] border border-red-50">
-                      <p className="text-[11px] font-black text-gray-400 uppercase tracking-[0.3em] mb-2">Current Retail Price</p>
-                      <p className="text-5xl font-black text-[#E31B23] tracking-tighter">
-                        ₱{(selectedProject.price || 0).toLocaleString()}
-                      </p>
-                    </div>
-
-                    {selectedProject.tech_stack && selectedProject.tech_stack.length > 0 && (
-                      <div>
-                        <h4 className="text-[10px] font-black text-gray-300 uppercase tracking-[0.4em] mb-6 ml-1">Key Specifications</h4>
-                        <div className="flex flex-wrap gap-3">
-                          {selectedProject.tech_stack.map((tech, i) => (
-                            <div key={i} className="bg-white border border-gray-100 text-[#0E2356] px-6 py-3 rounded-2xl text-[11px] font-black uppercase shadow-sm flex items-center gap-2">
-                              <div className="w-1.5 h-1.5 rounded-full bg-[#E31B23]" />
-                              {tech}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    <div className="flex flex-col gap-4 pt-6">
-                      <Button 
-                        className="w-full bg-[#E31B23] hover:bg-[#c4171e] text-white font-black h-20 rounded-[24px] shadow-2xl shadow-red-100 text-sm tracking-[0.2em] group"
-                        onClick={() => handleInquiryLink(selectedProject.live_demo_url)}
-                      >
-                        PROCEED TO INQUIRY FORM
-                        <ChevronRight className="ml-2 w-5 h-5 transition-transform group-hover:translate-x-2" />
-                      </Button>
-                      
-                      <Button 
-                        variant="outline" 
-                        className="w-full h-16 rounded-[24px] border-gray-100 text-[#0E2356] font-black text-[12px] tracking-[0.2em] hover:bg-slate-50 uppercase"
-                        onClick={() => {
-                          setSelectedProject(null);
-                          document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth' });
-                        }}
-                      >
-                        <MessageSquare className="w-5 h-5 mr-3" />
-                        Message Representative
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </DialogContent>
-          </Dialog>
-        )}
-      </AnimatePresence>
     </section>
   );
 }
