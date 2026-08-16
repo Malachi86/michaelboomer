@@ -3,7 +3,7 @@ import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Star, Car, ChevronRight } from 'lucide-react';
+import { Star, Car } from 'lucide-react';
 import type { Project } from '@/lib/types';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
@@ -129,7 +129,7 @@ export default function ProjectsSection({ projects = [] }: { projects: Project[]
                             ₱{(project.price || 0).toLocaleString()}
                           </span>
                         </div>
-                        <Link href={`/inventory/${project.id}`}>
+                        <Link href={`/inventory/?id=${project.id}`}>
                           <Button
                             className="bg-[#E31B23] hover:bg-[#c4171e] text-white font-black text-xs tracking-widest px-8 h-14 rounded-2xl shadow-xl shadow-red-100 transition-all active:scale-95"
                           >
