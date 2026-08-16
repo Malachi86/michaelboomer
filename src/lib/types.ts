@@ -1,4 +1,3 @@
-
 export type Profile = {
   full_name: string;
   title: string;
@@ -27,7 +26,7 @@ export type Project = {
   id: string;
   title: string;
   description: string;
-  category: 'Web App' | 'Mobile App' | 'E-commerce' | 'VA Project' | 'Other';
+  category: 'Web App' | 'Mobile App' | 'E-commerce' | 'VA Project' | 'Other' | 'HATCHBACK' | 'SEDAN' | 'SUV' | 'MPV' | 'VAN' | 'PICKUP';
   image_url?: string;
   video_url?: string;
   live_demo_url?: string;
@@ -35,6 +34,7 @@ export type Project = {
   tech_stack: string[];
   featured: boolean;
   order: number;
+  price?: number;
 };
 
 export type Certificate = {

@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { 
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter 
 } from "@/components/ui/dialog";
-import { Plus, Trash2, Edit2, Loader2, Upload, ExternalLink, Github, Play, Star, Car, Link as LinkIcon, Info } from 'lucide-react';
+import { Plus, Trash2, Edit2, Loader2, Upload, ExternalLink, Github, Play, Star, Car, Link as LinkIcon, Info, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getProjects, addProject, updateProject, deleteProject } from '@/app/admin/actions';
 import { useStorage } from '@/firebase';
@@ -43,7 +43,8 @@ export function AdminProjectsPage() {
         github_url: '',
         tech_stack: [],
         featured: false,
-        order: 0
+        order: 0,
+        price: 0
     });
 
     const fetchProjects = async () => {
@@ -68,7 +69,8 @@ export function AdminProjectsPage() {
             github_url: '',
             tech_stack: [],
             featured: false,
-            order: 0
+            order: 0,
+            price: 0
         });
         setEditingProject(null);
         setTechInput('');
@@ -92,7 +94,8 @@ export function AdminProjectsPage() {
             github_url: project.github_url || '',
             tech_stack: project.tech_stack || [],
             featured: project.featured || false,
-            order: project.order || 0
+            order: project.order || 0,
+            price: project.price || 0
         });
         setIsDialogOpen(true);
     };
@@ -113,9 +116,11 @@ export function AdminProjectsPage() {
     };
 
     const handleDelete = async (id: string) => {
-        await deleteProject(id);
-        await fetchProjects();
-        toast({ title: 'Success', description: 'Vehicle unit removed.'});
+        if (confirm('Remove this vehicle unit permanently?')) {
+          await deleteProject(id);
+          await fetchProjects();
+          toast({ title: 'Success', description: 'Vehicle unit removed.'});
+        }
     }
 
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -155,9 +160,9 @@ export function AdminProjectsPage() {
     };
 
     if (isLoading) {
-        return <div className="flex flex-col items-center justify-center h-full gap-4 text-[#0E2356] font-black uppercase tracking-widest text-[10px]">
-          <Loader2 className="w-8 h-8 animate-spin text-[#E31B23]" />
-          Loading Inventory...
+        return <div className="flex flex-col items-center justify-center h-[60vh] gap-4">
+          <Loader2 className="w-10 h-10 animate-spin text-[#E31B23]" />
+          <p className="text-[#0E2356] text-sm font-bold uppercase tracking-widest">Loading Inventory...</p>
         </div>;
     }
 
@@ -259,7 +264,7 @@ export function AdminProjectsPage() {
 
                           <div className="flex items-center justify-between border-t border-gray-50 pt-6">
                             <span className="text-[#E31B23] font-black text-lg tracking-tighter">
-                              ₱{(project.order ? project.order * 100000 : 798000).toLocaleString()}
+                              ₱{(project.price || 0).toLocaleString()}
                             </span>
                             <div className="flex gap-2">
                                 {project.live_demo_url && (
@@ -277,16 +282,16 @@ export function AdminProjectsPage() {
 
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogContent className="bg-white border-none text-[#0E2356] max-w-2xl max-h-[90vh] overflow-y-auto rounded-[40px] shadow-2xl p-10">
-                <DialogHeader>
+                <DialogHeader className="mb-8">
                     <DialogTitle className="text-3xl font-black uppercase tracking-tighter text-[#0E2356]">
                       {editingProject ? 'Edit Vehicle Unit' : 'New Suzuki Listing'}
                     </DialogTitle>
                 </DialogHeader>
-                <div className="space-y-8 py-6">
+                <div className="space-y-8">
                     <div className="space-y-4">
-                    <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Main Vehicle Photo</Label>
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Main Vehicle Photo</Label>
                     <div className="flex items-start gap-8">
-                        <div className="relative w-48 h-32 rounded-3xl overflow-hidden bg-slate-50 border border-gray-100 flex-shrink-0 shadow-inner">
+                        <div className="relative w-56 h-36 rounded-3xl overflow-hidden bg-slate-50 border border-gray-100 flex-shrink-0 shadow-inner">
                         {formData.image_url ? (
                             <Image src={formData.image_url} alt="Preview" fill unoptimized className="object-cover" />
                         ) : (
@@ -313,7 +318,7 @@ export function AdminProjectsPage() {
                                     value={formData.image_url}
                                     onChange={(e) => setFormData(prev => ({ ...prev, image_url: e.target.value }))}
                                     placeholder="External Image URL (e.g. Unsplash)"
-                                    className="h-12 bg-slate-50 border-gray-100 pl-10 rounded-xl font-medium text-sm"
+                                    className="h-12 bg-slate-50 border-gray-100 pl-10 rounded-xl font-bold text-[#0E2356] focus:border-[#E31B23] focus:ring-0"
                                 />
                             </div>
                         </div>
@@ -322,23 +327,23 @@ export function AdminProjectsPage() {
 
                     <div className="grid md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                        <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Vehicle Model</Label>
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Vehicle Model</Label>
                         <Input
                         value={formData.title}
                         onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                        placeholder="e.g. Suzuki Jimny 5-Door"
-                        className="h-12 bg-slate-50 border-gray-100 rounded-xl font-medium"
+                        placeholder="e.g. S-PRESSO"
+                        className="h-12 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356] focus:border-[#E31B23] focus:ring-0"
                         />
                     </div>
                     <div className="space-y-2">
-                        <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Body Type</Label>
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Body Type</Label>
                         <Select value={formData.category} onValueChange={(v: any) => setFormData(prev => ({ ...prev, category: v }))}>
-                        <SelectTrigger className="h-12 bg-slate-50 border-gray-100 rounded-xl font-black text-[10px] uppercase">
+                        <SelectTrigger className="h-12 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356] focus:border-[#E31B23] focus:ring-0 uppercase">
                             <SelectValue />
                         </SelectTrigger>
-                        <SelectContent className="bg-white border-gray-100 text-[#0E2356] font-black text-[10px]">
+                        <SelectContent className="bg-white border-gray-100 text-[#0E2356] font-bold">
                             {categories.map(cat => (
-                            <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                            <SelectItem key={cat} value={cat} className="uppercase">{cat}</SelectItem>
                             ))}
                         </SelectContent>
                         </Select>
@@ -346,19 +351,19 @@ export function AdminProjectsPage() {
                     </div>
 
                     <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Marketing Description</Label>
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Marketing Description</Label>
                     <Textarea
                         value={formData.description}
                         onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                        placeholder="Describe the unit's key features, special promos, etc."
-                        rows={4}
-                        className="bg-slate-50 border-gray-100 rounded-xl resize-none p-4 font-medium text-sm leading-relaxed"
+                        placeholder="Describe the unit's key features..."
+                        rows={6}
+                        className="bg-slate-50 border-gray-100 rounded-xl resize-none p-5 font-bold text-[#0E2356] leading-relaxed focus:border-[#E31B23] focus:ring-0"
                     />
                     </div>
 
                     <div className="grid md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                        <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 flex items-center gap-2">
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 flex items-center gap-2 ml-1">
                           Inquiry Form Link
                           <Info className="w-3 h-3 text-red-400" />
                         </Label>
@@ -366,29 +371,53 @@ export function AdminProjectsPage() {
                         value={formData.live_demo_url}
                         onChange={(e) => setFormData(prev => ({ ...prev, live_demo_url: e.target.value }))}
                         placeholder="Google Form / External Link"
-                        className="h-12 bg-slate-50 border-gray-100 rounded-xl font-medium text-sm"
+                        className="h-12 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356] focus:border-[#E31B23] focus:ring-0"
                         />
                     </div>
                     <div className="space-y-2">
-                        <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Sort Order / Price ID</Label>
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Price (SRP)</Label>
                         <Input
                         type="number"
-                        value={formData.order}
-                        onChange={(e) => setFormData(prev => ({ ...prev, order: parseInt(e.target.value) || 0 }))}
-                        className="h-12 bg-slate-50 border-gray-100 rounded-xl font-medium"
+                        value={formData.price}
+                        onChange={(e) => setFormData(prev => ({ ...prev, price: parseFloat(e.target.value) || 0 }))}
+                        placeholder="798000"
+                        className="h-12 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356] focus:border-[#E31B23] focus:ring-0"
                         />
                     </div>
                     </div>
 
+                    <div className="grid md:grid-cols-2 gap-6">
+                        <div className="space-y-4">
+                            <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Sort Order</Label>
+                            <Input
+                                type="number"
+                                value={formData.order}
+                                onChange={(e) => setFormData(prev => ({ ...prev, order: parseInt(e.target.value) || 0 }))}
+                                className="h-12 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356] focus:border-[#E31B23] focus:ring-0"
+                            />
+                        </div>
+                        <div className="flex items-center gap-4 p-5 bg-red-50 rounded-3xl border border-red-100 h-16 self-end">
+                            <Switch
+                                checked={formData.featured}
+                                onCheckedChange={(v) => setFormData(prev => ({ ...prev, featured: v }))}
+                                className="data-[state=checked]:bg-[#E31B23]"
+                            />
+                            <div>
+                                <Label className="text-[10px] font-black text-[#0E2356] uppercase tracking-widest">Featured Unit</Label>
+                                <p className="text-[8px] text-[#E31B23] font-black uppercase">HOT DEAL Badge</p>
+                            </div>
+                        </div>
+                    </div>
+
                     <div className="space-y-4">
-                    <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Key Specifications (e.g. 7-Seater, Automatic)</Label>
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Key Specifications</Label>
                     <div className="flex gap-3">
                         <Input
                         value={techInput}
                         onChange={(e) => setTechInput(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTech())}
-                        placeholder="Add spec badge..."
-                        className="h-12 bg-slate-50 border-gray-100 rounded-xl font-medium"
+                        placeholder="Add spec (e.g. 7-Seater)..."
+                        className="h-12 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356] focus:border-[#E31B23] focus:ring-0"
                         />
                         <Button type="button" onClick={addTech} variant="outline" className="h-12 border-gray-100 px-6 rounded-xl font-black text-[10px] uppercase">
                         Add
@@ -396,27 +425,15 @@ export function AdminProjectsPage() {
                     </div>
                     <div className="flex flex-wrap gap-2 mt-4">
                         {formData.tech_stack.map((tech, i) => (
-                        <Badge key={i} className="bg-blue-50 text-[#0E2356] border-none font-black text-[9px] px-3 py-1.5 rounded-lg uppercase tracking-wider">
+                        <Badge key={i} className="bg-[#0E2356] text-white border-none font-black text-[9px] px-3 py-1.5 rounded-lg uppercase tracking-wider">
                             {tech}
                             <button onClick={() => removeTech(tech)} className="ml-2 hover:text-[#E31B23]">×</button>
                         </Badge>
                         ))}
                     </div>
                     </div>
-
-                    <div className="flex items-center gap-4 p-5 bg-red-50 rounded-3xl border border-red-100">
-                    <Switch
-                        checked={formData.featured}
-                        onCheckedChange={(v) => setFormData(prev => ({ ...prev, featured: v }))}
-                        className="data-[state=checked]:bg-[#E31B23]"
-                    />
-                    <div>
-                        <Label className="text-xs font-black text-[#0E2356] uppercase">Hot Deal / Featured Unit</Label>
-                        <p className="text-[10px] text-[#E31B23] font-medium">This will show a badge on the unit photo.</p>
-                    </div>
-                    </div>
                 </div>
-                <DialogFooter className="pt-6 border-t border-gray-50">
+                <DialogFooter className="pt-8 border-t border-gray-50 mt-4">
                     <Button variant="ghost" onClick={() => setIsDialogOpen(false)} className="h-14 font-black uppercase tracking-widest text-xs text-gray-400">
                       Cancel
                     </Button>

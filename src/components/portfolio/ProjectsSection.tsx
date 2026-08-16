@@ -1,4 +1,3 @@
-
 'use client';
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -15,7 +14,7 @@ export default function ProjectsSection({ projects = [] }: { projects: Project[]
 
   const dynamicCategories = useMemo(() => {
     if (!projects || projects.length === 0) return ['ALL'];
-    const uniqueCategories = Array.from(new Set(projects.map(p => p.category.toUpperCase())));
+    const uniqueCategories = Array.from(new Set(projects.map(p => (p.category || 'Other').toUpperCase())));
     return ['ALL', ...uniqueCategories];
   }, [projects]);
 
@@ -23,7 +22,7 @@ export default function ProjectsSection({ projects = [] }: { projects: Project[]
 
   const filteredProjects = activeCategory === 'ALL' 
     ? displayProjects 
-    : displayProjects.filter(p => p.category.toUpperCase() === activeCategory);
+    : displayProjects.filter(p => (p.category || 'Other').toUpperCase() === activeCategory);
 
   const sortedProjects = [...filteredProjects].sort((a, b) => {
     if (a.featured && !b.featured) return -1;
@@ -128,7 +127,7 @@ export default function ProjectsSection({ projects = [] }: { projects: Project[]
                     </div>
 
                     <div className="p-6">
-                      <h3 className="text-[17px] font-bold text-[#0E2356] mb-2 leading-tight">
+                      <h3 className="text-[17px] font-bold text-[#0E2356] mb-2 leading-tight uppercase">
                         {project.title}
                       </h3>
                       <p className="text-gray-400 text-xs mb-6 line-clamp-2 leading-relaxed font-medium">
@@ -139,7 +138,7 @@ export default function ProjectsSection({ projects = [] }: { projects: Project[]
                         <div className="flex flex-col">
                           <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-0.5">Price Starts</span>
                           <span className="text-[#E31B23] text-lg font-black tracking-tight">
-                            ₱{project.order ? (project.order * 100000).toLocaleString() : '798,000'}
+                            ₱{(project.price || 0).toLocaleString()}
                           </span>
                         </div>
                         <Button
@@ -196,11 +195,19 @@ export default function ProjectsSection({ projects = [] }: { projects: Project[]
                   </div>
                   
                   <div className="space-y-8">
+                    <div className="flex items-center justify-between p-6 bg-slate-50 rounded-[32px] border border-gray-100">
+                      <div>
+                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Current Retail Price</p>
+                        <p className="text-3xl font-black text-[#E31B23] tracking-tighter">₱{(selectedProject.price || 0).toLocaleString()}</p>
+                      </div>
+                      <Badge variant="outline" className="border-[#0E2356] text-[#0E2356] font-black">SUZUKI PH</Badge>
+                    </div>
+
                     <div>
-                      <h4 className="text-[9px] font-black text-gray-300 uppercase tracking-[0.3em] mb-4">Unit Specifications</h4>
+                      <h4 className="text-[9px] font-black text-gray-300 uppercase tracking-[0.3em] mb-4 ml-1">Unit Specifications</h4>
                       <div className="flex flex-wrap gap-2">
                         {selectedProject.tech_stack?.map((tech, i) => (
-                          <Badge key={i} variant="secondary" className="bg-slate-50 border-gray-100 text-[#0E2356] px-4 py-1.5 rounded-lg text-[10px] font-black uppercase">
+                          <Badge key={i} variant="secondary" className="bg-white border-gray-100 text-[#0E2356] px-4 py-1.5 rounded-lg text-[10px] font-black uppercase shadow-sm">
                             {tech}
                           </Badge>
                         ))}
