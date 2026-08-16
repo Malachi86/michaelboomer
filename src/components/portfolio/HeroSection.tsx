@@ -1,13 +1,23 @@
 'use client';
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ChevronRight, CheckCircle, ShieldCheck, Mail, Facebook, MessageCircle, Linkedin, Star } from 'lucide-react';
+import { ChevronRight, CheckCircle, ShieldCheck, Mail, Facebook, MessageCircle, Linkedin, Star, Globe } from 'lucide-react';
 import type { Profile } from '@/lib/types';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 
 export default function HeroSection({ profile }: { profile: Profile }) {
   const hasProfileImage = profile?.profile_image && profile.profile_image.trim() !== "";
+
+  // Helper to get brand styles based on platform name
+  const getPlatformStyles = (platform: string) => {
+    const p = platform.toLowerCase();
+    if (p.includes('facebook')) return { icon: <Facebook className="w-4 h-4" />, bgColor: "bg-[#1877F2] hover:bg-[#1565d0]" };
+    if (p.includes('viber')) return { icon: <MessageCircle className="w-4 h-4" />, bgColor: "bg-[#7360F2] hover:bg-[#6251d1]" };
+    if (p.includes('linkedin')) return { icon: <Linkedin className="w-4 h-4" />, bgColor: "bg-[#0A66C2] hover:bg-[#08529d]" };
+    if (p.includes('gmail') || p.includes('email')) return { icon: <Mail className="w-4 h-4" />, bgColor: "bg-[#E31B23] hover:bg-[#c4171e]" };
+    return { icon: <Globe className="w-4 h-4" />, bgColor: "bg-[#0E2356] hover:bg-[#1a2f6b]" }; // Default
+  };
 
   return (
     <section id="hero" className="relative min-h-[95vh] flex items-center bg-[#FFFBFA] overflow-hidden pt-28 pb-20">
@@ -39,20 +49,23 @@ export default function HeroSection({ profile }: { profile: Profile }) {
               </p>
             </div>
 
-            {/* Social Link Buttons */}
+            {/* Dynamic Social Link Buttons */}
             <div className="flex flex-wrap gap-3 mb-10">
-              <Button className="bg-[#E31B23] hover:bg-[#c4171e] text-white font-bold px-4 gap-2 rounded-lg text-xs h-10 shadow-sm">
-                <Mail className="w-4 h-4" /> Gmail
-              </Button>
-              <Button className="bg-[#1877F2] hover:bg-[#1565d0] text-white font-bold px-4 gap-2 rounded-lg text-xs h-10 shadow-sm">
-                <Facebook className="w-4 h-4" /> Facebook
-              </Button>
-              <Button className="bg-[#7360F2] hover:bg-[#6251d1] text-white font-bold px-4 gap-2 rounded-lg text-xs h-10 shadow-sm">
-                <MessageCircle className="w-4 h-4" /> Viber
-              </Button>
-              <Button className="bg-[#0A66C2] hover:bg-[#08529d] text-white font-bold px-4 gap-2 rounded-lg text-xs h-10 shadow-sm">
-                <Linkedin className="w-4 h-4" /> LinkedIn
-              </Button>
+              {profile?.social_links?.map((link, index) => {
+                const styles = getPlatformStyles(link.platform);
+                return (
+                  <Button 
+                    key={index}
+                    className={`${styles.bgColor} text-white font-bold px-6 gap-2 rounded-full text-xs h-12 shadow-sm transition-all hover:scale-105 active:scale-95`}
+                    asChild
+                  >
+                    <a href={link.url} target="_blank" rel="noopener noreferrer">
+                      {styles.icon}
+                      {link.platform}
+                    </a>
+                  </Button>
+                );
+              })}
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 mb-12">
