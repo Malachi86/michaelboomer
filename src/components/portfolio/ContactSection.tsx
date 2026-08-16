@@ -36,14 +36,24 @@ function SubmitButton() {
   );
 }
 
-const ContactInfoCard = ({ icon: Icon, label, value, color, bgColor }: { icon: any, label: string, value: string, color: string, bgColor: string }) => (
-  <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl border border-gray-100/50 shadow-sm hover:shadow-md transition-shadow">
-    <div className={`w-12 h-12 rounded-xl ${bgColor} flex items-center justify-center flex-shrink-0 shadow-sm`}>
-      <Icon className={`w-6 h-6 ${color}`} />
+const ContactInfoCard = ({ 
+  icon: Icon, 
+  label, 
+  value, 
+  bgColor 
+}: { 
+  icon: any, 
+  label: string, 
+  value: string, 
+  bgColor: string 
+}) => (
+  <div className="flex items-center gap-5 p-5 bg-white rounded-[24px] border border-gray-50 shadow-xl shadow-slate-100/50 hover:shadow-2xl hover:shadow-slate-200/50 transition-all duration-300 group">
+    <div className={`w-14 h-14 rounded-2xl ${bgColor} flex items-center justify-center flex-shrink-0 shadow-lg group-hover:scale-105 transition-transform`}>
+      <Icon className="w-7 h-7 text-white" />
     </div>
     <div className="min-w-0">
-      <h3 className="text-gray-400 font-black text-[10px] uppercase tracking-widest mb-0.5">{label}</h3>
-      <p className="text-[#0E2356] font-bold text-sm truncate">{value}</p>
+      <h3 className="text-gray-400 font-black text-[10px] uppercase tracking-[0.2em] mb-1">{label}</h3>
+      <p className="text-[#0E2356] font-black text-sm lg:text-base truncate tracking-tight">{value}</p>
     </div>
   </div>
 );
@@ -73,24 +83,26 @@ export default function ContactSection({ profile }: { profile: Profile }) {
   }, [state, toast, router]);
 
   return (
-    <section id="contact" className="relative py-32 bg-white overflow-hidden">
+    <section id="contact" className="relative py-32 bg-[#FFFBFA] overflow-hidden">
+      {/* Decorative Elements */}
+      <div className="absolute -top-24 -right-24 w-96 h-96 bg-red-50 rounded-full blur-[120px] -z-0" />
+      <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-blue-50 rounded-full blur-[120px] -z-0" />
+
       <div className="relative max-w-[1440px] mx-auto px-6 lg:px-12 z-10 w-full">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-16"
+          className="text-center mb-20"
         >
+          <p className="text-[#E31B23] font-black tracking-[0.3em] uppercase text-[10px] mb-4">Connect With Us</p>
           <h2 className="text-5xl lg:text-7xl font-serif text-[#0E2356] mb-6">
             Get In Touch
           </h2>
-          <p className="text-gray-400 text-lg max-w-2xl mx-auto font-medium leading-relaxed mb-6">
-            Ang iyong bagong sasakyan ay isang mensahe lang ang layo. Makipag-ugnayan sa amin ngayon.
-          </p>
-          <div className="w-12 h-1 bg-[#E31B23] mx-auto rounded-full" />
+          <div className="w-16 h-1 bg-[#E31B23] mx-auto rounded-full" />
         </motion.div>
 
-        <div className="grid lg:grid-cols-2 gap-12 max-w-6xl mx-auto items-start">
+        <div className="grid lg:grid-cols-2 gap-16 max-w-6xl mx-auto items-start">
           {/* Left Column: Contact Cards */}
           <motion.div
             initial={{ opacity: 0, x: -30 }}
@@ -102,35 +114,30 @@ export default function ContactSection({ profile }: { profile: Profile }) {
               icon={Mail} 
               label="Gmail" 
               value={profile?.email || "orozcomarvinpaul@gmail.com"} 
-              color="text-white" 
               bgColor="bg-[#EA4335]" 
             />
             <ContactInfoCard 
               icon={Facebook} 
               label="Facebook" 
               value="fb.com/marvinpaul.orozco" 
-              color="text-white" 
               bgColor="bg-[#1877F2]" 
             />
             <ContactInfoCard 
               icon={MessageCircle} 
               label="Viber" 
               value="+63 9XX XXX XXXX" 
-              color="text-white" 
               bgColor="bg-[#7360F2]" 
             />
             <ContactInfoCard 
               icon={Linkedin} 
               label="Linkedin" 
               value="linkedin.com/in/marvinpaulorozco" 
-              color="text-white" 
               bgColor="bg-[#0A66C2]" 
             />
             <ContactInfoCard 
               icon={MapPin} 
               label="Location" 
               value="Authorized Suzuki Sales Branch" 
-              color="text-white" 
               bgColor="bg-[#E31B23]" 
             />
           </motion.div>
@@ -141,44 +148,48 @@ export default function ContactSection({ profile }: { profile: Profile }) {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
           >
-            <form ref={formRef} action={formAction} className="space-y-6 bg-white border border-gray-100/50 rounded-[40px] p-10 shadow-2xl shadow-slate-200/50">
-              <div className="grid sm:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="firstName" className="text-[#0E2356] font-black text-[10px] uppercase tracking-[0.15em]">Full Name</Label>
+            <form ref={formRef} action={formAction} className="space-y-8 bg-white border border-gray-100/50 rounded-[40px] p-10 lg:p-12 shadow-2xl shadow-slate-200/50">
+              <div className="grid sm:grid-cols-2 gap-8">
+                <div className="space-y-3">
+                  <Label htmlFor="firstName" className="text-[#0E2356] font-black text-[10px] uppercase tracking-[0.2em] ml-1">Full Name</Label>
                   <Input
                     id="firstName"
                     name="firstName"
                     placeholder="Juan dela Cruz"
                     required
-                    className="bg-slate-50 border-gray-100 h-14 rounded-xl focus:border-[#0E2356] placeholder:text-gray-300"
+                    className="bg-slate-50 border-gray-100 h-14 rounded-2xl focus:border-[#E31B23] focus:ring-0 placeholder:text-gray-300 font-bold"
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email" className="text-[#0E2356] font-black text-[10px] uppercase tracking-[0.15em]">Email Address</Label>
+                <div className="space-y-3">
+                  <Label htmlFor="email" className="text-[#0E2356] font-black text-[10px] uppercase tracking-[0.2em] ml-1">Email Address</Label>
                   <Input
                     id="email"
                     type="email"
                     name="email"
                     placeholder="juan@email.com"
                     required
-                    className="bg-slate-50 border-gray-100 h-14 rounded-xl focus:border-[#0E2356] placeholder:text-gray-300"
+                    className="bg-slate-50 border-gray-100 h-14 rounded-2xl focus:border-[#E31B23] focus:ring-0 placeholder:text-gray-300 font-bold"
                   />
                 </div>
               </div>
               
-              <div className="space-y-2">
-                <Label htmlFor="message" className="text-[#0E2356] font-black text-[10px] uppercase tracking-[0.15em]">Inquiry Message</Label>
+              <div className="space-y-3">
+                <Label htmlFor="message" className="text-[#0E2356] font-black text-[10px] uppercase tracking-[0.2em] ml-1">Inquiry Message</Label>
                 <Textarea
                   id="message"
                   name="message"
                   required
                   rows={6}
                   placeholder="Tell us about the vehicle you're interested in..."
-                  className="bg-slate-50 border-gray-100 rounded-xl focus:border-[#0E2356] resize-none p-4 min-h-[160px] placeholder:text-gray-300"
+                  className="bg-slate-50 border-gray-100 rounded-2xl focus:border-[#E31B23] focus:ring-0 resize-none p-5 min-h-[180px] placeholder:text-gray-300 font-bold"
                 />
               </div>
               
               <SubmitButton />
+              
+              <p className="text-center text-[10px] font-black text-gray-300 uppercase tracking-widest">
+                Authorized Suzuki Sales Representative
+              </p>
             </form>
           </motion.div>
         </div>
