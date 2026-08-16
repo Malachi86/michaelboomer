@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from "@/components/ui/button";
@@ -45,7 +44,7 @@ function LoginContent() {
     try {
       const result = await signInWithEmailAndPassword(auth, email, password);
       if (result.user.email === ADMIN_EMAIL) {
-        toast({ title: "Login Successful", description: `Welcome back, Marvin!` });
+        toast({ title: "Login Successful", description: `Welcome back, Michael!` });
         router.push('/admin');
       } else {
         setLoginError(`Unauthorized account. Access restricted.`);
@@ -86,7 +85,7 @@ function LoginContent() {
           <div className="space-y-2">
             <CardTitle className="text-4xl font-serif font-bold tracking-tight">Admin Portal</CardTitle>
             <CardDescription className="text-primary font-medium">
-              Verification for Marvin Paul Orozco.
+              Verification for Michael Gabriel Orozco.
             </CardDescription>
           </div>
         </CardHeader>

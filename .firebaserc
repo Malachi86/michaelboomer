@@ -1,5 +1,15 @@
 {
   "projects": {
-    "default": "myportfolio-48bb2"
-  }
+    "default": "mgosuzukisales"
+  },
+  "targets": {
+    "studio-7714200755-d4b21": {
+      "hosting": {
+        "mgosuzukisales": [
+          "mgosuzukisales"
+        ]
+      }
+    }
+  },
+  "etags": {}
 }
