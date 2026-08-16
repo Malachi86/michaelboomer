@@ -54,7 +54,7 @@ function VehicleDetailContent() {
     <div className="min-h-screen bg-[#FFFBFA] text-[#0E2356]">
       <Navigation profile={profile} />
 
-      <main className="pt-32 pb-24 overflow-y-auto">
+      <main className="pt-32 pb-24 min-h-screen">
         <div className="max-w-[1440px] mx-auto px-6 lg:px-12 w-full">
           {/* Back Button */}
           <Link href="/#projects">
@@ -134,7 +134,7 @@ function VehicleDetailContent() {
                   {project.title}
                 </h1>
                 <p className="text-gray-500 text-lg leading-relaxed font-medium max-w-xl">
-                  {project.description}
+                  🚗 {project.description}
                 </p>
               </div>
 
