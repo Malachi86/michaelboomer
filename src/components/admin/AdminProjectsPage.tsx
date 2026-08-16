@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { 
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter 
 } from "@/components/ui/dialog";
-import { Plus, Trash2, Edit2, Loader2, Upload, ExternalLink, Github, Play, Star, Car, Link as LinkIcon, Info, X } from 'lucide-react';
+import { Plus, Trash2, Edit2, Loader2, Upload, Star, Car, Link as LinkIcon, Info, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getProjects, addProject, updateProject, deleteProject } from '@/app/admin/actions';
 import { useStorage } from '@/firebase';
@@ -263,12 +263,15 @@ export function AdminProjectsPage() {
                           </div>
 
                           <div className="flex items-center justify-between border-t border-gray-50 pt-6">
-                            <span className="text-[#E31B23] font-black text-lg tracking-tighter">
-                              ₱{(project.price || 0).toLocaleString()}
-                            </span>
+                            <div className="flex flex-col">
+                              <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">PRICE STARTS</span>
+                              <span className="text-[#E31B23] font-black text-lg tracking-tighter">
+                                ₱{(project.price || 0).toLocaleString()}
+                              </span>
+                            </div>
                             <div className="flex gap-2">
                                 {project.live_demo_url && (
-                                    <Badge variant="outline" className="border-green-100 bg-green-50 text-green-600 text-[8px] font-black">FORM LINKED</Badge>
+                                    <Badge variant="outline" className="border-green-100 bg-green-50 text-green-600 text-[8px] font-black uppercase">LINKED</Badge>
                                 )}
                             </div>
                           </div>

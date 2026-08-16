@@ -3,10 +3,11 @@ import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { X, Star, Car, ExternalLink, MessageSquare } from 'lucide-react';
+import { X, Star, Car, ExternalLink, MessageSquare, ChevronRight } from 'lucide-react';
 import type { Project } from '@/lib/types';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 export default function ProjectsSection({ projects = [] }: { projects: Project[] }) {
   const [activeCategory, setActiveCategory] = useState('ALL');
@@ -40,23 +41,20 @@ export default function ProjectsSection({ projects = [] }: { projects: Project[]
   };
 
   return (
-    <section id="projects" className="relative py-24 bg-white">
+    <section id="projects" className="relative py-32 bg-white overflow-hidden">
       <div className="max-w-[1440px] mx-auto px-6 lg:px-12 w-full">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-16"
+          className="text-center mb-20"
         >
           <p className="text-[#E31B23] font-black tracking-[0.3em] uppercase text-[10px] mb-4">
             OUR INVENTORY
           </p>
-          <h2 className="text-4xl lg:text-6xl font-serif text-[#0E2356] mb-6">
+          <h2 className="text-5xl lg:text-7xl font-serif text-[#0E2356] mb-6">
             Suzuki Vehicle Catalog
           </h2>
-          <p className="text-gray-500 text-lg font-medium max-w-2xl mx-auto leading-relaxed mb-6">
-            Hanapin ang sasakyang nababagay sa iyong lifestyle. Bawat unit ay garantisadong Suzuki Quality.
-          </p>
           <div className="w-16 h-1 bg-[#E31B23] mx-auto rounded-full" />
         </motion.div>
 
@@ -71,9 +69,9 @@ export default function ProjectsSection({ projects = [] }: { projects: Project[]
               key={category}
               onClick={() => setActiveCategory(category)}
               className={cn(
-                "px-8 py-2.5 rounded-full text-[11px] font-black tracking-widest transition-all duration-300",
+                "px-8 py-3 rounded-full text-[11px] font-black tracking-widest transition-all duration-300",
                 activeCategory === category 
-                  ? "bg-[#0E2356] text-white shadow-lg"
+                  ? "bg-[#0E2356] text-white shadow-xl"
                   : "bg-slate-100 text-gray-400 hover:bg-slate-200"
               )}
             >
@@ -82,7 +80,7 @@ export default function ProjectsSection({ projects = [] }: { projects: Project[]
           ))}
         </motion.div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           <AnimatePresence mode="popLayout">
             {sortedProjects.map((project, index) => {
               const displayImageUrl = project.image_url || (project as any).imageUrl;
@@ -93,9 +91,9 @@ export default function ProjectsSection({ projects = [] }: { projects: Project[]
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9 }}
-                  transition={{ duration: 0.3, delay: index * 0.05 }}
+                  transition={{ duration: 0.4, delay: index * 0.05 }}
                 >
-                  <div className="bg-white rounded-[32px] overflow-hidden showroom-shadow border border-gray-50 group hover:-translate-y-2 transition-transform duration-500">
+                  <div className="bg-white rounded-[40px] overflow-hidden showroom-shadow border border-gray-100/50 group transition-all duration-500 hover:shadow-2xl hover:-translate-y-2">
                     <div className="relative aspect-[4/3] overflow-hidden bg-slate-50">
                       {displayImageUrl ? (
                         <Image
@@ -111,38 +109,38 @@ export default function ProjectsSection({ projects = [] }: { projects: Project[]
                         </div>
                       )}
                       
-                      <div className="absolute top-4 left-4 z-10">
-                        <Badge className="bg-[#0E2356] text-white border-0 px-3 py-1 text-[9px] font-black uppercase tracking-widest rounded-lg">
+                      <div className="absolute top-6 left-6 z-10">
+                        <Badge className="bg-[#0E2356] text-white border-0 px-4 py-1.5 text-[9px] font-black uppercase tracking-widest rounded-xl">
                           {project.category}
                         </Badge>
                       </div>
 
                       {project.featured && (
-                        <div className="absolute top-4 right-4 z-10">
-                          <Badge className="bg-[#E31B23] text-white border-0 px-3 py-1 text-[9px] font-black uppercase tracking-widest rounded-lg flex items-center gap-1">
+                        <div className="absolute top-6 right-6 z-10">
+                          <Badge className="bg-[#E31B23] text-white border-0 px-4 py-1.5 text-[9px] font-black uppercase tracking-widest rounded-xl flex items-center gap-1 shadow-lg">
                             <Star className='h-2.5 w-2.5 fill-white'/> HOT DEAL
                           </Badge>
                         </div>
                       )}
                     </div>
 
-                    <div className="p-6">
-                      <h3 className="text-[17px] font-bold text-[#0E2356] mb-2 leading-tight uppercase">
+                    <div className="p-8">
+                      <h3 className="text-2xl font-black text-[#0E2356] mb-3 leading-tight uppercase tracking-tight">
                         {project.title}
                       </h3>
-                      <p className="text-gray-400 text-xs mb-6 line-clamp-2 leading-relaxed font-medium">
-                        {project.description}
+                      <p className="text-gray-400 text-sm mb-8 line-clamp-2 leading-relaxed font-medium">
+                        🚗 {project.description}
                       </p>
                       
-                      <div className="flex items-center justify-between mt-auto border-t border-gray-50 pt-4">
+                      <div className="flex items-center justify-between mt-auto border-t border-gray-50 pt-6">
                         <div className="flex flex-col">
-                          <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-0.5">Price Starts</span>
-                          <span className="text-[#E31B23] text-lg font-black tracking-tight">
+                          <span className="text-[10px] text-gray-400 font-black uppercase tracking-[0.2em] mb-1">PRICE STARTS</span>
+                          <span className="text-[#E31B23] text-2xl font-black tracking-tighter">
                             ₱{(project.price || 0).toLocaleString()}
                           </span>
                         </div>
                         <Button
-                          className="bg-[#E31B23] hover:bg-[#c4171e] text-white font-black text-[10px] tracking-widest px-6 h-10 rounded-xl shadow-lg shadow-red-100"
+                          className="bg-[#E31B23] hover:bg-[#c4171e] text-white font-black text-xs tracking-widest px-8 h-14 rounded-2xl shadow-xl shadow-red-100 transition-all active:scale-95"
                           onClick={() => setSelectedProject(project)}
                         >
                           INQUIRE
@@ -159,22 +157,10 @@ export default function ProjectsSection({ projects = [] }: { projects: Project[]
 
       <AnimatePresence>
         {selectedProject && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#0E2356]/90 backdrop-blur-md"
-            onClick={() => setSelectedProject(null)}
-          >
-            <motion.div
-              initial={{ scale: 0.9, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 20 }}
-              className="relative w-full max-w-4xl bg-white rounded-[40px] overflow-hidden shadow-2xl max-h-[90vh] overflow-y-auto"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="flex flex-col lg:flex-row">
-                <div className="lg:w-1/2 relative aspect-video lg:aspect-square bg-slate-50">
+          <Dialog open={!!selectedProject} onOpenChange={() => setSelectedProject(null)}>
+            <DialogContent className="max-w-6xl w-[95vw] bg-white border-none p-0 overflow-hidden text-[#0E2356] shadow-2xl rounded-[40px]">
+              <div className="flex flex-col lg:flex-row h-full max-h-[90vh] overflow-y-auto lg:overflow-hidden">
+                <div className="lg:w-3/5 relative aspect-video lg:aspect-auto bg-slate-50 min-h-[400px]">
                   <Image
                     src={selectedProject.image_url || (selectedProject as any).imageUrl}
                     alt={selectedProject.title}
@@ -182,73 +168,84 @@ export default function ProjectsSection({ projects = [] }: { projects: Project[]
                     unoptimized
                     className="object-cover"
                   />
+                  <Button 
+                    variant="outline" 
+                    className="absolute top-6 left-6 h-12 w-12 rounded-2xl border-none bg-white/80 backdrop-blur-md text-[#0E2356] shadow-xl lg:hidden"
+                    onClick={() => setSelectedProject(null)}
+                  >
+                    <X className="w-6 h-6" />
+                  </Button>
                 </div>
-                <div className="lg:w-1/2 p-8 lg:p-12 relative flex flex-col justify-center">
-                  <div className="mb-6">
-                    <Badge className="bg-[#E31B23] mb-4 text-[10px] font-black uppercase tracking-widest">{selectedProject.category}</Badge>
-                    <h2 className="text-3xl lg:text-4xl font-black text-[#0E2356] mb-4 leading-tight uppercase tracking-tighter">
+                
+                <div className="lg:w-2/5 p-8 lg:p-16 flex flex-col justify-center bg-white relative">
+                  <Button 
+                    variant="ghost" 
+                    className="absolute top-10 right-10 h-12 w-12 rounded-2xl text-gray-400 hover:text-[#E31B23] hidden lg:flex"
+                    onClick={() => setSelectedProject(null)}
+                  >
+                    <X className="w-8 h-8" />
+                  </Button>
+
+                  <div className="mb-10">
+                    <Badge className="bg-[#0E2356] text-white mb-6 text-[10px] font-black uppercase tracking-[0.2em] px-5 py-2 rounded-xl">
+                      {selectedProject.category}
+                    </Badge>
+                    <h2 className="text-4xl lg:text-6xl font-black text-[#0E2356] mb-6 leading-none uppercase tracking-tighter">
                       {selectedProject.title}
                     </h2>
-                    <p className="text-gray-500 text-sm leading-relaxed font-medium mb-8">
+                    <p className="text-gray-500 text-lg leading-relaxed font-medium">
                       {selectedProject.description}
                     </p>
                   </div>
                   
-                  <div className="space-y-8">
-                    <div className="flex items-center justify-between p-6 bg-slate-50 rounded-[32px] border border-gray-100">
+                  <div className="space-y-10">
+                    <div className="p-8 bg-[#FFFBFA] rounded-[32px] border border-red-50">
+                      <p className="text-[11px] font-black text-gray-400 uppercase tracking-[0.3em] mb-2">Current Retail Price</p>
+                      <p className="text-5xl font-black text-[#E31B23] tracking-tighter">
+                        ₱{(selectedProject.price || 0).toLocaleString()}
+                      </p>
+                    </div>
+
+                    {selectedProject.tech_stack && selectedProject.tech_stack.length > 0 && (
                       <div>
-                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Current Retail Price</p>
-                        <p className="text-3xl font-black text-[#E31B23] tracking-tighter">₱{(selectedProject.price || 0).toLocaleString()}</p>
+                        <h4 className="text-[10px] font-black text-gray-300 uppercase tracking-[0.4em] mb-6 ml-1">Key Specifications</h4>
+                        <div className="flex flex-wrap gap-3">
+                          {selectedProject.tech_stack.map((tech, i) => (
+                            <div key={i} className="bg-white border border-gray-100 text-[#0E2356] px-6 py-3 rounded-2xl text-[11px] font-black uppercase shadow-sm flex items-center gap-2">
+                              <div className="w-1.5 h-1.5 rounded-full bg-[#E31B23]" />
+                              {tech}
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                      <Badge variant="outline" className="border-[#0E2356] text-[#0E2356] font-black">SUZUKI PH</Badge>
-                    </div>
+                    )}
 
-                    <div>
-                      <h4 className="text-[9px] font-black text-gray-300 uppercase tracking-[0.3em] mb-4 ml-1">Unit Specifications</h4>
-                      <div className="flex flex-wrap gap-2">
-                        {selectedProject.tech_stack?.map((tech, i) => (
-                          <Badge key={i} variant="secondary" className="bg-white border-gray-100 text-[#0E2356] px-4 py-1.5 rounded-lg text-[10px] font-black uppercase shadow-sm">
-                            {tech}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="space-y-3 pt-4">
+                    <div className="flex flex-col gap-4 pt-6">
                       <Button 
-                        className="w-full bg-[#E31B23] hover:bg-[#c4171e] text-white font-black h-16 rounded-2xl shadow-xl shadow-red-100 text-sm tracking-widest group"
+                        className="w-full bg-[#E31B23] hover:bg-[#c4171e] text-white font-black h-20 rounded-[24px] shadow-2xl shadow-red-100 text-sm tracking-[0.2em] group"
                         onClick={() => handleInquiryLink(selectedProject.live_demo_url)}
                       >
                         PROCEED TO INQUIRY FORM
-                        <ExternalLink className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
+                        <ChevronRight className="ml-2 w-5 h-5 transition-transform group-hover:translate-x-2" />
                       </Button>
                       
-                      <div className="flex gap-3">
-                        <Button 
-                          variant="outline" 
-                          className="flex-1 h-14 rounded-2xl border-gray-200 text-[#0E2356] font-black text-[11px] tracking-widest hover:bg-slate-50"
-                          onClick={() => {
-                            setSelectedProject(null);
-                            document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth' });
-                          }}
-                        >
-                          <MessageSquare className="w-4 h-4 mr-2" />
-                          MESSAGE DIRECTLY
-                        </Button>
-                        <Button 
-                          variant="outline" 
-                          className="h-14 w-14 rounded-2xl border-gray-200 text-gray-400 hover:text-[#E31B23]" 
-                          onClick={() => setSelectedProject(null)}
-                        >
-                          <X className="w-6 h-6" />
-                        </Button>
-                      </div>
+                      <Button 
+                        variant="outline" 
+                        className="w-full h-16 rounded-[24px] border-gray-100 text-[#0E2356] font-black text-[12px] tracking-[0.2em] hover:bg-slate-50 uppercase"
+                        onClick={() => {
+                          setSelectedProject(null);
+                          document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth' });
+                        }}
+                      >
+                        <MessageSquare className="w-5 h-5 mr-3" />
+                        Message Representative
+                      </Button>
                     </div>
                   </div>
                 </div>
               </div>
-            </motion.div>
-          </motion.div>
+            </DialogContent>
+          </Dialog>
         )}
       </AnimatePresence>
     </section>
