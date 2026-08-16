@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { 
   Star, Quote, MessageSquare, 
-  Loader2, Plus, Eye, ArrowRight
+  Loader2, Plus, Eye
 } from 'lucide-react';
 import {
   Carousel,
@@ -20,7 +20,7 @@ import Autoplay from 'embla-carousel-autoplay';
 import type { Testimonial } from '@/lib/types';
 import { submitTestimonial } from '@/app/admin/actions';
 import { useToast } from '@/hooks/use-toast';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import Link from 'next/link';
 
 export default function TestimonialsSection({ testimonials = [] }: { testimonials: Testimonial[] }) {
@@ -99,6 +99,7 @@ export default function TestimonialsSection({ testimonials = [] }: { testimonial
               <DialogContent className="bg-white border-none text-[#0E2356] sm:max-w-md shadow-2xl rounded-[40px] p-10">
                 <DialogHeader>
                   <DialogTitle className="text-2xl font-black uppercase tracking-tighter text-[#0E2356]">Share Your Experience</DialogTitle>
+                  <DialogDescription className="text-gray-400 text-sm">Tulungan kaming mapabuti ang aming serbisyo sa pamamagitan ng pagbibigay ng iyong feedback.</DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-6 py-4">
                   <div className="flex justify-center gap-2 mb-4">

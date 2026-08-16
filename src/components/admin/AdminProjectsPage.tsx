@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { 
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter 
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription 
 } from "@/components/ui/dialog";
 import { Plus, Trash2, Edit2, Loader2, Upload, Star, Car, Link as LinkIcon, Info, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -289,6 +289,7 @@ export function AdminProjectsPage() {
                     <DialogTitle className="text-3xl font-black uppercase tracking-tighter text-[#0E2356]">
                       {editingProject ? 'Edit Vehicle Unit' : 'New Suzuki Listing'}
                     </DialogTitle>
+                    <DialogDescription className="text-gray-400 text-sm">Ilagay ang mga detalye ng Suzuki unit para sa iyong catalog.</DialogDescription>
                 </DialogHeader>
                 <div className="space-y-8">
                     <div className="space-y-4">

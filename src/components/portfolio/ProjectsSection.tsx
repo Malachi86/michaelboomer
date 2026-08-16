@@ -3,11 +3,11 @@ import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { X, Star, Car, ExternalLink, MessageSquare, ChevronRight } from 'lucide-react';
+import { X, Star, Car, MessageSquare, ChevronRight } from 'lucide-react';
 import type { Project } from '@/lib/types';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 export default function ProjectsSection({ projects = [] }: { projects: Project[] }) {
   const [activeCategory, setActiveCategory] = useState('ALL');
@@ -190,12 +190,12 @@ export default function ProjectsSection({ projects = [] }: { projects: Project[]
                     <Badge className="bg-[#0E2356] text-white mb-6 text-[10px] font-black uppercase tracking-[0.2em] px-5 py-2 rounded-xl">
                       {selectedProject.category}
                     </Badge>
-                    <h2 className="text-4xl lg:text-6xl font-black text-[#0E2356] mb-6 leading-none uppercase tracking-tighter">
+                    <DialogTitle className="text-4xl lg:text-6xl font-black text-[#0E2356] mb-6 leading-none uppercase tracking-tighter">
                       {selectedProject.title}
-                    </h2>
-                    <p className="text-gray-500 text-lg leading-relaxed font-medium">
+                    </DialogTitle>
+                    <DialogDescription className="text-gray-500 text-lg leading-relaxed font-medium">
                       {selectedProject.description}
-                    </p>
+                    </DialogDescription>
                   </div>
                   
                   <div className="space-y-10">
