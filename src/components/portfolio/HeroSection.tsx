@@ -9,14 +9,32 @@ import { Button } from '@/components/ui/button';
 export default function HeroSection({ profile }: { profile: Profile }) {
   const hasProfileImage = profile?.profile_image && profile.profile_image.trim() !== "";
 
-  // Helper function to map platform names to specific brand styles
-  const getPlatformStyles = (platform: string) => {
+  // Helper function to map platform names to specific brand styles and handle links
+  const getPlatformStyles = (platform: string, url: string) => {
     const p = platform.toLowerCase();
-    if (p.includes('facebook')) return { icon: <Facebook className="w-4 h-4" />, bgColor: "bg-[#1877F2] hover:bg-[#1565d0]" };
-    if (p.includes('viber')) return { icon: <MessageCircle className="w-4 h-4" />, bgColor: "bg-[#7360F2] hover:bg-[#6251d1]" };
-    if (p.includes('linkedin')) return { icon: <Linkedin className="w-4 h-4" />, bgColor: "bg-[#0A66C2] hover:bg-[#08529d]" };
-    if (p.includes('gmail') || p.includes('email')) return { icon: <Mail className="w-4 h-4" />, bgColor: "bg-[#E31B23] hover:bg-[#c4171e]" };
-    return { icon: <Globe className="w-4 h-4" />, bgColor: "bg-[#0E2356] hover:bg-[#1a2f6b]" }; // Default Suzuki Blue
+    let icon = <Globe className="w-4 h-4" />;
+    let bgColor = "bg-[#0E2356] hover:bg-[#1a2f6b]";
+    let finalUrl = url;
+
+    if (p.includes('facebook')) {
+      icon = <Facebook className="w-4 h-4" />;
+      bgColor = "bg-[#1877F2] hover:bg-[#1565d0]";
+    } else if (p.includes('viber')) {
+      icon = <MessageCircle className="w-4 h-4" />;
+      bgColor = "bg-[#7360F2] hover:bg-[#6251d1]";
+    } else if (p.includes('linkedin')) {
+      icon = <Linkedin className="w-4 h-4" />;
+      bgColor = "bg-[#0A66C2] hover:bg-[#08529d]";
+    } else if (p.includes('gmail') || p.includes('email')) {
+      icon = <Mail className="w-4 h-4" />;
+      bgColor = "bg-[#E31B23] hover:bg-[#c4171e]";
+      // Ensure email links use mailto:
+      if (url && !url.startsWith('mailto:') && url.includes('@')) {
+        finalUrl = `mailto:${url}`;
+      }
+    }
+
+    return { icon, bgColor, finalUrl };
   };
 
   return (
@@ -52,14 +70,14 @@ export default function HeroSection({ profile }: { profile: Profile }) {
             {/* Dynamic Social Link Buttons: Synchronized with Admin Panel */}
             <div className="flex flex-wrap gap-3 mb-10">
               {profile?.social_links?.map((link, index) => {
-                const styles = getPlatformStyles(link.platform);
+                const styles = getPlatformStyles(link.platform, link.url);
                 return (
                   <Button 
                     key={index}
                     className={`${styles.bgColor} text-white font-bold px-6 gap-2 rounded-full text-xs h-12 shadow-md transition-all hover:scale-105 active:scale-95`}
                     asChild
                   >
-                    <a href={link.url} target="_blank" rel="noopener noreferrer">
+                    <a href={styles.finalUrl} target="_blank" rel="noopener noreferrer">
                       {styles.icon}
                       {link.platform}
                     </a>

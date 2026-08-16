@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Send, Mail, MapPin, Loader2, Facebook, Linkedin, MessageCircle } from 'lucide-react';
+import { Send, Mail, MapPin, Loader2, Facebook, MessageCircle, Linkedin } from 'lucide-react';
 import type { Profile } from '@/lib/types';
 import { submitContactForm } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
@@ -40,23 +40,35 @@ const ContactInfoCard = ({
   icon: Icon, 
   label, 
   value, 
-  bgColor 
+  bgColor,
+  href
 }: { 
   icon: any, 
   label: string, 
   value: string, 
-  bgColor: string 
-}) => (
-  <div className="flex items-center gap-5 p-5 bg-white rounded-[24px] border border-gray-50 shadow-xl shadow-slate-100/50 hover:shadow-2xl hover:shadow-slate-200/50 transition-all duration-300 group">
-    <div className={`w-14 h-14 rounded-2xl ${bgColor} flex items-center justify-center flex-shrink-0 shadow-lg group-hover:scale-105 transition-transform`}>
-      <Icon className="w-7 h-7 text-white" />
+  bgColor: string,
+  href?: string
+}) => {
+  const CardContent = (
+    <div className="flex items-center gap-5 p-5 bg-white rounded-[24px] border border-gray-50 shadow-xl shadow-slate-100/50 hover:shadow-2xl hover:shadow-slate-200/50 transition-all duration-300 group cursor-pointer">
+      <div className={`w-14 h-14 rounded-2xl ${bgColor} flex items-center justify-center flex-shrink-0 shadow-lg group-hover:scale-105 transition-transform`}>
+        <Icon className="w-7 h-7 text-white" />
+      </div>
+      <div className="min-w-0">
+        <h3 className="text-gray-400 font-black text-[10px] uppercase tracking-[0.2em] mb-1">{label}</h3>
+        <p className="text-[#0E2356] font-black text-sm lg:text-base truncate tracking-tight">{value}</p>
+      </div>
     </div>
-    <div className="min-w-0">
-      <h3 className="text-gray-400 font-black text-[10px] uppercase tracking-[0.2em] mb-1">{label}</h3>
-      <p className="text-[#0E2356] font-black text-sm lg:text-base truncate tracking-tight">{value}</p>
-    </div>
-  </div>
-);
+  );
+
+  return href ? (
+    <a href={href} target="_blank" rel="noopener noreferrer" className="block w-full">
+      {CardContent}
+    </a>
+  ) : (
+    <div className="block w-full">{CardContent}</div>
+  );
+};
 
 export default function ContactSection({ profile }: { profile: Profile }) {
   const { toast } = useToast();
@@ -81,6 +93,16 @@ export default function ContactSection({ profile }: { profile: Profile }) {
       });
     }
   }, [state, toast, router]);
+
+  // Find dynamic links to display in info cards
+  const getSocialValue = (platform: string) => {
+    const link = profile?.social_links?.find(l => l.platform.toLowerCase().includes(platform.toLowerCase()));
+    return link ? { value: link.url.replace(/^https?:\/\/(www\.)?/, '').split('/')[0], href: link.url } : null;
+  };
+
+  const facebookLink = getSocialValue('facebook');
+  const linkedinLink = getSocialValue('linkedin');
+  const viberLink = getSocialValue('viber');
 
   return (
     <section id="contact" className="relative py-32 bg-[#FFFBFA] overflow-hidden">
@@ -114,25 +136,29 @@ export default function ContactSection({ profile }: { profile: Profile }) {
               icon={Mail} 
               label="Gmail" 
               value={profile?.email || "orozcomarvinpaul@gmail.com"} 
-              bgColor="bg-[#EA4335]" 
+              bgColor="bg-[#EA4335]"
+              href={profile?.email ? `mailto:${profile.email}` : undefined}
             />
             <ContactInfoCard 
               icon={Facebook} 
               label="Facebook" 
-              value="fb.com/marvinpaul.orozco" 
-              bgColor="bg-[#1877F2]" 
+              value={facebookLink?.value || "Suzuki Official Page"} 
+              bgColor="bg-[#1877F2]"
+              href={facebookLink?.href}
             />
             <ContactInfoCard 
               icon={MessageCircle} 
               label="Viber" 
-              value="+63 9XX XXX XXXX" 
-              bgColor="bg-[#7360F2]" 
+              value={viberLink?.value || "+63 9XX XXX XXXX"} 
+              bgColor="bg-[#7360F2]"
+              href={viberLink?.href}
             />
             <ContactInfoCard 
               icon={Linkedin} 
               label="Linkedin" 
-              value="linkedin.com/in/marvinpaulorozco" 
-              bgColor="bg-[#0A66C2]" 
+              value={linkedinLink?.value || "Agent Profile"} 
+              bgColor="bg-[#0A66C2]"
+              href={linkedinLink?.href}
             />
             <ContactInfoCard 
               icon={MapPin} 
