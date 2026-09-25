@@ -20,7 +20,8 @@ import type { Profile, Skill, Project, Message, Analytics, Testimonial, Certific
 
 // Singleton-style getter for Firestore to ensure it's initialized on the client
 const getFirestoreDb = (): Firestore | undefined => {
-  return initializeFirebase()?.firestore;
+  const instances = initializeFirebase();
+  return instances?.firestore;
 };
 
 // Helper to handle permission errors
@@ -36,14 +37,19 @@ const handlePermissionError = (path: string, operation: SecurityRuleContext['ope
 // --- Profile ---
 export async function updateProfile(updatedProfile: Profile) {
   const db = getFirestoreDb();
-  if (!db) return { success: false, error: 'DB not initialized' };
+  if (!db) {
+    console.error('[Profile Action] Firestore not initialized');
+    return { success: false, error: 'Database not connected' };
+  }
   
   const docRef = doc(db, 'profile', 'data');
   try {
-    // We await here for the action response, but Firestore also has internal optimistic UI
-    await setDoc(docRef, updatedProfile, { merge: true });
+    // Standardizing the payload to avoid circular refs or undefined
+    const payload = JSON.parse(JSON.stringify(updatedProfile));
+    await setDoc(docRef, payload, { merge: true });
     return { success: true };
   } catch (err: any) {
+    console.error('[Profile Action Error]:', err);
     handlePermissionError(docRef.path, 'update', updatedProfile);
     return { success: false, error: err.message };
   }

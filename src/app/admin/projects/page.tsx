@@ -139,7 +139,7 @@ export function AdminProjectsPage() {
         if (!files || files.length === 0 || !storage) return;
         
         setUploading(true);
-        console.log(`[Inventory] Starting direct upload for ${field}...`);
+        console.log(`[Inventory Upload] Starting upload for ${field}...`);
         
         try {
           if (field === 'image_url') {
@@ -152,8 +152,9 @@ export function AdminProjectsPage() {
             const downloadURL = await getDownloadURL(snapshot.ref);
             
             setFormData(prev => ({ ...prev, image_url: downloadURL }));
+            toast({ title: 'Success', description: 'Main photo uploaded.' });
           } else {
-            // Parallel multi-upload for faster gallery processing
+            // Parallel multi-upload for gallery
             const uploadPromises = Array.from(files).map(async (file) => {
               const fileName = `gallery-${Date.now()}-${file.name}`;
               const storageRef = ref(storage, `uploads/vehicles/gallery/${fileName}`);
@@ -163,11 +164,16 @@ export function AdminProjectsPage() {
 
             const newUrls = await Promise.all(uploadPromises);
             setFormData(prev => ({ ...prev, additional_images: [...(prev.additional_images || []), ...newUrls] }));
+            toast({ title: 'Success', description: `${files.length} gallery photos added.` });
           }
-          toast({ title: 'Success', description: `${files.length} photo(s) uploaded successfully.` });
         } catch (err: any) {
           console.error('[Inventory Upload Error]:', err);
-          toast({ variant: 'destructive', title: 'Upload Failed', description: err.message });
+          if (err.message?.includes('CORS')) {
+            toast({ variant: 'destructive', title: 'CORS Blocked', description: 'Please authorize this domain in Firebase Storage CORS settings.' });
+          } else {
+            toast({ variant: 'destructive', title: 'Upload Failed', description: err.message });
+          }
+          setUploadPreview(null);
         } finally {
           setUploading(false);
         }
@@ -267,7 +273,7 @@ export function AdminProjectsPage() {
     
                           {project.featured && (
                             <Badge className="absolute top-4 right-4 bg-[#E31B23] text-white border-none font-black text-[9px] px-3 py-1.5 rounded-lg tracking-widest">
-                              <Star className="w-3 h-3 mr-1 fill-white" />
+                              <Star className="w-3.5 h-3.5 mr-1 fill-white" />
                               HOT DEAL
                             </Badge>
                           )}

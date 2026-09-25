@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Save, Plus, Trash2, Upload, Loader2, Link as LinkIcon } from 'lucide-react';
+import { Save, Plus, Trash2, Upload, Loader2, Link as LinkIcon, ShieldAlert } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { updateProfile } from '@/app/admin/actions';
 import { useDoc, useFirestore, useStorage } from '@/firebase';
@@ -64,42 +64,49 @@ export default function AdminProfilePage() {
     const file = e.target.files?.[0];
     if (!file || !storage) return;
 
-    console.log(`[Upload] Starting direct upload for ${file.name} (${(file.size / 1024).toFixed(2)} KB)`);
+    console.log(`[Profile Upload] Starting direct upload for ${file.name}...`);
     
-    // Show optimistic preview immediately
+    // Clear old preview and show optimistic preview
     setPreviewUrl(URL.createObjectURL(file));
     setIsUploading(true);
 
     try {
-      console.time('DirectUpload');
       const fileExtension = file.name.split('.').pop();
       const fileName = `profile-${Date.now()}.${fileExtension}`;
       const storageRef = ref(storage, `uploads/profile/${fileName}`);
 
-      // uploadBytes is faster for smaller files (< 5MB) as it uses fewer handshakes
+      // DIRECT UPLOAD (Fastest method)
       const snapshot = await uploadBytes(storageRef, file);
-      console.timeEnd('DirectUpload');
-
       const downloadURL = await getDownloadURL(snapshot.ref);
 
       const updatedProfile = { ...profile, profile_image: downloadURL };
       setProfile(updatedProfile);
 
-      // Auto-save to Firestore immediately so it "appears in database"
-      await updateProfile(updatedProfile);
-
-      toast({
-        title: 'Success',
-        description: 'Profile photo updated and saved!'
-      });
+      // Auto-save to Firestore immediately
+      const result = await updateProfile(updatedProfile);
+      if (result.success) {
+        toast({ title: 'Success', description: 'Photo uploaded and saved to database!' });
+      } else {
+        throw new Error(result.error || 'Failed to sync with database.');
+      }
     } catch (error: any) {
       console.error('[Upload Error Details]:', error);
-      toast({ 
-        variant: 'destructive', 
-        title: 'Upload Failed', 
-        description: error.message || 'Please check your connection or permissions.' 
-      });
       setPreviewUrl(null);
+      
+      // Detailed error detection for CORS
+      if (error.message?.includes('CORS') || error.code === 'storage/retry-limit-exceeded') {
+        toast({ 
+          variant: 'destructive', 
+          title: 'Security Block (CORS)', 
+          description: 'Access denied by Firebase Storage. Please add your domain to CORS settings in Firebase Console.' 
+        });
+      } else {
+        toast({ 
+          variant: 'destructive', 
+          title: 'Upload Failed', 
+          description: error.message || 'Please check your connection.' 
+        });
+      }
     } finally {
       setIsUploading(false);
     }
