@@ -92,15 +92,15 @@ export function AdminCertificatesPage() {
         try {
             if (editingCert) {
                 await updateCertificate(editingCert.id, formData);
-                toast({ title: 'Success', description: 'Certificate updated.' });
+                toast({ title: 'Success', description: 'Record updated.' });
             } else {
                 await addCertificate(formData);
-                toast({ title: 'Success', description: 'Certificate added.' });
+                toast({ title: 'Success', description: 'Record added.' });
             }
             await fetchCertificates();
             setIsDialogOpen(false);
         } catch (err) {
-            toast({ variant: 'destructive', title: 'Error', description: 'Failed to save record.' });
+            toast({ variant: 'destructive', title: 'Error', description: 'Failed to save.' });
         } finally {
             setIsSaving(false);
         }
@@ -110,7 +110,7 @@ export function AdminCertificatesPage() {
         if (confirm('Delete this record?')) {
             await deleteCertificate(id);
             await fetchCertificates();
-            toast({ title: 'Success', description: 'Certificate deleted.'});
+            toast({ title: 'Success', description: 'Deleted.'});
         }
     };
 
@@ -121,26 +121,22 @@ export function AdminCertificatesPage() {
         setUploadPreview(URL.createObjectURL(file));
         setUploading(true);
         setCorsError(false);
-        console.log(`[Cert] Starting direct upload for ${file.name}...`);
         
         try {
-          const fileExtension = file.name.split('.').pop();
-          const fileName = `cert-${Date.now()}.${fileExtension}`;
+          const fileName = `cert-${Date.now()}.${file.name.split('.').pop()}`;
           const storageRef = ref(storage, `uploads/certificates/${fileName}`);
           
           const snapshot = await uploadBytes(storageRef, file);
           const downloadURL = await getDownloadURL(snapshot.ref);
           
           setFormData(prev => ({ ...prev, imageUrl: downloadURL }));
-          toast({ title: 'Success', description: 'Image uploaded successfully.' });
+          toast({ title: 'Success', description: 'Image uploaded.' });
         } catch (err: any) {
           console.error('[Cert Upload Error]:', err);
-          if (err.message?.includes('CORS') || err.code === 'storage/retry-limit-exceeded') {
+          if (err.message?.includes('CORS') || err.code?.includes('cors')) {
             setCorsError(true);
-            toast({ variant: 'destructive', title: 'CORS Blocked', description: 'Please authorize this domain in Firebase Storage CORS settings.' });
-          } else {
-            toast({ variant: 'destructive', title: 'Upload Error', description: err.message });
           }
+          toast({ variant: 'destructive', title: 'Upload Failed', description: err.message });
           setUploadPreview(null);
         } finally {
           setUploading(false);
@@ -172,12 +168,9 @@ export function AdminCertificatesPage() {
                     >
                     Happy Clients
                     </motion.h1>
-                    <p className="text-gray-400 font-medium italic">Showcase your successful turnovers and credentials.</p>
+                    <p className="text-gray-400 font-medium italic">Showcase your successful turnovers.</p>
                 </div>
-                <Button 
-                    onClick={openCreateDialog}
-                    className="bg-[#E31B23] hover:bg-[#c4171e] text-white font-black h-14 px-8 rounded-2xl shadow-xl shadow-red-100 uppercase tracking-widest text-xs"
-                >
+                <Button onClick={openCreateDialog} className="bg-[#E31B23] text-white font-black h-14 px-8 rounded-2xl shadow-xl uppercase tracking-widest text-xs">
                     <Plus className="w-5 h-5 mr-2" />
                     Add New Record
                 </Button>
@@ -186,15 +179,8 @@ export function AdminCertificatesPage() {
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                 <AnimatePresence>
                   {certificates.sort((a, b) => (a.order || 0) - (b.order || 0)).map((cert, index) => (
-                    <motion.div
-                      key={cert.id}
-                      layout
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.9 }}
-                      transition={{ delay: index * 0.1 }}
-                    >
-                      <Card className="bg-white border-none shadow-xl shadow-slate-200/50 overflow-hidden group rounded-[32px] hover:shadow-red-50 transition-all border-2 border-transparent hover:border-red-100">
+                    <motion.div key={cert.id} layout transition={{ delay: index * 0.1 }}>
+                      <Card className="bg-white border-none shadow-xl overflow-hidden rounded-[32px] group">
                         <div className="relative aspect-[4/3] bg-slate-50 overflow-hidden">
                           {cert.imageUrl ? (
                             <div className="w-full h-full relative" style={{ transform: `rotate(${cert.rotation || 0}deg)` }}>
@@ -205,11 +191,11 @@ export function AdminCertificatesPage() {
                               <Award className="w-12 h-12" />
                             </div>
                           )}
-                          <div className="absolute inset-0 bg-[#0E2356]/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4 backdrop-blur-sm">
-                            <Button size="icon" className="bg-white text-[#0E2356] hover:bg-[#E31B23] hover:text-white rounded-xl shadow-xl" onClick={() => openEditDialog(cert)}>
+                          <div className="absolute inset-0 bg-[#0E2356]/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
+                            <Button size="icon" className="bg-white text-[#0E2356] rounded-xl shadow-xl" onClick={() => openEditDialog(cert)}>
                               <Edit2 className="w-4 h-4" />
                             </Button>
-                            <Button size="icon" className="bg-white text-[#E31B23] hover:bg-red-600 hover:text-white rounded-xl shadow-xl" onClick={() => handleDelete(cert.id)}>
+                            <Button size="icon" className="bg-white text-red-600 rounded-xl shadow-xl" onClick={() => handleDelete(cert.id)}>
                               <Trash2 className="w-4 h-4" />
                             </Button>
                           </div>
@@ -217,7 +203,6 @@ export function AdminCertificatesPage() {
                         <CardContent className="p-6">
                           <h3 className="text-[#0E2356] font-black uppercase text-sm mb-1 truncate">{cert.title}</h3>
                           <p className="text-[#E31B23] text-[10px] font-black uppercase tracking-widest">{cert.issuer}</p>
-                          <p className="text-gray-400 text-[10px] mt-2 font-bold uppercase">{cert.issueDate}</p>
                         </CardContent>
                       </Card>
                     </motion.div>
@@ -226,10 +211,10 @@ export function AdminCertificatesPage() {
             </div>
 
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogContent className="bg-white border-none text-[#0E2356] max-w-md max-h-[90vh] overflow-y-auto rounded-[40px] shadow-2xl p-10">
+                <DialogContent className="bg-white border-none text-[#0E2356] max-w-md rounded-[40px] shadow-2xl p-10">
                 <DialogHeader>
-                    <DialogTitle className="text-2xl font-black uppercase tracking-tighter text-[#0E2356]">
-                      {editingCert ? 'Edit Certificate' : 'Add New Record'}
+                    <DialogTitle className="text-2xl font-black uppercase tracking-tighter">
+                      {editingCert ? 'Edit Record' : 'Add New Record'}
                     </DialogTitle>
                 </DialogHeader>
 
@@ -238,11 +223,11 @@ export function AdminCertificatesPage() {
                     <ShieldAlert className="h-5 w-5" />
                     <AlertTitle className="font-black uppercase tracking-widest text-[10px] mb-2">Security Block (CORS Error)</AlertTitle>
                     <AlertDescription className="text-[10px] leading-relaxed">
-                      Kailangan mong i-authorize ang iyong domain sa Firebase Storage.<br />
-                      I-copy at i-paste ito sa terminal:<br />
-                      <code className="bg-white p-2 rounded mt-2 block border border-red-100 select-all">
+                      Mangyaring patakbuhin ang command na ito sa iyong terminal:<br />
+                      <code className="bg-white p-2 rounded mt-2 block border border-red-100 select-all font-mono">
                         gsutil cors set cors.json gs://studio-7714200755-d4b21.firebasestorage.app
                       </code>
+                      <p className="mt-2 text-[9px] opacity-70">Kung mag-error ng 404, subukan ang <code>gsutil ls</code> para malaman ang tamang bucket identifier.</p>
                     </AlertDescription>
                   </Alert>
                 )}
@@ -252,9 +237,9 @@ export function AdminCertificatesPage() {
                         <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Record Image</Label>
                         <div className="flex flex-col gap-4">
                             <div className="flex items-center gap-4">
-                                <div className="relative w-24 h-24 rounded-2xl overflow-hidden bg-slate-50 border border-gray-100 flex-shrink-0 shadow-inner">
+                                <div className="relative w-24 h-24 rounded-2xl overflow-hidden bg-slate-50 border border-gray-100 shrink-0">
                                     {(uploadPreview || formData.imageUrl) && (
-                                        <div className="w-full h-full relative transition-transform duration-300" style={{ transform: `rotate(${formData.rotation || 0}deg)` }}>
+                                        <div className="w-full h-full relative" style={{ transform: `rotate(${formData.rotation || 0}deg)` }}>
                                             <Image src={uploadPreview || formData.imageUrl} alt="Preview" fill unoptimized className="object-contain p-2" />
                                         </div>
                                     )}
@@ -272,33 +257,23 @@ export function AdminCertificatesPage() {
                                         </Button>
                                     </Label>
                                     {formData.imageUrl && (
-                                        <Button variant="secondary" size="sm" onClick={rotateImage} className="w-full h-12 bg-[#0E2356] hover:bg-[#1a2f6b] text-white font-black text-[10px] tracking-widest uppercase rounded-xl">
+                                        <Button variant="secondary" size="sm" onClick={rotateImage} className="w-full h-12 bg-[#0E2356] text-white font-black text-[10px] tracking-widest uppercase rounded-xl">
                                             <RotateCw className="w-4 h-4 mr-2" /> Rotate
                                         </Button>
                                     )}
                                 </div>
                             </div>
-                            <div className="space-y-2">
-                                <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Or provide Image URL</Label>
-                                <div className="relative">
-                                    <LinkIcon className="absolute left-3 top-3.5 w-4 h-4 text-gray-300" />
-                                    <Input 
-                                        value={formData.imageUrl || ''} 
-                                        onChange={e => setFormData({...formData, imageUrl: e.target.value})} 
-                                        placeholder="https://..." 
-                                        className="h-12 bg-slate-50 border-gray-100 pl-10 rounded-xl font-bold text-[#0E2356]" 
-                                    />
-                                </div>
-                            </div>
+                            <Input 
+                                value={formData.imageUrl || ''} 
+                                onChange={e => setFormData({...formData, imageUrl: e.target.value})} 
+                                placeholder="Or provide Image URL..." 
+                                className="h-12 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356]" 
+                            />
                         </div>
                     </div>
                     <div className="space-y-2">
                         <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Title / Award Name</Label>
                         <Input value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} placeholder="e.g. Sales Executive of the Month" className="h-12 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356]" />
-                    </div>
-                    <div className="space-y-2">
-                        <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Issuer / Branch</Label>
-                        <Input value={formData.issuer} onChange={e => setFormData({...formData, issuer: e.target.value})} placeholder="e.g. Suzuki Auto Branch" className="h-12 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356]" />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
@@ -310,16 +285,10 @@ export function AdminCertificatesPage() {
                             <Input type="number" value={formData.order} onChange={e => setFormData({...formData, order: parseInt(e.target.value) || 0})} className="h-12 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356]" />
                         </div>
                     </div>
-                    <div className="space-y-2">
-                        <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Verify Link (Optional)</Label>
-                        <Input value={formData.credentialUrl || ''} onChange={e => setFormData({...formData, credentialUrl: e.target.value})} placeholder="https://..." className="h-12 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356]" />
-                    </div>
                 </div>
-                <DialogFooter className="pt-4 flex items-center justify-end gap-3">
-                    <Button variant="ghost" onClick={() => setIsDialogOpen(false)} className="h-12 px-6 font-black uppercase tracking-widest text-[10px] text-gray-400 hover:bg-slate-50 rounded-xl">
-                      Cancel
-                    </Button>
-                    <Button onClick={handleSave} disabled={isSaving || uploading} className="bg-[#E31B23] hover:bg-[#c4171e] text-white font-black h-12 px-8 rounded-xl shadow-xl shadow-red-100 uppercase tracking-widest text-[10px]">
+                <DialogFooter className="pt-4">
+                    <Button variant="ghost" onClick={() => setIsDialogOpen(false)} className="h-12 font-black uppercase tracking-widest text-[10px] text-gray-400">Cancel</Button>
+                    <Button onClick={handleSave} disabled={isSaving || uploading} className="bg-[#E31B23] text-white font-black h-12 px-8 rounded-xl shadow-xl uppercase tracking-widest text-[10px]">
                         {isSaving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                         {editingCert ? 'Update' : 'Create'}
                     </Button>

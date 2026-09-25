@@ -145,22 +145,19 @@ export function AdminProjectsPage() {
         
         setUploading(true);
         setCorsError(false);
-        console.log(`[Inventory Upload] Starting upload for ${field}...`);
         
         try {
           if (field === 'image_url') {
             const file = files[0];
             setUploadPreview(URL.createObjectURL(file));
-            
             const fileName = `main-${Date.now()}-${file.name}`;
             const storageRef = ref(storage, `uploads/vehicles/${fileName}`);
+            
             const snapshot = await uploadBytes(storageRef, file);
             const downloadURL = await getDownloadURL(snapshot.ref);
-            
             setFormData(prev => ({ ...prev, image_url: downloadURL }));
             toast({ title: 'Success', description: 'Main photo uploaded.' });
           } else {
-            // Parallel multi-upload for gallery
             const uploadPromises = Array.from(files).map(async (file) => {
               const fileName = `gallery-${Date.now()}-${file.name}`;
               const storageRef = ref(storage, `uploads/vehicles/gallery/${fileName}`);
@@ -170,16 +167,14 @@ export function AdminProjectsPage() {
 
             const newUrls = await Promise.all(uploadPromises);
             setFormData(prev => ({ ...prev, additional_images: [...(prev.additional_images || []), ...newUrls] }));
-            toast({ title: 'Success', description: `${files.length} gallery photos added.` });
+            toast({ title: 'Success', description: `${files.length} photos added to gallery.` });
           }
         } catch (err: any) {
           console.error('[Inventory Upload Error]:', err);
-          if (err.message?.includes('CORS') || err.code === 'storage/retry-limit-exceeded') {
+          if (err.message?.includes('CORS') || err.code?.includes('cors')) {
             setCorsError(true);
-            toast({ variant: 'destructive', title: 'CORS Blocked', description: 'Please authorize this domain in Firebase Storage CORS settings.' });
-          } else {
-            toast({ variant: 'destructive', title: 'Upload Failed', description: err.message });
           }
+          toast({ variant: 'destructive', title: 'Upload Failed', description: err.message });
           setUploadPreview(null);
         } finally {
           setUploading(false);
@@ -290,14 +285,6 @@ export function AdminProjectsPage() {
                           <h3 className="text-xl font-black text-[#0E2356] uppercase tracking-tight mb-2 truncate">{project.title}</h3>
                           <p className="text-gray-400 text-xs font-medium line-clamp-2 mb-6 leading-relaxed">🚗 {project.description}</p>
                           
-                          <div className="flex flex-wrap gap-2 mb-6">
-                            {project.tech_stack?.slice(0, 3).map((tech, i) => (
-                              <span key={i} className="text-[9px] font-black px-3 py-1 bg-slate-50 rounded-lg text-[#0E2356] border border-gray-100 uppercase tracking-wider">
-                                {tech}
-                              </span>
-                            ))}
-                          </div>
-
                           <div className="flex items-center justify-between border-t border-gray-50 pt-6">
                             <div className="flex flex-col">
                               <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">PRICE STARTS</span>
@@ -319,7 +306,6 @@ export function AdminProjectsPage() {
                     <DialogTitle className="text-3xl font-black uppercase tracking-tighter text-[#0E2356]">
                       {editingProject ? 'EDIT VEHICLE UNIT' : 'NEW SUZUKI LISTING'}
                     </DialogTitle>
-                    <DialogDescription className="text-gray-400 text-sm">Ilagay ang mga detalye ng Suzuki unit para sa iyong catalog.</DialogDescription>
                 </DialogHeader>
 
                 {corsError && (
@@ -327,10 +313,11 @@ export function AdminProjectsPage() {
                     <ShieldAlert className="h-5 w-5" />
                     <AlertTitle className="font-black uppercase tracking-widest text-[10px] mb-2">Security Block (CORS Error)</AlertTitle>
                     <AlertDescription className="text-xs leading-relaxed">
-                      Hindi pinapayagan ang iyong domain na mag-upload sa storage. Mangyaring patakbuhin ang command na ito sa iyong terminal:<br />
-                      <code className="bg-white p-2 rounded mt-2 block border border-red-100 text-[10px] select-all">
+                      Mangyaring patakbuhin ang command na ito sa iyong terminal:<br />
+                      <code className="bg-white p-2 rounded mt-2 block border border-red-100 text-[10px] select-all font-mono">
                         gsutil cors set cors.json gs://studio-7714200755-d4b21.firebasestorage.app
                       </code>
+                      <p className="mt-2 text-[9px] opacity-70">Kung mag-error ng 404, gamitin ang <code>gsutil ls</code> para malaman ang tamang bucket identifier.</p>
                     </AlertDescription>
                   </Alert>
                 )}
@@ -348,23 +335,21 @@ export function AdminProjectsPage() {
                             </div>
                         )}
                         {uploading && (
-                          <div className="absolute inset-0 bg-white/60 flex items-center justify-center backdrop-blur-[2px]">
+                          <div className="absolute inset-0 bg-white/60 flex items-center justify-center">
                             <Loader2 className="w-6 h-6 animate-spin text-[#E31B23]" />
                           </div>
                         )}
                         </div>
                         <div className="flex-1 space-y-4">
-                            <div className="flex items-center gap-3">
-                                <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, 'image_url')} className="hidden" id="project-image" />
-                                <Label htmlFor="project-image">
-                                    <Button variant="outline" className="h-12 border-gray-100 font-black text-[10px] tracking-widest uppercase rounded-xl" asChild disabled={uploading}>
-                                    <span>
-                                        {uploading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}
-                                        UPLOAD IMAGE
-                                    </span>
-                                    </Button>
-                                </Label>
-                            </div>
+                            <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, 'image_url')} className="hidden" id="project-image" />
+                            <Label htmlFor="project-image">
+                                <Button variant="outline" className="h-12 border-gray-100 font-black text-[10px] tracking-widest uppercase rounded-xl w-full" asChild disabled={uploading}>
+                                <span>
+                                    {uploading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}
+                                    UPLOAD MAIN PHOTO
+                                </span>
+                                </Button>
+                            </Label>
                             <div className="relative">
                                 <LinkIcon className="absolute left-3 top-3.5 w-4 h-4 text-gray-300" />
                                 <Input
@@ -379,44 +364,29 @@ export function AdminProjectsPage() {
                     </div>
 
                     <div className="space-y-4">
-                        <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">GALLERY PHOTOS (MULTI-UPLOAD)</Label>
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">GALLERY PHOTOS</Label>
                         <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <input 
-                                  type="file" 
-                                  accept="image/*" 
-                                  multiple 
-                                  onChange={(e) => handleImageUpload(e, 'additional_images')} 
-                                  className="hidden" 
-                                  id="gallery-upload" 
-                                />
-                                <Label htmlFor="gallery-upload">
-                                    <Button variant="outline" className="w-full h-12 border-gray-100 font-black text-[10px] tracking-widest uppercase rounded-xl" asChild disabled={uploading}>
-                                        <span><Plus className="w-4 h-4 mr-2" /> UPLOAD PHOTOS</span>
-                                    </Button>
-                                </Label>
-                            </div>
+                            <input type="file" accept="image/*" multiple onChange={(e) => handleImageUpload(e, 'additional_images')} className="hidden" id="gallery-upload" />
+                            <Label htmlFor="gallery-upload">
+                                <Button variant="outline" className="w-full h-12 border-gray-100 font-black text-[10px] tracking-widest uppercase rounded-xl" asChild disabled={uploading}>
+                                    <span><Plus className="w-4 h-4 mr-2" /> UPLOAD GALLERY</span>
+                                </Button>
+                            </Label>
                             <div className="flex gap-2">
                                 <Input
                                     value={galleryInput}
                                     onChange={(e) => setGalleryInput(e.target.value)}
-                                    placeholder="Or paste Link..."
+                                    placeholder="Paste Link..."
                                     className="h-12 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356]"
                                 />
-                                <Button onClick={addGalleryLink} variant="secondary" className="h-12 bg-[#0E2356] text-white rounded-xl px-4">ADD</Button>
+                                <Button onClick={addGalleryLink} variant="secondary" className="h-12 bg-[#0E2356] text-white rounded-xl">ADD</Button>
                             </div>
                         </div>
                         <div className="grid grid-cols-4 gap-3 mt-4">
                             {formData.additional_images?.map((url, i) => (
                                 <div key={i} className="relative aspect-square rounded-xl overflow-hidden bg-slate-100 group">
                                     <Image src={url} alt="Gallery" fill unoptimized className="object-cover" />
-                                    <button 
-                                        type="button"
-                                        onClick={() => removeGalleryImage(url)}
-                                        className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                                    >
-                                        <X className="w-3 h-3" />
-                                    </button>
+                                    <button onClick={() => removeGalleryImage(url)} className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100"><X className="w-3 h-3" /></button>
                                 </div>
                             ))}
                         </div>
@@ -440,7 +410,7 @@ export function AdminProjectsPage() {
                         </SelectTrigger>
                         <SelectContent className="bg-white border-gray-100 text-[#0E2356] font-bold">
                             {categories.map(cat => (
-                            <SelectItem key={cat} value={cat} className="uppercase">{cat}</SelectItem>
+                            <SelectItem key={cat} value={cat}>{cat}</SelectItem>
                             ))}
                         </SelectContent>
                         </Select>
@@ -454,35 +424,8 @@ export function AdminProjectsPage() {
                         onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
                         placeholder="Describe the unit's key features..."
                         rows={6}
-                        className="bg-slate-50 border-gray-100 rounded-xl resize-none p-5 font-bold text-[#0E2356] leading-relaxed"
+                        className="bg-slate-50 border-gray-100 rounded-xl resize-none p-5 font-bold text-[#0E2356]"
                     />
-                    </div>
-
-                    <div className="grid md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                        <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 flex items-center gap-2 ml-1">
-                          Inquiry Form Link
-                          <Info className="w-3 h-3 text-red-400" />
-                        </Label>
-                        <Input
-                        value={formData.live_demo_url || ''}
-                        onChange={(e) => setFormData(prev => ({ ...prev, live_demo_url: e.target.value }))}
-                        placeholder="Google Form / External Link"
-                        className="h-12 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356]"
-                        />
-                    </div>
-                    <div className="space-y-2">
-                        <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Video Presentation (YouTube)</Label>
-                        <div className="relative">
-                            <Play className="absolute left-3 top-3.5 w-4 h-4 text-gray-300" />
-                            <Input
-                            value={formData.video_url || ''}
-                            onChange={(e) => setFormData(prev => ({ ...prev, video_url: e.target.value }))}
-                            placeholder="https://youtube.com/..."
-                            className="h-12 bg-slate-50 border-gray-100 pl-10 rounded-xl font-bold text-[#0E2356]"
-                            />
-                        </div>
-                    </div>
                     </div>
 
                     <div className="grid md:grid-cols-2 gap-6">
@@ -492,67 +435,26 @@ export function AdminProjectsPage() {
                         type="number"
                         value={formData.price || 0}
                         onChange={(e) => setFormData(prev => ({ ...prev, price: parseFloat(e.target.value) || 0 }))}
-                        placeholder="798000"
                         className="h-12 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356]"
                         />
                     </div>
-                    <div className="space-y-4">
-                            <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Sort Order</Label>
-                            <Input
-                                type="number"
-                                value={formData.order}
-                                onChange={(e) => setFormData(prev => ({ ...prev, order: parseInt(e.target.value) || 0 }))}
-                                className="h-12 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356]"
-                            />
-                        </div>
-                    </div>
-
-                    <div className="grid md:grid-cols-2 gap-6">
-                        <div className="flex items-center gap-4 p-5 bg-red-50 rounded-3xl border border-red-100 h-16">
-                            <Switch
-                                checked={formData.featured}
-                                onCheckedChange={(v) => setFormData(prev => ({ ...prev, featured: v }))}
-                                className="data-[state=checked]:bg-[#E31B23]"
-                            />
-                            <div>
-                                <Label className="text-[10px] font-black text-[#0E2356] uppercase tracking-widest">Featured Unit</Label>
-                                <p className="text-[8px] text-[#E31B23] font-black uppercase">HOT DEAL Badge</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="space-y-4">
-                    <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Key Specifications</Label>
-                    <div className="flex gap-3">
+                    <div className="space-y-2">
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Sort Order</Label>
                         <Input
-                        value={techInput}
-                        onChange={(e) => setTechInput(e.target.value)}
-                        onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTech())}
-                        placeholder="Add spec (e.g. 7-Seater)..."
-                        className="h-12 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356]"
+                            type="number"
+                            value={formData.order}
+                            onChange={(e) => setFormData(prev => ({ ...prev, order: parseInt(e.target.value) || 0 }))}
+                            className="h-12 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356]"
                         />
-                        <Button type="button" onClick={addTech} variant="outline" className="h-12 border-gray-100 px-6 rounded-xl font-black text-[10px] uppercase">
-                        Add
-                        </Button>
-                    </div>
-                    <div className="flex flex-wrap gap-2 mt-4">
-                        {formData.tech_stack.map((tech, i) => (
-                        <Badge key={i} className="bg-[#0E2356] text-white border-none font-black text-[9px] px-3 py-1.5 rounded-lg uppercase tracking-wider">
-                            {tech}
-                            <button type="button" onClick={() => removeTech(tech)} className="ml-2 hover:text-[#E31B23]">×</button>
-                        </Badge>
-                        ))}
                     </div>
                     </div>
                 </div>
                 <DialogFooter className="pt-8 border-t border-gray-50 mt-4">
-                    <Button variant="ghost" onClick={() => setIsDialogOpen(false)} className="h-14 font-black uppercase tracking-widest text-xs text-gray-400">
-                      Cancel
-                    </Button>
+                    <Button variant="ghost" onClick={() => setIsDialogOpen(false)} className="h-14 font-black uppercase tracking-widest text-xs text-gray-400">Cancel</Button>
                     <Button 
                     onClick={handleSave}
                     disabled={isSaving || uploading}
-                    className="bg-[#E31B23] hover:bg-[#c4171e] text-white font-black h-14 px-12 rounded-2xl shadow-xl shadow-red-100 uppercase tracking-widest text-xs"
+                    className="bg-[#E31B23] hover:bg-[#c4171e] text-white font-black h-14 px-12 rounded-2xl shadow-xl uppercase tracking-widest text-xs"
                     >
                     {isSaving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                     {editingProject ? 'Update Vehicle' : 'Save Vehicle'}

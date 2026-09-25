@@ -16,6 +16,7 @@ import { doc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import type { Profile } from '@/lib/types';
 import Image from 'next/image';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 const DEFAULT_PROFILE: Profile = {
   full_name: 'Michael Gabriel Orozco',
@@ -39,6 +40,7 @@ export default function AdminProfilePage() {
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [corsError, setCorsError] = useState(false);
 
   useEffect(() => {
     if (!loading) {
@@ -65,49 +67,35 @@ export default function AdminProfilePage() {
     const file = e.target.files?.[0];
     if (!file || !storage) return;
 
-    console.log(`[Profile Upload] Starting direct upload for ${file.name}...`);
-    
-    // Clear old preview and show optimistic preview
     setPreviewUrl(URL.createObjectURL(file));
     setIsUploading(true);
+    setCorsError(false);
 
     try {
-      const fileExtension = file.name.split('.').pop();
-      const fileName = `profile-${Date.now()}.${fileExtension}`;
+      const fileName = `profile-${Date.now()}.${file.name.split('.').pop()}`;
       const storageRef = ref(storage, `uploads/profile/${fileName}`);
 
-      // DIRECT UPLOAD (Fastest method)
+      // DIRECT UPLOAD - Rekta agad sa storage
       const snapshot = await uploadBytes(storageRef, file);
       const downloadURL = await getDownloadURL(snapshot.ref);
 
+      // AUTOMATIC DATABASE SYNC - Pagka-upload, save agad sa database
       const updatedProfile = { ...profile, profile_image: downloadURL };
       setProfile(updatedProfile);
-
-      // Auto-save to Firestore immediately
+      
       const result = await updateProfile(updatedProfile);
       if (result.success) {
         toast({ title: 'Success', description: 'Photo uploaded and saved to database!' });
       } else {
-        throw new Error(result.error || 'Failed to sync with database.');
+        throw new Error('Upload success but failed to sync with database.');
       }
     } catch (error: any) {
-      console.error('[Upload Error Details]:', error);
-      setPreviewUrl(null);
-      
-      // Detailed error detection for CORS
-      if (error.message?.includes('CORS') || error.code === 'storage/retry-limit-exceeded') {
-        toast({ 
-          variant: 'destructive', 
-          title: 'Security Block (CORS)', 
-          description: 'Access denied by Firebase Storage. Please add your domain to CORS settings in Firebase Console.' 
-        });
-      } else {
-        toast({ 
-          variant: 'destructive', 
-          title: 'Upload Failed', 
-          description: error.message || 'Please check your connection.' 
-        });
+      console.error('[Profile Upload Error]:', error);
+      if (error.message?.includes('CORS') || error.code?.includes('cors')) {
+        setCorsError(true);
       }
+      toast({ variant: 'destructive', title: 'Upload Failed', description: error.message });
+      setPreviewUrl(null);
     } finally {
       setIsUploading(false);
     }
@@ -162,8 +150,21 @@ export default function AdminProfilePage() {
         </Button>
       </div>
 
+      {corsError && (
+        <Alert variant="destructive" className="mb-10 border-red-200 bg-red-50 text-red-700">
+          <ShieldAlert className="h-5 w-5" />
+          <AlertTitle className="font-black uppercase tracking-widest text-[10px] mb-2">Security Block (CORS Error)</AlertTitle>
+          <AlertDescription className="text-xs leading-relaxed">
+            Hindi payagan ang iyong domain na mag-upload. Mangyaring patakbuhin ang command na ito sa iyong terminal:<br />
+            <code className="bg-white p-3 rounded mt-3 block border border-red-100 select-all font-mono">
+              gsutil cors set cors.json gs://studio-7714200755-d4b21.firebasestorage.app
+            </code>
+            <p className="mt-2 text-[10px] opacity-70">Kung mag-error ng 404, subukan ang <code>gsutil ls</code> para malaman ang tamang bucket name (hal. .appspot.com).</p>
+          </AlertDescription>
+        </Alert>
+      )}
+
       <div className="space-y-10">
-        {/* Profile Photo Section */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <Card className="bg-white border-none shadow-xl shadow-slate-200/50 rounded-[32px] overflow-hidden">
             <CardHeader className="p-8">
@@ -188,10 +189,7 @@ export default function AdminProfilePage() {
                   )}
                   {isUploading && (
                     <div className="absolute inset-0 bg-[#0E2356]/60 flex items-center justify-center backdrop-blur-sm">
-                      <div className="flex flex-col items-center gap-2">
                         <Loader2 className="w-8 h-8 animate-spin text-white" />
-                        <span className="text-[8px] text-white font-black uppercase tracking-widest">Uploading...</span>
-                      </div>
                     </div>
                   )}
                 </div>
@@ -209,7 +207,7 @@ export default function AdminProfilePage() {
                       <Button variant="outline" className="h-14 border-gray-100 text-[#0E2356] font-black text-[10px] tracking-widest uppercase rounded-2xl px-6" asChild disabled={isUploading}>
                         <span>
                           {isUploading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}
-                          {isUploading ? 'Finalizing...' : 'Upload New Photo'}
+                          {isUploading ? 'Uploading...' : 'Upload New Photo'}
                         </span>
                       </Button>
                     </Label>
@@ -226,7 +224,7 @@ export default function AdminProfilePage() {
                           setPreviewUrl(null); 
                         }}
                         placeholder="https://..."
-                        className="h-14 bg-slate-50 border-gray-100 pl-10 rounded-xl font-bold text-[#0E2356] focus:border-[#E31B23] focus:ring-0"
+                        className="h-14 bg-slate-50 border-gray-100 pl-10 rounded-xl font-bold text-[#0E2356] focus:border-[#E31B23]"
                       />
                     </div>
                   </div>
@@ -250,7 +248,7 @@ export default function AdminProfilePage() {
                                 value={profile.full_name}
                                 onChange={(e) => setProfile({...profile, full_name: e.target.value})}
                                 placeholder="Michael Gabriel Orozco"
-                                className="h-14 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356] focus:border-[#E31B23] focus:ring-0"
+                                className="h-14 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356] focus:border-[#E31B23]"
                             />
                         </div>
                         <div className="space-y-3">
@@ -259,7 +257,7 @@ export default function AdminProfilePage() {
                                 type="email"
                                 value={profile.email}
                                 onChange={(e) => setProfile({...profile, email: e.target.value})}
-                                className="h-14 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356] focus:border-[#E31B23] focus:ring-0"
+                                className="h-14 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356] focus:border-[#E31B23]"
                             />
                         </div>
                     </div>
@@ -270,7 +268,7 @@ export default function AdminProfilePage() {
                                 value={profile.title}
                                 onChange={(e) => setProfile({...profile, title: e.target.value})}
                                 placeholder="Authorized Suzuki Executive"
-                                className="h-14 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356] focus:border-[#E31B23] focus:ring-0"
+                                className="h-14 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356] focus:border-[#E31B23]"
                             />
                         </div>
                         <div className="space-y-3">
@@ -279,7 +277,7 @@ export default function AdminProfilePage() {
                                 value={profile.subtitle}
                                 onChange={(e) => setProfile({...profile, subtitle: e.target.value})}
                                 placeholder="Sales Consultant"
-                                className="h-14 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356] focus:border-[#E31B23] focus:ring-0"
+                                className="h-14 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356] focus:border-[#E31B23]"
                             />
                         </div>
                     </div>
@@ -290,7 +288,7 @@ export default function AdminProfilePage() {
                             onChange={(e) => setProfile({...profile, bio: e.target.value})}
                             placeholder="Tell your clients about your expertise..."
                             rows={6}
-                            className="bg-slate-50 border-gray-100 rounded-xl resize-none p-5 font-bold text-[#0E2356] leading-relaxed focus:border-[#E31B23] focus:ring-0"
+                            className="bg-slate-50 border-gray-100 rounded-xl resize-none p-5 font-bold text-[#0E2356] leading-relaxed"
                         />
                     </div>
                     <div className="space-y-3">
@@ -299,7 +297,7 @@ export default function AdminProfilePage() {
                             value={profile.resume_url}
                             onChange={(e) => setProfile({...profile, resume_url: e.target.value})}
                             placeholder="https://..."
-                            className="h-14 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356] focus:border-[#E31B23] focus:ring-0"
+                            className="h-14 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356] focus:border-[#E31B23]"
                         />
                     </div>
                 </CardContent>
@@ -312,7 +310,6 @@ export default function AdminProfilePage() {
                 <CardHeader className="p-8 flex flex-row items-center justify-between">
                     <div>
                         <CardTitle className="text-[#0E2356] font-black uppercase tracking-tight text-xl">Social Links</CardTitle>
-                        <CardDescription className="text-gray-400 font-medium">Links for client communication</CardDescription>
                     </div>
                     <Button variant="outline" size="sm" className="h-12 border-gray-100 rounded-xl font-black text-[10px] uppercase tracking-widest text-[#0E2356] hover:bg-slate-50 px-6" onClick={addSocialLink}><Plus className="w-4 h-4 mr-2" />Add Link</Button>
                 </CardHeader>
@@ -331,7 +328,7 @@ export default function AdminProfilePage() {
                               value={link.platform}
                               onChange={(e) => updateSocialLink(index, 'platform', e.target.value)}
                               placeholder="e.g. Facebook"
-                              className="h-14 bg-white border-gray-100 rounded-xl font-bold text-[#0E2356] focus:border-[#E31B23]"
+                              className="h-14 bg-white border-gray-100 rounded-xl font-bold text-[#0E2356]"
                             />
                           </div>
                           <div className="space-y-2">
@@ -339,15 +336,15 @@ export default function AdminProfilePage() {
                             <Input
                               value={link.url}
                               onChange={(e) => updateSocialLink(index, 'url', e.target.value)}
-                              placeholder="Full URL or contact number"
-                              className="h-14 bg-white border-gray-100 rounded-xl font-bold text-[#0E2356] focus:border-[#E31B23]"
+                              placeholder="Full URL"
+                              className="h-14 bg-white border-gray-100 rounded-xl font-bold text-[#0E2356]"
                             />
                           </div>
                         </div>
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="text-red-500 hover:text-red-700 hover:bg-red-50 rounded-xl w-14 h-14 shrink-0"
+                          className="text-red-500 hover:text-red-700 hover:bg-red-50 rounded-xl w-14 h-14"
                           onClick={() => removeSocialLink(index)}
                         >
                           <Trash2 className="w-6 h-6" />
