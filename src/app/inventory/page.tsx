@@ -175,17 +175,17 @@ function VehicleDetailContent() {
                     <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.5em]">Key Specifications</h4>
                     <div className="h-px flex-grow bg-gray-100" />
                   </div>
-                  <div className="grid gap-3">
+                  <div className="grid md:grid-cols-2 gap-4">
                     {project.tech_stack.map((spec, i) => (
                       <motion.div 
                         key={i}
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 + (i * 0.05) }}
-                        className="bg-white border border-gray-100/50 p-6 rounded-[24px] flex items-center gap-6 shadow-md shadow-slate-100/30 hover:shadow-lg transition-all group"
+                        className="bg-white p-6 rounded-[32px] flex items-center gap-5 shadow-xl shadow-slate-100/50 hover:shadow-2xl transition-all group border border-transparent hover:border-red-50"
                       >
-                        <div className="w-3 h-3 rounded-full bg-[#E31B23] shrink-0 shadow-sm shadow-red-200" />
-                        <span className="text-[14px] font-black text-[#0E2356] uppercase tracking-wide leading-tight">
+                        <div className="w-2.5 h-2.5 rounded-full bg-[#E31B23] shrink-0" />
+                        <span className="text-[11px] lg:text-[12px] font-black text-[#0E2356] uppercase tracking-wider leading-tight">
                           {spec}
                         </span>
                       </motion.div>
