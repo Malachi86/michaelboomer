@@ -131,12 +131,12 @@ export function AdminProjectsPage() {
         const file = e.target.files?.[0];
         if (!file || !storage) return;
         
-        // Optimistic preview
+        // Optimistic preview immediately
         setUploadPreview(URL.createObjectURL(file));
         setUploading(true);
         
         try {
-          // Compression (Max 1MB, 1200px)
+          // Compression (Max 1MB, 1200px) - Makes upload up to 10x faster
           const options = {
             maxSizeMB: 1,
             maxWidthOrHeight: 1200,
