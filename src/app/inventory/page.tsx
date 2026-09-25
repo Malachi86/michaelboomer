@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useMemo, Suspense, useState } from 'react';
+import React, { useMemo, Suspense, useState, useRef } from 'react';
 import { useDoc, useFirestore } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { motion } from 'framer-motion';
@@ -15,12 +15,21 @@ import Navigation from '@/components/portfolio/Navigation';
 import Footer from '@/components/portfolio/Footer';
 import type { Project, Profile } from '@/lib/types';
 import { profile as defaultProfile } from '@/lib/data';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+} from "@/components/ui/carousel";
+import Autoplay from 'embla-carousel-autoplay';
 
 function VehicleDetailContent() {
   const searchParams = useSearchParams();
   const id = searchParams.get('id');
   const db = useFirestore();
-  const [activeImage, setActiveImage] = useState<string | null>(null);
+  
+  const plugin = useRef(
+    Autoplay({ delay: 3500, stopOnInteraction: false })
+  );
 
   const projectRef = useMemo(() => (db && id ? doc(db, 'projects', id) : null), [db, id]);
   const { data: project, loading: projectLoading } = useDoc<Project>(projectRef);
@@ -66,8 +75,6 @@ function VehicleDetailContent() {
     );
   }
 
-  const currentMainImage = activeImage || project.image_url;
-
   return (
     <div className="min-h-screen bg-[#FFFBFA] text-[#0E2356]">
       <Navigation profile={profile} />
@@ -87,46 +94,55 @@ function VehicleDetailContent() {
               animate={{ opacity: 1, x: 0 }}
               className="lg:sticky lg:top-32"
             >
-              <div className="relative aspect-[16/10] rounded-[40px] overflow-hidden shadow-2xl bg-white border-8 border-white group">
-                {currentMainImage ? (
-                  <Image
-                    src={currentMainImage}
-                    alt={project.title}
-                    fill
-                    unoptimized
-                    className="object-cover transition-all duration-500"
-                    priority
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-slate-50">
-                    <Car className="w-24 h-24 text-slate-200" />
-                  </div>
-                )}
+              {/* Main Image Carousel */}
+              <div className="relative rounded-[40px] overflow-hidden shadow-2xl bg-white border-8 border-white group">
+                <Carousel 
+                  plugins={[plugin.current]}
+                  opts={{ loop: true, align: "start" }}
+                  className="w-full"
+                >
+                  <CarouselContent>
+                    {allImages.length > 0 ? (
+                      allImages.map((img, idx) => (
+                        <CarouselItem key={idx}>
+                          <div className="relative aspect-[16/10]">
+                            <Image
+                              src={img}
+                              alt={`${project.title} view ${idx + 1}`}
+                              fill
+                              unoptimized
+                              className="object-cover"
+                              priority={idx === 0}
+                            />
+                          </div>
+                        </CarouselItem>
+                      ))
+                    ) : (
+                      <CarouselItem>
+                        <div className="relative aspect-[16/10] flex items-center justify-center bg-slate-50">
+                          <Car className="w-24 h-24 text-slate-200" />
+                        </div>
+                      </CarouselItem>
+                    )}
+                  </CarouselContent>
+                </Carousel>
                 
                 {project.featured && (
-                  <div className="absolute top-8 right-8">
+                  <div className="absolute top-8 right-8 z-20">
                     <Badge className="bg-[#E31B23] text-white px-6 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl shadow-xl border-none">
                       <Star className="w-3.5 h-3.5 mr-2 fill-white" />
                       HOT DEAL
                     </Badge>
                   </div>
                 )}
-              </div>
 
-              {/* Gallery Thumbnails */}
-              {allImages.length > 1 && (
-                <div className="grid grid-cols-5 gap-3 mt-6">
-                    {allImages.map((img, idx) => (
-                        <button 
-                            key={idx}
-                            onClick={() => setActiveImage(img)}
-                            className={`relative aspect-[4/3] rounded-2xl overflow-hidden border-4 transition-all ${activeImage === img || (!activeImage && img === project.image_url) ? 'border-[#E31B23] shadow-lg scale-105' : 'border-white hover:border-red-100 opacity-70 hover:opacity-100'}`}
-                        >
-                            <Image src={img} alt={`Gallery ${idx}`} fill unoptimized className="object-cover" />
-                        </button>
-                    ))}
+                {/* Interaction Hint */}
+                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex gap-1.5 px-4 py-2 bg-black/20 backdrop-blur-md rounded-full">
+                  {allImages.map((_, i) => (
+                    <div key={i} className="w-1.5 h-1.5 rounded-full bg-white/60" />
+                  ))}
                 </div>
-              )}
+              </div>
 
               {/* Video Section */}
               {project.video_url && (
