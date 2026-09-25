@@ -136,7 +136,7 @@ export function AdminProjectsPage() {
         setUploading(true);
         
         try {
-          // Compression
+          // Compression (Max 1MB, 1200px)
           const options = {
             maxSizeMB: 1,
             maxWidthOrHeight: 1200,

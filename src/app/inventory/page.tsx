@@ -54,7 +54,7 @@ function VehicleDetailContent() {
     <div className="min-h-screen bg-[#FFFBFA] text-[#0E2356]">
       <Navigation profile={profile} />
 
-      <main className="pt-32 pb-24 min-h-screen">
+      <main className="pt-32 pb-24">
         <div className="max-w-[1440px] mx-auto px-6 lg:px-12 w-full">
           {/* Back Button */}
           <Link href="/#projects">
@@ -150,7 +150,7 @@ function VehicleDetailContent() {
                 </div>
               </div>
 
-              {/* Specifications List - Exact Match to Screenshot */}
+              {/* Specifications List - Formal Card Match */}
               {project.tech_stack && project.tech_stack.length > 0 && (
                 <div className="space-y-6">
                   <div className="flex items-center gap-4 mb-4">

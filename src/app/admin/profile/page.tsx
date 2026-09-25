@@ -71,7 +71,7 @@ export default function AdminProfilePage() {
     setIsUploading(true);
 
     try {
-      // Compress the image before uploading
+      // Compress the image before uploading (Max 1MB, 800px)
       const options = {
         maxSizeMB: 1,
         maxWidthOrHeight: 800,

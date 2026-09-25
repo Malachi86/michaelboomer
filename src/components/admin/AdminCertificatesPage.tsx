@@ -112,7 +112,7 @@ export function AdminCertificatesPage() {
         setUploading(true);
         
         try {
-          // Compression
+          // Compression (Max 1MB, 1200px)
           const options = {
             maxSizeMB: 1,
             maxWidthOrHeight: 1200,
@@ -182,7 +182,7 @@ export function AdminCertificatesPage() {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.9 }}
-                      transition={{ delay: index * 0.05 }}
+                      transition={{ delay: index * 0.1 }}
                     >
                       <Card className="bg-white border-none shadow-xl shadow-slate-200/50 overflow-hidden group rounded-[32px] hover:shadow-red-50 transition-all border-2 border-transparent hover:border-red-100">
                         <div className="relative aspect-[4/3] bg-slate-50 overflow-hidden">
