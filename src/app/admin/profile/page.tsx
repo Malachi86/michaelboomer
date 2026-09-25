@@ -158,11 +158,14 @@ export default function AdminProfilePage() {
           <AlertDescription className="text-xs leading-relaxed space-y-4">
             <p>Bina-block ng Firebase ang iyong domain. Sundin ang mga hakbang na ito sa iyong <strong>Terminal</strong>:</p>
             <div className="bg-white p-4 rounded-xl border border-red-100 space-y-3 font-mono">
-              <p className="text-[10px] text-gray-400 uppercase font-black">Step 1: Alamin ang iyong bucket name</p>
+              <p className="text-[10px] text-gray-400 uppercase font-black">Step 1: Set the correct project</p>
+              <code className="block bg-slate-50 p-2 rounded select-all text-blue-600">gcloud config set project studio-7714200755-d4b21</code>
+
+              <p className="text-[10px] text-gray-400 uppercase font-black">Step 2: Alamin ang iyong bucket name</p>
               <code className="block bg-slate-50 p-2 rounded select-all text-blue-600">gsutil ls</code>
               
-              <p className="text-[10px] text-gray-400 uppercase font-black">Step 2: Gamitin ang saktong bucket name (yung may gs://...)</p>
-              <code className="block bg-slate-50 p-2 rounded select-all text-red-600">gsutil cors set cors.json [LUMABAS_SA_STEP_1]</code>
+              <p className="text-[10px] text-gray-400 uppercase font-black">Step 3: Gamitin ang saktong bucket name (yung may gs://...)</p>
+              <code className="block bg-slate-50 p-2 rounded select-all text-red-600">gsutil cors set cors.json [LUMABAS_SA_STEP_2]</code>
             </div>
             <p className="mt-2 text-[10px] opacity-70 italic font-medium">Pagkatapos nito, magiging "upload agad" na ang karanasan mo.</p>
           </AlertDescription>

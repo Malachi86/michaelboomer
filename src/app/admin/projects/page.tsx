@@ -315,8 +315,14 @@ export function AdminProjectsPage() {
                     <AlertDescription className="text-xs leading-relaxed space-y-4">
                       <p>Sundin ang mga hakbang na ito sa iyong terminal:</p>
                       <div className="bg-white p-3 rounded-lg border border-red-100 font-mono space-y-2">
+                        <p className="text-[9px] text-gray-400 font-black">Step 1: Set correct project</p>
+                        <code className="block bg-slate-50 p-2 rounded text-[10px] select-all">gcloud config set project studio-7714200755-d4b21</code>
+                        
+                        <p className="text-[9px] text-gray-400 font-black">Step 2: Get bucket name</p>
                         <code className="block bg-slate-50 p-2 rounded text-[10px] select-all">gsutil ls</code>
-                        <code className="block bg-slate-50 p-2 rounded text-[10px] select-all">gsutil cors set cors.json [BUCKET_FROM_LS]</code>
+                        
+                        <p className="text-[9px] text-gray-400 font-black">Step 3: Apply CORS</p>
+                        <code className="block bg-slate-50 p-2 rounded text-[10px] select-all">gsutil cors set cors.json [LUMABAS_SA_STEP_2]</code>
                       </div>
                     </AlertDescription>
                   </Alert>
