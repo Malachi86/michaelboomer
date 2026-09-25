@@ -14,7 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { 
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription 
 } from "@/components/ui/dialog";
-import { Plus, Trash2, Edit2, Loader2, Upload, Star, Car, Link as LinkIcon, Info, X, ImageIcon } from 'lucide-react';
+import { Plus, Trash2, Edit2, Loader2, Upload, Star, Car, Link as LinkIcon, Info, X, ImageIcon, Play } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getProjects, addProject, updateProject, deleteProject } from '@/app/admin/actions';
 import { useStorage } from '@/firebase';
@@ -289,7 +289,7 @@ export function AdminProjectsPage() {
     
                         <CardContent className="p-8">
                           <h3 className="text-xl font-black text-[#0E2356] uppercase tracking-tight mb-2 truncate">{project.title}</h3>
-                          <p className="text-gray-400 text-xs font-medium line-clamp-2 mb-6 leading-relaxed">{project.description}</p>
+                          <p className="text-gray-400 text-xs font-medium line-clamp-2 mb-6 leading-relaxed">🚗 {project.description}</p>
                           
                           <div className="flex flex-wrap gap-2 mb-6">
                             {project.tech_stack?.slice(0, 3).map((tech, i) => (
@@ -455,6 +455,21 @@ export function AdminProjectsPage() {
                         />
                     </div>
                     <div className="space-y-2">
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Video Presentation (YouTube)</Label>
+                        <div className="relative">
+                            <Play className="absolute left-3 top-3.5 w-4 h-4 text-gray-300" />
+                            <Input
+                            value={formData.video_url}
+                            onChange={(e) => setFormData(prev => ({ ...prev, video_url: e.target.value }))}
+                            placeholder="https://youtube.com/..."
+                            className="h-12 bg-slate-50 border-gray-100 pl-10 rounded-xl font-bold text-[#0E2356] focus:border-[#E31B23] focus:ring-0"
+                            />
+                        </div>
+                    </div>
+                    </div>
+
+                    <div className="grid md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
                         <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Price (SRP)</Label>
                         <Input
                         type="number"
@@ -464,10 +479,7 @@ export function AdminProjectsPage() {
                         className="h-12 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356] focus:border-[#E31B23] focus:ring-0"
                         />
                     </div>
-                    </div>
-
-                    <div className="grid md:grid-cols-2 gap-6">
-                        <div className="space-y-4">
+                    <div className="space-y-4">
                             <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Sort Order</Label>
                             <Input
                                 type="number"
@@ -476,7 +488,10 @@ export function AdminProjectsPage() {
                                 className="h-12 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356] focus:border-[#E31B23] focus:ring-0"
                             />
                         </div>
-                        <div className="flex items-center gap-4 p-5 bg-red-50 rounded-3xl border border-red-100 h-16 self-end">
+                    </div>
+
+                    <div className="grid md:grid-cols-2 gap-6">
+                        <div className="flex items-center gap-4 p-5 bg-red-50 rounded-3xl border border-red-100 h-16">
                             <Switch
                                 checked={formData.featured}
                                 onCheckedChange={(v) => setFormData(prev => ({ ...prev, featured: v }))}

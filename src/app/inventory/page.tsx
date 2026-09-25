@@ -4,11 +4,11 @@
 import React, { useMemo, Suspense, useState } from 'react';
 import { useDoc, useFirestore } from '@/firebase';
 import { doc } from 'firebase/firestore';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { ChevronLeft, MessageSquare, Car, Star, CheckCircle2, ShieldCheck, Loader2, ChevronRight, Maximize2 } from 'lucide-react';
+import { ChevronLeft, MessageSquare, Car, Star, CheckCircle2, ShieldCheck, Loader2, ChevronRight, Play } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Navigation from '@/components/portfolio/Navigation';
@@ -34,6 +34,15 @@ function VehicleDetailContent() {
     if (!project) return [];
     return [project.image_url, ...(project.additional_images || [])].filter(Boolean) as string[];
   }, [project]);
+
+  const getYoutubeEmbedUrl = (url: string) => {
+    if (!url) return null;
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? `https://www.youtube.com/embed/${match[2]}` : null;
+  };
+
+  const videoEmbedUrl = useMemo(() => project?.video_url ? getYoutubeEmbedUrl(project.video_url) : null, [project?.video_url]);
 
   if (projectLoading) {
     return (
@@ -116,6 +125,37 @@ function VehicleDetailContent() {
                             <Image src={img} alt={`Gallery ${idx}`} fill unoptimized className="object-cover" />
                         </button>
                     ))}
+                </div>
+              )}
+
+              {/* Video Section */}
+              {project.video_url && (
+                <div className="mt-10 space-y-4">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-1.5 h-6 bg-[#E31B23] rounded-full" />
+                    <h4 className="text-[10px] font-black text-[#0E2356] uppercase tracking-[0.3em]">Video Presentation</h4>
+                  </div>
+                  {videoEmbedUrl ? (
+                    <div className="relative aspect-video rounded-[32px] overflow-hidden shadow-xl bg-black border-4 border-white">
+                      <iframe
+                        src={videoEmbedUrl}
+                        className="absolute inset-0 w-full h-full"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      />
+                    </div>
+                  ) : (
+                    <Button 
+                      variant="outline" 
+                      className="w-full h-20 rounded-[32px] border-gray-200 text-[#0E2356] font-black text-[12px] tracking-[0.2em] hover:bg-white hover:border-[#0E2356] uppercase shadow-sm group"
+                      asChild
+                    >
+                      <a href={project.video_url} target="_blank" rel="noopener noreferrer">
+                        <Play className="w-5 h-5 mr-3 text-[#E31B23] fill-[#E31B23] group-hover:scale-110 transition-transform" />
+                        Watch Full Presentation
+                      </a>
+                    </Button>
+                  )}
                 </div>
               )}
 
