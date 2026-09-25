@@ -19,7 +19,6 @@ import { getProjects, addProject, updateProject, deleteProject } from '@/app/adm
 import { useStorage } from '@/firebase';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import type { Project } from '@/lib/types';
-import imageCompression from 'browser-image-compression';
 
 const categories = ['HATCHBACK', 'SEDAN', 'SUV', 'MPV', 'VAN', 'PICKUP'];
 
@@ -139,39 +138,32 @@ export function AdminProjectsPage() {
         setUploading(true);
         
         try {
-          const compressionOptions = {
-            maxSizeMB: 1,
-            maxWidthOrHeight: 1200,
-            useWebWorker: true
-          };
-
           if (field === 'image_url') {
             const file = files[0];
             setUploadPreview(URL.createObjectURL(file));
-            const compressedFile = await imageCompression(file, compressionOptions);
             const fileName = `main-${Date.now()}-${file.name}`;
             const storageRef = ref(storage, `uploads/vehicles/${fileName}`);
-            await uploadBytes(storageRef, compressedFile);
-            const downloadURL = await getDownloadURL(storageRef);
+            
+            // Direct upload
+            const snapshot = await uploadBytes(storageRef, file);
+            const downloadURL = await getDownloadURL(snapshot.ref);
             setFormData(prev => ({ ...prev, image_url: downloadURL }));
           } else {
-            // Multi-upload for gallery
-            const newUrls: string[] = [];
-            for (let i = 0; i < files.length; i++) {
-              const file = files[i];
-              const compressedFile = await imageCompression(file, compressionOptions);
+            // Multi-upload for gallery - direct
+            const uploadPromises = Array.from(files).map(async (file) => {
               const fileName = `gallery-${Date.now()}-${file.name}`;
               const storageRef = ref(storage, `uploads/vehicles/gallery/${fileName}`);
-              await uploadBytes(storageRef, compressedFile);
-              const downloadURL = await getDownloadURL(storageRef);
-              newUrls.push(downloadURL);
-            }
+              const snapshot = await uploadBytes(storageRef, file);
+              return getDownloadURL(snapshot.ref);
+            });
+
+            const newUrls = await Promise.all(uploadPromises);
             setFormData(prev => ({ ...prev, additional_images: [...(prev.additional_images || []), ...newUrls] }));
           }
           toast({ title: 'Success', description: `${files.length} photo(s) uploaded successfully.` });
         } catch (err: any) {
           console.error('Upload error:', err);
-          toast({ variant: 'destructive', title: 'Error', description: err.message || 'Upload failed.' });
+          toast({ variant: 'destructive', title: 'Error', description: 'Upload failed.' });
         } finally {
           setUploading(false);
         }

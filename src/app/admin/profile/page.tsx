@@ -15,7 +15,6 @@ import { doc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import type { Profile } from '@/lib/types';
 import Image from 'next/image';
-import imageCompression from 'browser-image-compression';
 
 const DEFAULT_PROFILE: Profile = {
   full_name: 'Michael Gabriel Orozco',
@@ -34,7 +33,7 @@ export default function AdminProfilePage() {
   const storage = useStorage();
   const profileRef = useMemo(() => doc(db, 'profile', 'data'), [db]);
   const { data: profileData, loading } = useDoc(profileRef);
-  
+
   const [profile, setProfile] = useState<Profile>(DEFAULT_PROFILE);
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -66,39 +65,31 @@ export default function AdminProfilePage() {
     if (!file || !storage) return;
 
     // Show optimistic preview immediately
-    const objectUrl = URL.createObjectURL(file);
-    setPreviewUrl(objectUrl);
+    setPreviewUrl(URL.createObjectURL(file));
     setIsUploading(true);
 
     try {
-      // Compress the image before uploading (Max 1MB, 800px)
-      const options = {
-        maxSizeMB: 1,
-        maxWidthOrHeight: 800,
-        useWebWorker: true
-      };
-      const compressedFile = await imageCompression(file, options);
-
       const fileExtension = file.name.split('.').pop();
       const fileName = `profile-${Date.now()}.${fileExtension}`;
       const storageRef = ref(storage, `uploads/profile/${fileName}`);
-      
-      await uploadBytes(storageRef, compressedFile);
-      const downloadURL = await getDownloadURL(storageRef);
+
+      // Direct upload without compression or timers
+      const snapshot = await uploadBytes(storageRef, file);
+      const downloadURL = await getDownloadURL(snapshot.ref);
 
       const updatedProfile = { ...profile, profile_image: downloadURL };
       setProfile(updatedProfile);
-      
+
       // Auto-save the new image URL to profile
       await updateProfile(updatedProfile);
-      
-      toast({ 
-        title: 'Success', 
-        description: 'Profile picture updated!' 
+
+      toast({
+        title: 'Success',
+        description: 'Profile picture updated!'
       });
     } catch (error: any) {
       console.error('Upload error:', error);
-      toast({ variant: 'destructive', title: 'Error', description: error.message || 'Failed to upload image.' });
+      toast({ variant: 'destructive', title: 'Error', description: 'Failed to upload image.' });
       setPreviewUrl(null);
     } finally {
       setIsUploading(false);
@@ -135,7 +126,7 @@ export default function AdminProfilePage() {
     <div className="max-w-4xl">
       <div className="flex items-center justify-between mb-12">
         <div>
-          <motion.h1 
+          <motion.h1
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             className="text-4xl font-black text-[#0E2356] tracking-tighter mb-2 uppercase"
@@ -144,7 +135,7 @@ export default function AdminProfilePage() {
           </motion.h1>
           <p className="text-gray-400 font-medium">Manage your personal and professional information</p>
         </div>
-        <Button 
+        <Button
           onClick={handleSave}
           disabled={isSaving || isUploading}
           className="bg-[#E31B23] hover:bg-[#c4171e] text-white font-black px-8 h-14 rounded-2xl shadow-xl shadow-red-100 uppercase tracking-widest text-xs"
@@ -166,12 +157,12 @@ export default function AdminProfilePage() {
               <div className="flex items-center gap-10">
                 <div className="relative w-36 h-36 rounded-[32px] overflow-hidden bg-slate-50 border-4 border-white shadow-2xl shrink-0">
                   {(previewUrl || profile.profile_image) ? (
-                    <Image 
-                      src={previewUrl || profile.profile_image} 
-                      alt="Profile" 
-                      fill 
+                    <Image
+                      src={previewUrl || profile.profile_image}
+                      alt="Profile"
+                      fill
                       unoptimized
-                      className="object-cover" 
+                      className="object-cover"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-slate-200">
@@ -182,7 +173,7 @@ export default function AdminProfilePage() {
                     <div className="absolute inset-0 bg-[#0E2356]/60 flex items-center justify-center backdrop-blur-sm">
                       <div className="flex flex-col items-center gap-2">
                         <Loader2 className="w-8 h-8 animate-spin text-white" />
-                        <span className="text-[8px] text-white font-black uppercase tracking-widest">Optimizing...</span>
+                        <span className="text-[8px] text-white font-black uppercase tracking-widest">Uploading...</span>
                       </div>
                     </div>
                   )}
@@ -201,24 +192,23 @@ export default function AdminProfilePage() {
                       <Button variant="outline" className="h-14 border-gray-100 text-[#0E2356] font-black text-[10px] tracking-widest uppercase rounded-2xl px-6" asChild disabled={isUploading}>
                         <span>
                           {isUploading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}
-                          Upload New Photo
+                          {isUploading ? 'Uploading...' : 'Upload New Photo'}
                         </span>
                       </Button>
                     </Label>
-                    <p className="text-gray-400 text-[9px] font-black uppercase tracking-widest opacity-60">Automatic compression enabled for faster updates</p>
                   </div>
 
                   <div className="space-y-3 pt-4 border-t border-gray-50">
                     <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Or provide Image URL</Label>
                     <div className="relative">
                       <LinkIcon className="absolute left-3 top-4 w-4 h-4 text-gray-300" />
-                      <Input 
-                        value={profile.profile_image} 
+                      <Input
+                        value={profile.profile_image}
                         onChange={(e) => {
                           setProfile({...profile, profile_image: e.target.value});
-                          setPreviewUrl(null); // Clear manual upload preview when typing URL
-                        }} 
-                        placeholder="https://..." 
+                          setPreviewUrl(null); 
+                        }}
+                        placeholder="https://..."
                         className="h-14 bg-slate-50 border-gray-100 pl-10 rounded-xl font-bold text-[#0E2356] focus:border-[#E31B23] focus:ring-0"
                       />
                     </div>
@@ -239,19 +229,19 @@ export default function AdminProfilePage() {
                     <div className="grid md:grid-cols-2 gap-8">
                         <div className="space-y-3">
                             <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Full Name</Label>
-                            <Input 
-                                value={profile.full_name} 
-                                onChange={(e) => setProfile({...profile, full_name: e.target.value})} 
-                                placeholder="Michael Gabriel Orozco" 
+                            <Input
+                                value={profile.full_name}
+                                onChange={(e) => setProfile({...profile, full_name: e.target.value})}
+                                placeholder="Michael Gabriel Orozco"
                                 className="h-14 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356] focus:border-[#E31B23] focus:ring-0"
                             />
                         </div>
                         <div className="space-y-3">
                             <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Email Address</Label>
-                            <Input 
-                                type="email" 
-                                value={profile.email} 
-                                onChange={(e) => setProfile({...profile, email: e.target.value})} 
+                            <Input
+                                type="email"
+                                value={profile.email}
+                                onChange={(e) => setProfile({...profile, email: e.target.value})}
                                 className="h-14 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356] focus:border-[#E31B23] focus:ring-0"
                             />
                         </div>
@@ -259,39 +249,39 @@ export default function AdminProfilePage() {
                     <div className="grid md:grid-cols-2 gap-8">
                         <div className="space-y-3">
                             <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Main Title</Label>
-                            <Input 
-                                value={profile.title} 
-                                onChange={(e) => setProfile({...profile, title: e.target.value})} 
-                                placeholder="Authorized Suzuki Executive" 
+                            <Input
+                                value={profile.title}
+                                onChange={(e) => setProfile({...profile, title: e.target.value})}
+                                placeholder="Authorized Suzuki Executive"
                                 className="h-14 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356] focus:border-[#E31B23] focus:ring-0"
                             />
                         </div>
                         <div className="space-y-3">
                             <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Subtitle</Label>
-                            <Input 
-                                value={profile.subtitle} 
-                                onChange={(e) => setProfile({...profile, subtitle: e.target.value})} 
-                                placeholder="Sales Consultant" 
+                            <Input
+                                value={profile.subtitle}
+                                onChange={(e) => setProfile({...profile, subtitle: e.target.value})}
+                                placeholder="Sales Consultant"
                                 className="h-14 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356] focus:border-[#E31B23] focus:ring-0"
                             />
                         </div>
                     </div>
                     <div className="space-y-3">
                         <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Professional Bio</Label>
-                        <Textarea 
-                            value={profile.bio} 
-                            onChange={(e) => setProfile({...profile, bio: e.target.value})} 
-                            placeholder="Tell your clients about your expertise..." 
-                            rows={6} 
+                        <Textarea
+                            value={profile.bio}
+                            onChange={(e) => setProfile({...profile, bio: e.target.value})}
+                            placeholder="Tell your clients about your expertise..."
+                            rows={6}
                             className="bg-slate-50 border-gray-100 rounded-xl resize-none p-5 font-bold text-[#0E2356] leading-relaxed focus:border-[#E31B23] focus:ring-0"
                         />
                     </div>
                     <div className="space-y-3">
                         <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Resume/Credential URL</Label>
-                        <Input 
-                            value={profile.resume_url} 
-                            onChange={(e) => setProfile({...profile, resume_url: e.target.value})} 
-                            placeholder="https://..." 
+                        <Input
+                            value={profile.resume_url}
+                            onChange={(e) => setProfile({...profile, resume_url: e.target.value})}
+                            placeholder="https://..."
                             className="h-14 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356] focus:border-[#E31B23] focus:ring-0"
                         />
                     </div>

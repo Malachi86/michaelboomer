@@ -15,7 +15,6 @@ import { getCertificates, addCertificate, updateCertificate, deleteCertificate }
 import { useStorage } from '@/firebase';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import type { Certificate } from '@/lib/types';
-import imageCompression from 'browser-image-compression';
 
 export function AdminCertificatesPage() {
     const { toast } = useToast();
@@ -107,31 +106,22 @@ export function AdminCertificatesPage() {
         const file = e.target.files?.[0];
         if (!file || !storage) return;
         
-        // Optimistic preview
         setUploadPreview(URL.createObjectURL(file));
         setUploading(true);
         
         try {
-          // Compression (Max 1MB, 1200px)
-          const options = {
-            maxSizeMB: 1,
-            maxWidthOrHeight: 1200,
-            useWebWorker: true
-          };
-          const compressedFile = await imageCompression(file, options);
-
           const fileExtension = file.name.split('.').pop();
           const fileName = `cert-${Date.now()}.${fileExtension}`;
           const storageRef = ref(storage, `uploads/certificates/${fileName}`);
           
-          await uploadBytes(storageRef, compressedFile);
-          const downloadURL = await getDownloadURL(storageRef);
+          const snapshot = await uploadBytes(storageRef, file);
+          const downloadURL = await getDownloadURL(snapshot.ref);
           
           setFormData(prev => ({ ...prev, imageUrl: downloadURL }));
-          toast({ title: 'Success', description: 'Image uploaded to cloud storage.' });
+          toast({ title: 'Success', description: 'Image uploaded successfully.' });
         } catch (err: any) {
           console.error('Upload error:', err);
-          toast({ variant: 'destructive', title: 'Error', description: err.message || 'Upload failed.' });
+          toast({ variant: 'destructive', title: 'Error', description: 'Upload failed.' });
           setUploadPreview(null);
         }
         setUploading(false);
