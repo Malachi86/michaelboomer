@@ -64,32 +64,47 @@ export default function AdminProfilePage() {
     const file = e.target.files?.[0];
     if (!file || !storage) return;
 
-    // Show optimistic preview immediately
+    // Isolate file size for debugging
+    console.log(`[Upload] Starting upload for ${file.name} (${(file.size / 1024).toFixed(2)} KB)`);
+    
+    // Show optimistic preview immediately to remove perceived hang
     setPreviewUrl(URL.createObjectURL(file));
     setIsUploading(true);
 
     try {
+      console.time('StorageUpload');
       const fileExtension = file.name.split('.').pop();
       const fileName = `profile-${Date.now()}.${fileExtension}`;
       const storageRef = ref(storage, `uploads/profile/${fileName}`);
 
-      // Direct upload without compression or timers
+      // Using uploadBytes instead of uploadBytesResumable for small profile pics
+      // to reduce network handshakes/roundtrips.
       const snapshot = await uploadBytes(storageRef, file);
+      console.timeEnd('StorageUpload');
+
+      console.time('GetDownloadURL');
       const downloadURL = await getDownloadURL(snapshot.ref);
+      console.timeEnd('GetDownloadURL');
 
       const updatedProfile = { ...profile, profile_image: downloadURL };
       setProfile(updatedProfile);
 
-      // Auto-save the new image URL to profile
+      // Auto-save to Firestore immediately so the user doesn't have to click "Save"
+      console.time('FirestoreUpdate');
       await updateProfile(updatedProfile);
+      console.timeEnd('FirestoreUpdate');
 
       toast({
         title: 'Success',
-        description: 'Profile picture updated!'
+        description: 'Profile picture updated instantly!'
       });
     } catch (error: any) {
-      console.error('Upload error:', error);
-      toast({ variant: 'destructive', title: 'Error', description: 'Failed to upload image.' });
+      console.error('[Upload Error Details]:', error);
+      toast({ 
+        variant: 'destructive', 
+        title: 'Upload Failed', 
+        description: error.message || 'Check connection or Storage Rules.' 
+      });
       setPreviewUrl(null);
     } finally {
       setIsUploading(false);
@@ -192,7 +207,7 @@ export default function AdminProfilePage() {
                       <Button variant="outline" className="h-14 border-gray-100 text-[#0E2356] font-black text-[10px] tracking-widest uppercase rounded-2xl px-6" asChild disabled={isUploading}>
                         <span>
                           {isUploading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}
-                          {isUploading ? 'Uploading...' : 'Upload New Photo'}
+                          {isUploading ? 'Finalizing...' : 'Upload New Photo'}
                         </span>
                       </Button>
                     </Label>
