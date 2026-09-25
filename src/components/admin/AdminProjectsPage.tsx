@@ -1,3 +1,4 @@
+
 'use client';
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -13,7 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { 
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription 
 } from "@/components/ui/dialog";
-import { Plus, Trash2, Edit2, Loader2, Upload, Star, Car, Link as LinkIcon, Info, X } from 'lucide-react';
+import { Plus, Trash2, Edit2, Loader2, Upload, Star, Car, Link as LinkIcon, Info, X, ImageIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getProjects, addProject, updateProject, deleteProject } from '@/app/admin/actions';
 import { useStorage } from '@/firebase';
@@ -34,12 +35,14 @@ export function AdminProjectsPage() {
     const [uploading, setUploading] = useState(false);
     const [techInput, setTechInput] = useState('');
     const [uploadPreview, setUploadPreview] = useState<string | null>(null);
+    const [galleryInput, setGalleryInput] = useState('');
 
     const [formData, setFormData] = useState<Omit<Project, 'id'>>({
         title: '',
         description: '',
         category: 'SUV',
         image_url: '',
+        additional_images: [],
         video_url: '',
         live_demo_url: '',
         github_url: '',
@@ -66,6 +69,7 @@ export function AdminProjectsPage() {
             description: '',
             category: 'SUV',
             image_url: '',
+            additional_images: [],
             video_url: '',
             live_demo_url: '',
             github_url: '',
@@ -77,6 +81,7 @@ export function AdminProjectsPage() {
         setEditingProject(null);
         setTechInput('');
         setUploadPreview(null);
+        setGalleryInput('');
     };
 
     const openCreateDialog = () => {
@@ -92,6 +97,7 @@ export function AdminProjectsPage() {
             description: project.description || '',
             category: project.category || 'SUV',
             image_url: project.image_url || '',
+            additional_images: project.additional_images || [],
             video_url: project.video_url || '',
             live_demo_url: project.live_demo_url || '',
             github_url: project.github_url || '',
@@ -127,16 +133,14 @@ export function AdminProjectsPage() {
         }
     }
 
-    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: 'image_url' | 'additional_images') => {
         const file = e.target.files?.[0];
         if (!file || !storage) return;
         
-        // Optimistic preview immediately
-        setUploadPreview(URL.createObjectURL(file));
+        if (field === 'image_url') setUploadPreview(URL.createObjectURL(file));
         setUploading(true);
         
         try {
-          // Compression (Max 1MB, 1200px) - Makes upload up to 10x faster
           const options = {
             maxSizeMB: 1,
             maxWidthOrHeight: 1200,
@@ -151,14 +155,31 @@ export function AdminProjectsPage() {
           await uploadBytes(storageRef, compressedFile);
           const downloadURL = await getDownloadURL(storageRef);
           
-          setFormData(prev => ({ ...prev, image_url: downloadURL }));
+          if (field === 'image_url') {
+            setFormData(prev => ({ ...prev, image_url: downloadURL }));
+          } else {
+            setFormData(prev => ({ ...prev, additional_images: [...(prev.additional_images || []), downloadURL] }));
+          }
           toast({ title: 'Success', description: 'Vehicle photo uploaded.' });
         } catch (err: any) {
           console.error('Upload error:', err);
           toast({ variant: 'destructive', title: 'Error', description: err.message || 'Upload failed.' });
-          setUploadPreview(null);
         }
         setUploading(false);
+    };
+
+    const addGalleryLink = () => {
+        if (galleryInput.trim() && !formData.additional_images?.includes(galleryInput.trim())) {
+            setFormData(prev => ({ ...prev, additional_images: [...(prev.additional_images || []), galleryInput.trim()] }));
+            setGalleryInput('');
+        }
+    };
+
+    const removeGalleryImage = (urlToRemove: string) => {
+        setFormData(prev => ({
+            ...prev,
+            additional_images: prev.additional_images?.filter(url => url !== urlToRemove)
+        }));
     };
     
     const addTech = () => {
@@ -285,11 +306,9 @@ export function AdminProjectsPage() {
                                 ₱{(project.price || 0).toLocaleString()}
                               </span>
                             </div>
-                            <div className="flex gap-2">
-                                {project.live_demo_url && (
-                                    <Badge variant="outline" className="border-green-100 bg-green-50 text-green-600 text-[8px] font-black uppercase">LINKED</Badge>
-                                )}
-                            </div>
+                            {project.additional_images && project.additional_images.length > 0 && (
+                                <Badge variant="secondary" className="bg-slate-50 text-[8px] font-black">{project.additional_images.length} PHOTOS</Badge>
+                            )}
                           </div>
                         </CardContent>
                       </Card>
@@ -303,13 +322,13 @@ export function AdminProjectsPage() {
                 <DialogContent className="bg-white border-none text-[#0E2356] max-w-2xl max-h-[90vh] overflow-y-auto rounded-[40px] shadow-2xl p-10">
                 <DialogHeader className="mb-8">
                     <DialogTitle className="text-3xl font-black uppercase tracking-tighter text-[#0E2356]">
-                      {editingProject ? 'Edit Vehicle Unit' : 'New Suzuki Listing'}
+                      {editingProject ? 'EDIT VEHICLE UNIT' : 'NEW SUZUKI LISTING'}
                     </DialogTitle>
                     <DialogDescription className="text-gray-400 text-sm">Ilagay ang mga detalye ng Suzuki unit para sa iyong catalog.</DialogDescription>
                 </DialogHeader>
                 <div className="space-y-8">
                     <div className="space-y-4">
-                    <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Main Vehicle Photo</Label>
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">MAIN VEHICLE PHOTO</Label>
                     <div className="flex items-start gap-8">
                         <div className="relative w-56 h-36 rounded-3xl overflow-hidden bg-slate-50 border border-gray-100 flex-shrink-0 shadow-inner">
                         {(uploadPreview || formData.image_url) ? (
@@ -327,12 +346,12 @@ export function AdminProjectsPage() {
                         </div>
                         <div className="flex-1 space-y-4">
                             <div className="flex items-center gap-3">
-                                <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" id="project-image" />
+                                <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, 'image_url')} className="hidden" id="project-image" />
                                 <Label htmlFor="project-image">
                                     <Button variant="outline" className="h-12 border-gray-100 font-black text-[10px] tracking-widest uppercase rounded-xl" asChild disabled={uploading}>
                                     <span>
                                         {uploading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}
-                                        Upload Image
+                                        UPLOAD IMAGE
                                     </span>
                                     </Button>
                                 </Label>
@@ -342,12 +361,48 @@ export function AdminProjectsPage() {
                                 <Input
                                     value={formData.image_url}
                                     onChange={(e) => setFormData(prev => ({ ...prev, image_url: e.target.value }))}
-                                    placeholder="External Image URL (e.g. Unsplash)"
+                                    placeholder="External Image URL"
                                     className="h-12 bg-slate-50 border-gray-100 pl-10 rounded-xl font-bold text-[#0E2356] focus:border-[#E31B23] focus:ring-0"
                                 />
                             </div>
                         </div>
                     </div>
+                    </div>
+
+                    <div className="space-y-4">
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">GALLERY PHOTOS (ADDITIONAL)</Label>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, 'additional_images')} className="hidden" id="gallery-upload" />
+                                <Label htmlFor="gallery-upload">
+                                    <Button variant="outline" className="w-full h-12 border-gray-100 font-black text-[10px] tracking-widest uppercase rounded-xl" asChild disabled={uploading}>
+                                        <span><Plus className="w-4 h-4 mr-2" /> UPLOAD PHOTO</span>
+                                    </Button>
+                                </Label>
+                            </div>
+                            <div className="flex gap-2">
+                                <Input
+                                    value={galleryInput}
+                                    onChange={(e) => setGalleryInput(e.target.value)}
+                                    placeholder="Or paste Link..."
+                                    className="h-12 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356]"
+                                />
+                                <Button onClick={addGalleryLink} variant="secondary" className="h-12 bg-[#0E2356] text-white rounded-xl px-4">ADD</Button>
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-4 gap-3 mt-4">
+                            {formData.additional_images?.map((url, i) => (
+                                <div key={i} className="relative aspect-square rounded-xl overflow-hidden bg-slate-100 group">
+                                    <Image src={url} alt="Gallery" fill unoptimized className="object-cover" />
+                                    <button 
+                                        onClick={() => removeGalleryImage(url)}
+                                        className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                    >
+                                        <X className="w-3 h-3" />
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
                     </div>
 
                     <div className="grid md:grid-cols-2 gap-6">

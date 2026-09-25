@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "Profile": {
@@ -46,6 +47,7 @@
         "description": { "type": "string" },
         "category": { "type": "string" },
         "image_url": { "type": "string" },
+        "additional_images": { "type": "array", "items": { "type": "string" } },
         "video_url": { "type": "string" },
         "live_demo_url": { "type": "string" },
         "github_url": { "type": "string" },

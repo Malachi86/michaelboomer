@@ -1,13 +1,14 @@
+
 'use client';
 
-import React, { useMemo, Suspense } from 'react';
+import React, { useMemo, Suspense, useState } from 'react';
 import { useDoc, useFirestore } from '@/firebase';
 import { doc } from 'firebase/firestore';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { ChevronLeft, MessageSquare, Car, Star, CheckCircle2, ShieldCheck, Loader2, ChevronRight } from 'lucide-react';
+import { ChevronLeft, MessageSquare, Car, Star, CheckCircle2, ShieldCheck, Loader2, ChevronRight, Maximize2 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Navigation from '@/components/portfolio/Navigation';
@@ -19,6 +20,7 @@ function VehicleDetailContent() {
   const searchParams = useSearchParams();
   const id = searchParams.get('id');
   const db = useFirestore();
+  const [activeImage, setActiveImage] = useState<string | null>(null);
 
   const projectRef = useMemo(() => (db && id ? doc(db, 'projects', id) : null), [db, id]);
   const { data: project, loading: projectLoading } = useDoc<Project>(projectRef);
@@ -27,6 +29,11 @@ function VehicleDetailContent() {
   const { data: profileData } = useDoc<Profile>(profileRef);
 
   const profile = (profileData || defaultProfile) as Profile;
+
+  const allImages = useMemo(() => {
+    if (!project) return [];
+    return [project.image_url, ...(project.additional_images || [])].filter(Boolean) as string[];
+  }, [project]);
 
   if (projectLoading) {
     return (
@@ -50,13 +57,14 @@ function VehicleDetailContent() {
     );
   }
 
+  const currentMainImage = activeImage || project.image_url;
+
   return (
     <div className="min-h-screen bg-[#FFFBFA] text-[#0E2356]">
       <Navigation profile={profile} />
 
       <main className="pt-32 pb-24">
         <div className="max-w-[1440px] mx-auto px-6 lg:px-12 w-full">
-          {/* Back Button */}
           <Link href="/#projects">
             <Button variant="ghost" className="mb-12 text-[#0E2356] font-black uppercase text-[10px] tracking-widest hover:bg-white group">
               <ChevronLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
@@ -65,20 +73,19 @@ function VehicleDetailContent() {
           </Link>
 
           <div className="grid lg:grid-cols-2 gap-16 items-start">
-            {/* Left Column: Image Display - Sticky on Desktop */}
             <motion.div 
               initial={{ opacity: 0, x: -30 }}
               animate={{ opacity: 1, x: 0 }}
               className="lg:sticky lg:top-32"
             >
-              <div className="relative aspect-[16/10] rounded-[40px] overflow-hidden shadow-2xl bg-white border-8 border-white">
-                {project.image_url ? (
+              <div className="relative aspect-[16/10] rounded-[40px] overflow-hidden shadow-2xl bg-white border-8 border-white group">
+                {currentMainImage ? (
                   <Image
-                    src={project.image_url}
+                    src={currentMainImage}
                     alt={project.title}
                     fill
                     unoptimized
-                    className="object-cover"
+                    className="object-cover transition-all duration-500"
                     priority
                   />
                 ) : (
@@ -97,7 +104,21 @@ function VehicleDetailContent() {
                 )}
               </div>
 
-              {/* Quick Trust Badges */}
+              {/* Gallery Thumbnails */}
+              {allImages.length > 1 && (
+                <div className="grid grid-cols-5 gap-3 mt-6">
+                    {allImages.map((img, idx) => (
+                        <button 
+                            key={idx}
+                            onClick={() => setActiveImage(img)}
+                            className={`relative aspect-[4/3] rounded-2xl overflow-hidden border-4 transition-all ${activeImage === img || (!activeImage && img === project.image_url) ? 'border-[#E31B23] shadow-lg scale-105' : 'border-white hover:border-red-100 opacity-70 hover:opacity-100'}`}
+                        >
+                            <Image src={img} alt={`Gallery ${idx}`} fill unoptimized className="object-cover" />
+                        </button>
+                    ))}
+                </div>
+              )}
+
               <div className="grid grid-cols-2 gap-4 mt-8">
                 <div className="bg-white p-6 rounded-[32px] border border-gray-100 flex items-center gap-4 shadow-sm">
                   <div className="w-12 h-12 rounded-2xl bg-green-50 flex items-center justify-center shrink-0">
@@ -120,7 +141,6 @@ function VehicleDetailContent() {
               </div>
             </motion.div>
 
-            {/* Right Column: Information & Specs */}
             <motion.div 
               initial={{ opacity: 0, x: 30 }}
               animate={{ opacity: 1, x: 0 }}
@@ -138,7 +158,6 @@ function VehicleDetailContent() {
                 </p>
               </div>
 
-              {/* Price Banner */}
               <div className="p-10 bg-gradient-to-br from-[#0E2356] to-[#1a2f6b] rounded-[40px] text-white shadow-2xl relative overflow-hidden group">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-10 -mt-10 blur-2xl" />
                 <p className="text-[11px] font-black text-white/50 uppercase tracking-[0.4em] mb-3 relative z-10">Starting Retail Price</p>
@@ -150,7 +169,6 @@ function VehicleDetailContent() {
                 </div>
               </div>
 
-              {/* Specifications List - Formal Card Match */}
               {project.tech_stack && project.tech_stack.length > 0 && (
                 <div className="space-y-6">
                   <div className="flex items-center gap-4 mb-4">
@@ -176,7 +194,6 @@ function VehicleDetailContent() {
                 </div>
               )}
 
-              {/* CTA Section */}
               <div className="pt-10 flex flex-col sm:flex-row gap-4">
                 <Button 
                   className="flex-1 bg-[#E31B23] hover:bg-[#c4171e] text-white font-black h-20 rounded-[28px] shadow-2xl shadow-red-100 text-sm tracking-[0.2em] group"
