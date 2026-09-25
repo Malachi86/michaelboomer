@@ -1,3 +1,4 @@
+
 'use client';
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -9,12 +10,13 @@ import { Label } from "@/components/ui/label";
 import { 
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter 
 } from "@/components/ui/dialog";
-import { Plus, Trash2, Edit2, Loader2, Upload, RotateCw, Award, Link as LinkIcon } from 'lucide-react';
+import { Plus, Trash2, Edit2, Loader2, Upload, RotateCw, Award, Link as LinkIcon, ShieldAlert } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getCertificates, addCertificate, updateCertificate, deleteCertificate } from '@/app/admin/actions';
 import { useStorage } from '@/firebase';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import type { Certificate } from '@/lib/types';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 export function AdminCertificatesPage() {
     const { toast } = useToast();
@@ -26,6 +28,7 @@ export function AdminCertificatesPage() {
     const [isSaving, setIsSaving] = useState(false);
     const [uploading, setUploading] = useState(false);
     const [uploadPreview, setUploadPreview] = useState<string | null>(null);
+    const [corsError, setCorsError] = useState(false);
 
     const [formData, setFormData] = useState<Omit<Certificate, 'id'>>({
         title: '',
@@ -60,6 +63,7 @@ export function AdminCertificatesPage() {
         });
         setEditingCert(null);
         setUploadPreview(null);
+        setCorsError(false);
     };
 
     const openCreateDialog = () => {
@@ -79,6 +83,7 @@ export function AdminCertificatesPage() {
             rotation: cert.rotation || 0
         });
         setUploadPreview(null);
+        setCorsError(false);
         setIsDialogOpen(true);
     };
 
@@ -115,6 +120,7 @@ export function AdminCertificatesPage() {
         
         setUploadPreview(URL.createObjectURL(file));
         setUploading(true);
+        setCorsError(false);
         console.log(`[Cert] Starting direct upload for ${file.name}...`);
         
         try {
@@ -129,7 +135,12 @@ export function AdminCertificatesPage() {
           toast({ title: 'Success', description: 'Image uploaded successfully.' });
         } catch (err: any) {
           console.error('[Cert Upload Error]:', err);
-          toast({ variant: 'destructive', title: 'Upload Error', description: err.message });
+          if (err.message?.includes('CORS') || err.code === 'storage/retry-limit-exceeded') {
+            setCorsError(true);
+            toast({ variant: 'destructive', title: 'CORS Blocked', description: 'Please authorize this domain in Firebase Storage CORS settings.' });
+          } else {
+            toast({ variant: 'destructive', title: 'Upload Error', description: err.message });
+          }
           setUploadPreview(null);
         } finally {
           setUploading(false);
@@ -221,6 +232,21 @@ export function AdminCertificatesPage() {
                       {editingCert ? 'Edit Certificate' : 'Add New Record'}
                     </DialogTitle>
                 </DialogHeader>
+
+                {corsError && (
+                  <Alert variant="destructive" className="mb-6 border-red-200 bg-red-50 text-red-700">
+                    <ShieldAlert className="h-5 w-5" />
+                    <AlertTitle className="font-black uppercase tracking-widest text-[10px] mb-2">Security Block (CORS Error)</AlertTitle>
+                    <AlertDescription className="text-[10px] leading-relaxed">
+                      Kailangan mong i-authorize ang iyong domain sa Firebase Storage.<br />
+                      I-copy at i-paste ito sa terminal:<br />
+                      <code className="bg-white p-2 rounded mt-2 block border border-red-100 select-all">
+                        gsutil cors set cors.json gs://studio-7714200755-d4b21.firebasestorage.app
+                      </code>
+                    </AlertDescription>
+                  </Alert>
+                )}
+
                 <div className="space-y-6 py-6">
                     <div className="space-y-4">
                         <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Record Image</Label>

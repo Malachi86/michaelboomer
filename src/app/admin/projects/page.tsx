@@ -14,12 +14,13 @@ import { Badge } from "@/components/ui/badge";
 import { 
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription 
 } from "@/components/ui/dialog";
-import { Plus, Trash2, Edit2, Loader2, Upload, Star, Car, Link as LinkIcon, Info, X, Play } from 'lucide-react';
+import { Plus, Trash2, Edit2, Loader2, Upload, Star, Car, Link as LinkIcon, Info, X, Play, ShieldAlert } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getProjects, addProject, updateProject, deleteProject } from '@/app/admin/actions';
 import { useStorage } from '@/firebase';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import type { Project } from '@/lib/types';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 const categories = ['HATCHBACK', 'SEDAN', 'SUV', 'MPV', 'VAN', 'PICKUP'];
 
@@ -35,6 +36,7 @@ export function AdminProjectsPage() {
     const [techInput, setTechInput] = useState('');
     const [uploadPreview, setUploadPreview] = useState<string | null>(null);
     const [galleryInput, setGalleryInput] = useState('');
+    const [corsError, setCorsError] = useState(false);
 
     const [formData, setFormData] = useState<Omit<Project, 'id'>>({
         title: '',
@@ -81,6 +83,7 @@ export function AdminProjectsPage() {
         setTechInput('');
         setUploadPreview(null);
         setGalleryInput('');
+        setCorsError(false);
     };
 
     const openCreateDialog = () => {
@@ -105,6 +108,7 @@ export function AdminProjectsPage() {
             price: project.price || 0
         });
         setUploadPreview(null);
+        setCorsError(false);
         setIsDialogOpen(true);
     };
 
@@ -140,6 +144,7 @@ export function AdminProjectsPage() {
         if (!files || files.length === 0 || !storage) return;
         
         setUploading(true);
+        setCorsError(false);
         console.log(`[Inventory Upload] Starting upload for ${field}...`);
         
         try {
@@ -170,6 +175,7 @@ export function AdminProjectsPage() {
         } catch (err: any) {
           console.error('[Inventory Upload Error]:', err);
           if (err.message?.includes('CORS') || err.code === 'storage/retry-limit-exceeded') {
+            setCorsError(true);
             toast({ variant: 'destructive', title: 'CORS Blocked', description: 'Please authorize this domain in Firebase Storage CORS settings.' });
           } else {
             toast({ variant: 'destructive', title: 'Upload Failed', description: err.message });
@@ -315,6 +321,20 @@ export function AdminProjectsPage() {
                     </DialogTitle>
                     <DialogDescription className="text-gray-400 text-sm">Ilagay ang mga detalye ng Suzuki unit para sa iyong catalog.</DialogDescription>
                 </DialogHeader>
+
+                {corsError && (
+                  <Alert variant="destructive" className="mb-8 border-red-200 bg-red-50 text-red-700">
+                    <ShieldAlert className="h-5 w-5" />
+                    <AlertTitle className="font-black uppercase tracking-widest text-[10px] mb-2">Security Block (CORS Error)</AlertTitle>
+                    <AlertDescription className="text-xs leading-relaxed">
+                      Hindi pinapayagan ang iyong domain na mag-upload sa storage. Mangyaring patakbuhin ang command na ito sa iyong terminal:<br />
+                      <code className="bg-white p-2 rounded mt-2 block border border-red-100 text-[10px] select-all">
+                        gsutil cors set cors.json gs://studio-7714200755-d4b21.firebasestorage.app
+                      </code>
+                    </AlertDescription>
+                  </Alert>
+                )}
+
                 <div className="space-y-8">
                     <div className="space-y-4">
                     <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">MAIN VEHICLE PHOTO</Label>
