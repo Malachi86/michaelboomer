@@ -15,6 +15,7 @@ import { doc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import type { Profile } from '@/lib/types';
 import Image from 'next/image';
+import imageCompression from 'browser-image-compression';
 
 const DEFAULT_PROFILE: Profile = {
   full_name: 'Michael Gabriel Orozco',
@@ -37,6 +38,7 @@ export default function AdminProfilePage() {
   const [profile, setProfile] = useState<Profile>(DEFAULT_PROFILE);
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (!loading) {
@@ -63,27 +65,41 @@ export default function AdminProfilePage() {
     const file = e.target.files?.[0];
     if (!file || !storage) return;
 
+    // Show optimistic preview immediately
+    const objectUrl = URL.createObjectURL(file);
+    setPreviewUrl(objectUrl);
     setIsUploading(true);
+
     try {
+      // Compress the image before uploading
+      const options = {
+        maxSizeMB: 1,
+        maxWidthOrHeight: 800,
+        useWebWorker: true
+      };
+      const compressedFile = await imageCompression(file, options);
+
       const fileExtension = file.name.split('.').pop();
       const fileName = `profile-${Date.now()}.${fileExtension}`;
       const storageRef = ref(storage, `uploads/profile/${fileName}`);
       
-      await uploadBytes(storageRef, file);
+      await uploadBytes(storageRef, compressedFile);
       const downloadURL = await getDownloadURL(storageRef);
 
       const updatedProfile = { ...profile, profile_image: downloadURL };
       setProfile(updatedProfile);
       
+      // Auto-save the new image URL to profile
       await updateProfile(updatedProfile);
       
       toast({ 
         title: 'Success', 
-        description: 'Profile picture uploaded and saved!' 
+        description: 'Profile picture updated!' 
       });
     } catch (error: any) {
       console.error('Upload error:', error);
       toast({ variant: 'destructive', title: 'Error', description: error.message || 'Failed to upload image.' });
+      setPreviewUrl(null);
     } finally {
       setIsUploading(false);
     }
@@ -149,9 +165,9 @@ export default function AdminProfilePage() {
             <CardContent className="p-8 pt-0">
               <div className="flex items-center gap-10">
                 <div className="relative w-36 h-36 rounded-[32px] overflow-hidden bg-slate-50 border-4 border-white shadow-2xl">
-                  {profile.profile_image ? (
+                  {(previewUrl || profile.profile_image) ? (
                     <Image 
-                      src={profile.profile_image} 
+                      src={previewUrl || profile.profile_image} 
                       alt="Profile" 
                       fill 
                       unoptimized
@@ -163,8 +179,11 @@ export default function AdminProfilePage() {
                     </div>
                   )}
                   {isUploading && (
-                    <div className="absolute inset-0 bg-[#0E2356]/60 flex items-center justify-center">
-                      <Loader2 className="w-8 h-8 animate-spin text-white" />
+                    <div className="absolute inset-0 bg-[#0E2356]/60 flex items-center justify-center backdrop-blur-sm">
+                      <div className="flex flex-col items-center gap-2">
+                        <Loader2 className="w-8 h-8 animate-spin text-white" />
+                        <span className="text-[8px] text-white font-black uppercase tracking-widest">Optimizing...</span>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -185,7 +204,7 @@ export default function AdminProfilePage() {
                       </span>
                     </Button>
                   </Label>
-                  <p className="text-gray-400 text-[9px] font-black uppercase tracking-widest opacity-60">Recommended: Square image (400x400px)</p>
+                  <p className="text-gray-400 text-[9px] font-black uppercase tracking-widest opacity-60">Automatic compression enabled for faster updates</p>
                 </div>
               </div>
             </CardContent>

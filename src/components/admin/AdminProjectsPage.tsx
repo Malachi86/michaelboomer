@@ -19,6 +19,7 @@ import { getProjects, addProject, updateProject, deleteProject } from '@/app/adm
 import { useStorage } from '@/firebase';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import type { Project } from '@/lib/types';
+import imageCompression from 'browser-image-compression';
 
 const categories = ['HATCHBACK', 'SEDAN', 'SUV', 'MPV', 'VAN', 'PICKUP'];
 
@@ -32,6 +33,7 @@ export function AdminProjectsPage() {
     const [isSaving, setIsSaving] = useState(false);
     const [uploading, setUploading] = useState(false);
     const [techInput, setTechInput] = useState('');
+    const [uploadPreview, setUploadPreview] = useState<string | null>(null);
 
     const [formData, setFormData] = useState<Omit<Project, 'id'>>({
         title: '',
@@ -74,6 +76,7 @@ export function AdminProjectsPage() {
         });
         setEditingProject(null);
         setTechInput('');
+        setUploadPreview(null);
     };
 
     const openCreateDialog = () => {
@@ -97,6 +100,7 @@ export function AdminProjectsPage() {
             order: project.order || 0,
             price: project.price || 0
         });
+        setUploadPreview(null);
         setIsDialogOpen(true);
     };
 
@@ -127,13 +131,24 @@ export function AdminProjectsPage() {
         const file = e.target.files?.[0];
         if (!file || !storage) return;
         
+        // Optimistic preview
+        setUploadPreview(URL.createObjectURL(file));
         setUploading(true);
+        
         try {
+          // Compression
+          const options = {
+            maxSizeMB: 1,
+            maxWidthOrHeight: 1200,
+            useWebWorker: true
+          };
+          const compressedFile = await imageCompression(file, options);
+
           const fileExtension = file.name.split('.').pop();
           const fileName = `vehicle-${Date.now()}.${fileExtension}`;
           const storageRef = ref(storage, `uploads/vehicles/${fileName}`);
           
-          await uploadBytes(storageRef, file);
+          await uploadBytes(storageRef, compressedFile);
           const downloadURL = await getDownloadURL(storageRef);
           
           setFormData(prev => ({ ...prev, image_url: downloadURL }));
@@ -141,6 +156,7 @@ export function AdminProjectsPage() {
         } catch (err: any) {
           console.error('Upload error:', err);
           toast({ variant: 'destructive', title: 'Error', description: err.message || 'Upload failed.' });
+          setUploadPreview(null);
         }
         setUploading(false);
     };
@@ -296,12 +312,17 @@ export function AdminProjectsPage() {
                     <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Main Vehicle Photo</Label>
                     <div className="flex items-start gap-8">
                         <div className="relative w-56 h-36 rounded-3xl overflow-hidden bg-slate-50 border border-gray-100 flex-shrink-0 shadow-inner">
-                        {formData.image_url ? (
-                            <Image src={formData.image_url} alt="Preview" fill unoptimized className="object-cover" />
+                        {(uploadPreview || formData.image_url) ? (
+                            <Image src={uploadPreview || formData.image_url!} alt="Preview" fill unoptimized className="object-cover" />
                         ) : (
                             <div className="w-full h-full flex items-center justify-center text-slate-100">
                             <Car className="w-8 h-8" />
                             </div>
+                        )}
+                        {uploading && (
+                          <div className="absolute inset-0 bg-white/60 flex items-center justify-center backdrop-blur-[2px]">
+                            <Loader2 className="w-6 h-6 animate-spin text-[#E31B23]" />
+                          </div>
                         )}
                         </div>
                         <div className="flex-1 space-y-4">
@@ -443,7 +464,7 @@ export function AdminProjectsPage() {
                     </Button>
                     <Button 
                     onClick={handleSave}
-                    disabled={isSaving}
+                    disabled={isSaving || uploading}
                     className="bg-[#E31B23] hover:bg-[#c4171e] text-white font-black h-14 px-12 rounded-2xl shadow-xl shadow-red-100 uppercase tracking-widest text-xs"
                     >
                     {isSaving && (

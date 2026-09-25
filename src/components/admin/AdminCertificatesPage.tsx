@@ -15,6 +15,7 @@ import { getCertificates, addCertificate, updateCertificate, deleteCertificate }
 import { useStorage } from '@/firebase';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import type { Certificate } from '@/lib/types';
+import imageCompression from 'browser-image-compression';
 
 export function AdminCertificatesPage() {
     const { toast } = useToast();
@@ -25,6 +26,7 @@ export function AdminCertificatesPage() {
     const [editingCert, setEditingCert] = useState<Certificate | null>(null);
     const [isSaving, setIsSaving] = useState(false);
     const [uploading, setUploading] = useState(false);
+    const [uploadPreview, setUploadPreview] = useState<string | null>(null);
 
     const [formData, setFormData] = useState<Omit<Certificate, 'id'>>({
         title: '',
@@ -58,6 +60,7 @@ export function AdminCertificatesPage() {
             rotation: 0
         });
         setEditingCert(null);
+        setUploadPreview(null);
     };
 
     const openCreateDialog = () => {
@@ -76,6 +79,7 @@ export function AdminCertificatesPage() {
             order: cert.order || 0,
             rotation: cert.rotation || 0
         });
+        setUploadPreview(null);
         setIsDialogOpen(true);
     };
 
@@ -103,13 +107,24 @@ export function AdminCertificatesPage() {
         const file = e.target.files?.[0];
         if (!file || !storage) return;
         
+        // Optimistic preview
+        setUploadPreview(URL.createObjectURL(file));
         setUploading(true);
+        
         try {
+          // Compression
+          const options = {
+            maxSizeMB: 1,
+            maxWidthOrHeight: 1200,
+            useWebWorker: true
+          };
+          const compressedFile = await imageCompression(file, options);
+
           const fileExtension = file.name.split('.').pop();
           const fileName = `cert-${Date.now()}.${fileExtension}`;
           const storageRef = ref(storage, `uploads/certificates/${fileName}`);
           
-          await uploadBytes(storageRef, file);
+          await uploadBytes(storageRef, compressedFile);
           const downloadURL = await getDownloadURL(storageRef);
           
           setFormData(prev => ({ ...prev, imageUrl: downloadURL }));
@@ -117,6 +132,7 @@ export function AdminCertificatesPage() {
         } catch (err: any) {
           console.error('Upload error:', err);
           toast({ variant: 'destructive', title: 'Error', description: err.message || 'Upload failed.' });
+          setUploadPreview(null);
         }
         setUploading(false);
     };
@@ -212,10 +228,15 @@ export function AdminCertificatesPage() {
                         <div className="flex flex-col gap-4">
                             <div className="flex items-center gap-4">
                                 <div className="relative w-24 h-24 rounded-2xl overflow-hidden bg-slate-50 border border-gray-100 flex-shrink-0 shadow-inner">
-                                    {formData.imageUrl && (
+                                    {(uploadPreview || formData.imageUrl) && (
                                         <div className="w-full h-full relative transition-transform duration-300" style={{ transform: `rotate(${formData.rotation || 0}deg)` }}>
-                                            <Image src={formData.imageUrl} alt="Preview" fill unoptimized className="object-contain p-2" />
+                                            <Image src={uploadPreview || formData.imageUrl} alt="Preview" fill unoptimized className="object-contain p-2" />
                                         </div>
+                                    )}
+                                    {uploading && (
+                                      <div className="absolute inset-0 bg-white/60 flex items-center justify-center">
+                                        <Loader2 className="w-6 h-6 animate-spin text-[#E31B23]" />
+                                      </div>
                                     )}
                                 </div>
                                 <div className="flex-1 flex flex-col gap-2">
@@ -273,7 +294,7 @@ export function AdminCertificatesPage() {
                     <Button variant="ghost" onClick={() => setIsDialogOpen(false)} className="h-12 px-6 font-black uppercase tracking-widest text-[10px] text-gray-400 hover:bg-slate-50 rounded-xl">
                       Cancel
                     </Button>
-                    <Button onClick={handleSave} disabled={isSaving} className="bg-[#E31B23] hover:bg-[#c4171e] text-white font-black h-12 px-8 rounded-xl shadow-xl shadow-red-100 uppercase tracking-widest text-[10px]">
+                    <Button onClick={handleSave} disabled={isSaving || uploading} className="bg-[#E31B23] hover:bg-[#c4171e] text-white font-black h-12 px-8 rounded-xl shadow-xl shadow-red-100 uppercase tracking-widest text-[10px]">
                         {isSaving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                         {editingCert ? 'Update' : 'Create'}
                     </Button>
