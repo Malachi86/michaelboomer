@@ -7,14 +7,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Save, Plus, Trash2, Upload, Loader2, UserCircle, AlertCircle, Terminal, Link as LinkIcon, CheckCircle2 } from 'lucide-react';
+import { Save, Plus, Trash2, Upload, Loader2, UserCircle, CheckCircle2, Link as LinkIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { updateProfile } from '@/app/admin/actions';
-import { useDoc, useFirestore, useStorage } from '@/firebase';
+import { useDoc, useFirestore } from '@/firebase';
 import { doc } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import type { Profile } from '@/lib/types';
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 
 const DEFAULT_PROFILE: Profile = {
   full_name: 'Michael Gabriel Orozco',
@@ -30,7 +28,6 @@ const DEFAULT_PROFILE: Profile = {
 export default function AdminProfilePage() {
   const { toast } = useToast();
   const db = useFirestore();
-  const storage = useStorage();
   const profileRef = useMemo(() => doc(db, 'profile', 'data'), [db]);
   const { data: profileData, loading } = useDoc(profileRef);
 
@@ -38,7 +35,6 @@ export default function AdminProfilePage() {
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [hasInitialized, setHasInitialized] = useState(false);
-  const [corsError, setCorsError] = useState(false);
 
   useEffect(() => {
     if (profileData && !hasInitialized) {
@@ -58,49 +54,43 @@ export default function AdminProfilePage() {
     }
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file || !storage) return;
+    if (!file) return;
 
-    // 10MB LIMIT - TURBO UPLOAD
-    const limit = 10 * 1024 * 1024;
+    // 1MB LIMIT (Firestore document limit is 1MB total)
+    const limit = 1024 * 1024; 
     if (file.size > limit) {
       toast({ 
         variant: "destructive", 
         title: "File too large ⚠️", 
-        description: "Please use a file under 10MB." 
+        description: "Please use a file under 1MB for database stability." 
       });
       e.target.value = '';
       return;
     }
 
     setIsUploading(true);
-    setCorsError(false);
-
-    try {
-      const fileName = `profile-${Date.now()}-${file.name}`;
-      const storageRef = ref(storage, `uploads/profile/${fileName}`);
-      
-      // DIRECT UPLOAD (NO COMPRESSION)
-      const snapshot = await uploadBytes(storageRef, file);
-      const downloadURL = await getDownloadURL(snapshot.ref);
-      
-      const updatedProfile = { ...profile, profile_image: downloadURL };
+    const reader = new FileReader();
+    
+    reader.onload = async () => {
+      const base64 = reader.result as string;
+      const updatedProfile = { ...profile, profile_image: base64 };
       setProfile(updatedProfile);
       
-      // AUTO-SYNC TO DATABASE
+      // AUTO-SYNC TO DATABASE - "Lumalabas agad"
       await handleSave(updatedProfile);
       
-      toast({ title: "Upload Success! 📂", description: "Image is now live on the showroom." });
-    } catch (err: any) {
-      console.error('[Upload Error]:', err);
-      if (err.message.includes('CORS') || err.code === 'storage/retry-limit-exceeded') {
-        setCorsError(true);
-      }
-      toast({ variant: "destructive", title: "Upload Failed", description: "See the warning below for fix instructions." });
-    } finally {
       setIsUploading(false);
-    }
+      toast({ title: "Upload Success! 📂", description: "Image is now live on the showroom." });
+    };
+
+    reader.onerror = () => {
+      setIsUploading(false);
+      toast({ variant: 'destructive', title: 'Error', description: 'Failed to process image.' });
+    };
+
+    reader.readAsDataURL(file);
   };
 
   const addSocialLink = () => {
@@ -152,29 +142,6 @@ export default function AdminProfilePage() {
         </Button>
       </div>
 
-      {corsError && (
-        <Alert variant="destructive" className="mb-10 bg-red-50 border-red-200 text-red-800 rounded-[32px] p-8">
-          <AlertCircle className="h-6 w-6 text-red-600" />
-          <AlertTitle className="text-lg font-black uppercase tracking-tight mb-4">CORS Security Error Detected</AlertTitle>
-          <AlertDescription className="space-y-6">
-            <p className="text-sm font-bold leading-relaxed">
-              Bina-block ng Firebase ang iyong workstation. Para maayos ito, i-copy at i-paste ang mga commands na ito sa iyong **TERMINAL**:
-            </p>
-            <div className="bg-[#0E2356] p-6 rounded-2xl font-code text-xs text-white overflow-x-auto border-4 border-white shadow-xl space-y-4">
-              <p># 1. Set the correct project:</p>
-              <code className="block bg-black/30 p-2 rounded text-green-400">gcloud config set project studio-7714200755-d4b21</code>
-              
-              <p># 2. Get exact bucket name (starts with gs://):</p>
-              <code className="block bg-black/30 p-2 rounded text-green-400">gsutil ls</code>
-              
-              <p># 3. Apply fix (Replace [BUCKET] with name from step 2):</p>
-              <code className="block bg-black/30 p-2 rounded text-green-400">gsutil cors set cors.json [BUCKET]</code>
-            </div>
-            <p className="text-xs italic font-bold">Pagkatapos gawin ito, magiging "upload agad" na ang iyong mga pictures.</p>
-          </AlertDescription>
-        </Alert>
-      )}
-
       <div className="space-y-10">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <Card className="bg-white border-none shadow-xl rounded-[32px] overflow-hidden">
@@ -207,7 +174,7 @@ export default function AdminProfilePage() {
                     <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" id="profile-upload" />
                     <div className="space-y-4">
                         <div className="flex items-center justify-between">
-                           <p className="text-[10px] uppercase font-bold text-gray-400 tracking-widest">Limit: 10MB</p>
+                           <p className="text-[10px] uppercase font-bold text-gray-400 tracking-widest">Limit: 1MB (Database Sync)</p>
                            <CheckCircle2 className="w-4 h-4 text-green-500" />
                         </div>
                         <div className="space-y-2">
