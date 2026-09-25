@@ -1,4 +1,3 @@
-
 'use client';
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -14,29 +13,23 @@ import { Badge } from "@/components/ui/badge";
 import { 
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription 
 } from "@/components/ui/dialog";
-import { Plus, Trash2, Edit2, Loader2, Upload, Star, Car, Link as LinkIcon, Info, X, Play, ShieldAlert } from 'lucide-react';
+import { Plus, Trash2, Edit2, Loader2, Upload, Star, Car, Link as LinkIcon, Info, X, Play } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getProjects, addProject, updateProject, deleteProject } from '@/app/admin/actions';
-import { useStorage } from '@/firebase';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import type { Project } from '@/lib/types';
-import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 const categories = ['HATCHBACK', 'SEDAN', 'SUV', 'MPV', 'VAN', 'PICKUP'];
 
 export function AdminProjectsPage() {
     const { toast } = useToast();
-    const storage = useStorage();
     const [projects, setProjects] = useState<Project[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [editingProject, setEditingProject] = useState<Project | null>(null);
     const [isSaving, setIsSaving] = useState(false);
-    const [uploading, setUploading] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
     const [techInput, setTechInput] = useState('');
-    const [uploadPreview, setUploadPreview] = useState<string | null>(null);
     const [galleryInput, setGalleryInput] = useState('');
-    const [corsError, setCorsError] = useState(false);
 
     const [formData, setFormData] = useState<Omit<Project, 'id'>>({
         title: '',
@@ -81,9 +74,7 @@ export function AdminProjectsPage() {
         });
         setEditingProject(null);
         setTechInput('');
-        setUploadPreview(null);
         setGalleryInput('');
-        setCorsError(false);
     };
 
     const openCreateDialog = () => {
@@ -107,8 +98,6 @@ export function AdminProjectsPage() {
             order: project.order || 0,
             price: project.price || 0
         });
-        setUploadPreview(null);
-        setCorsError(false);
         setIsDialogOpen(true);
     };
 
@@ -139,45 +128,42 @@ export function AdminProjectsPage() {
         }
     }
 
-    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: 'image_url' | 'additional_images') => {
+    // DIRETSO UPLOAD LOGIC (Base64)
+    const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, field: 'image_url' | 'additional_images') => {
         const files = e.target.files;
-        if (!files || files.length === 0 || !storage) return;
-        
-        setUploading(true);
-        setCorsError(false);
-        
-        try {
-          if (field === 'image_url') {
-            const file = files[0];
-            setUploadPreview(URL.createObjectURL(file));
-            const fileName = `main-${Date.now()}-${file.name}`;
-            const storageRef = ref(storage, `uploads/vehicles/${fileName}`);
-            
-            const snapshot = await uploadBytes(storageRef, file);
-            const downloadURL = await getDownloadURL(snapshot.ref);
-            setFormData(prev => ({ ...prev, image_url: downloadURL }));
-            toast({ title: 'Success', description: 'Main photo uploaded.' });
-          } else {
-            const uploadPromises = Array.from(files).map(async (file) => {
-              const fileName = `gallery-${Date.now()}-${file.name}`;
-              const storageRef = ref(storage, `uploads/vehicles/gallery/${fileName}`);
-              const snapshot = await uploadBytes(storageRef, file);
-              return getDownloadURL(snapshot.ref);
-            });
+        if (!files || files.length === 0) return;
 
-            const newUrls = await Promise.all(uploadPromises);
-            setFormData(prev => ({ ...prev, additional_images: [...(prev.additional_images || []), ...newUrls] }));
-            toast({ title: 'Success', description: `${files.length} photos added to gallery.` });
-          }
-        } catch (err: any) {
-          console.error('[Inventory Upload Error]:', err);
-          if (err.message?.toLowerCase().includes('cors') || err.code?.includes('cors')) {
-            setCorsError(true);
-          }
-          toast({ variant: 'destructive', title: 'Upload Failed', description: err.message });
-          setUploadPreview(null);
-        } finally {
-          setUploading(false);
+        const limit = 250 * 1024; // 250KB
+
+        setIsUploading(true);
+        
+        const processFile = (file: File): Promise<string> => {
+            return new Promise((resolve, reject) => {
+                if (file.size > limit) {
+                    toast({ variant: "destructive", title: "File too large ⚠️", description: `${file.name} is over 250KB.` });
+                    reject('Too large');
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result as string);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        };
+
+        if (field === 'image_url') {
+            processFile(files[0]).then(base64 => {
+                setFormData(prev => ({ ...prev, image_url: base64 }));
+                setIsUploading(false);
+                toast({ title: "Main Photo Ready! 📂" });
+            }).catch(() => setIsUploading(false));
+        } else {
+            const promises = Array.from(files).map(f => processFile(f));
+            Promise.all(promises).then(urls => {
+                setFormData(prev => ({ ...prev, additional_images: [...(prev.additional_images || []), ...urls] }));
+                setIsUploading(false);
+                toast({ title: `${urls.length} photos added to gallery! 🎬` });
+            }).catch(() => setIsUploading(false));
         }
     };
 
@@ -253,7 +239,7 @@ export function AdminProjectsPage() {
                       <Card className="bg-white border-none shadow-xl shadow-slate-200/50 rounded-[32px] overflow-hidden hover:shadow-red-50 transition-all border-2 border-transparent hover:border-red-100">
                         <div className="relative aspect-video overflow-hidden bg-slate-50">
                           {project.image_url ? (
-                            <Image src={project.image_url} alt={project.title} fill unoptimized className="object-cover group-hover:scale-105 transition-transform duration-500" />
+                            <img src={project.image_url} alt={project.title} className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500" />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center text-slate-200">
                               <Car className="w-12 h-12" />
@@ -308,39 +294,22 @@ export function AdminProjectsPage() {
                     </DialogTitle>
                 </DialogHeader>
 
-                {corsError && (
-                  <Alert variant="destructive" className="mb-8 border-red-200 bg-red-50 text-red-700">
-                    <ShieldAlert className="h-5 w-5" />
-                    <AlertTitle className="font-black uppercase tracking-widest text-[10px] mb-2">Security Block (CORS Error)</AlertTitle>
-                    <AlertDescription className="text-xs leading-relaxed space-y-4">
-                      <p>Sundin ang mga hakbang na ito sa iyong terminal:</p>
-                      <div className="bg-white p-3 rounded-lg border border-red-100 font-mono space-y-2">
-                        <p className="text-[9px] text-gray-400 font-black">Step 1: Set correct project</p>
-                        <code className="block bg-slate-50 p-2 rounded text-[10px] select-all">gcloud config set project studio-7714200755-d4b21</code>
-                        
-                        <p className="text-[9px] text-gray-400 font-black">Step 2: Get bucket name</p>
-                        <code className="block bg-slate-50 p-2 rounded text-[10px] select-all">gsutil ls</code>
-                        
-                        <p className="text-[9px] text-gray-400 font-black">Step 3: Apply CORS</p>
-                        <code className="block bg-slate-50 p-2 rounded text-[10px] select-all">gsutil cors set cors.json [LUMABAS_SA_STEP_2]</code>
-                      </div>
-                    </AlertDescription>
-                  </Alert>
-                )}
-
                 <div className="space-y-8">
                     <div className="space-y-4">
                     <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">MAIN VEHICLE PHOTO</Label>
                     <div className="flex items-start gap-8">
-                        <div className="relative w-56 h-36 rounded-3xl overflow-hidden bg-slate-50 border border-gray-100 flex-shrink-0 shadow-inner">
-                        {(uploadPreview || formData.image_url) ? (
-                            <Image src={uploadPreview || formData.image_url!} alt="Preview" fill unoptimized className="object-cover" />
+                        <div 
+                          className="relative w-56 h-36 rounded-3xl overflow-hidden bg-slate-50 border border-gray-100 flex-shrink-0 shadow-inner group cursor-pointer"
+                          onClick={() => document.getElementById('project-image')?.click()}
+                        >
+                        {formData.image_url ? (
+                            <img src={formData.image_url} alt="Preview" className="object-cover w-full h-full" />
                         ) : (
                             <div className="w-full h-full flex items-center justify-center text-slate-100">
-                            <Car className="w-8 h-8" />
+                              <Car className="w-8 h-8" />
                             </div>
                         )}
-                        {uploading && (
+                        {isUploading && (
                           <div className="absolute inset-0 bg-white/60 flex items-center justify-center">
                             <Loader2 className="w-6 h-6 animate-spin text-[#E31B23]" />
                           </div>
@@ -349,10 +318,10 @@ export function AdminProjectsPage() {
                         <div className="flex-1 space-y-4">
                             <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, 'image_url')} className="hidden" id="project-image" />
                             <Label htmlFor="project-image">
-                                <Button variant="outline" className="h-12 border-gray-100 font-black text-[10px] tracking-widest uppercase rounded-xl w-full" asChild disabled={uploading}>
+                                <Button variant="outline" className="h-12 border-gray-100 font-black text-[10px] tracking-widest uppercase rounded-xl w-full" asChild disabled={isUploading}>
                                 <span>
-                                    {uploading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}
-                                    UPLOAD MAIN PHOTO
+                                    {isUploading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}
+                                    SELECT MAIN PHOTO
                                 </span>
                                 </Button>
                             </Label>
@@ -374,8 +343,8 @@ export function AdminProjectsPage() {
                         <div className="grid grid-cols-2 gap-4">
                             <input type="file" accept="image/*" multiple onChange={(e) => handleImageUpload(e, 'additional_images')} className="hidden" id="gallery-upload" />
                             <Label htmlFor="gallery-upload">
-                                <Button variant="outline" className="w-full h-12 border-gray-100 font-black text-[10px] tracking-widest uppercase rounded-xl" asChild disabled={uploading}>
-                                    <span><Plus className="w-4 h-4 mr-2" /> UPLOAD GALLERY</span>
+                                <Button variant="outline" className="w-full h-12 border-gray-100 font-black text-[10px] tracking-widest uppercase rounded-xl" asChild disabled={isUploading}>
+                                    <span><Plus className="w-4 h-4 mr-2" /> SELECT GALLERY</span>
                                 </Button>
                             </Label>
                             <div className="flex gap-2">
@@ -391,7 +360,7 @@ export function AdminProjectsPage() {
                         <div className="grid grid-cols-4 gap-3 mt-4">
                             {formData.additional_images?.map((url, i) => (
                                 <div key={i} className="relative aspect-square rounded-xl overflow-hidden bg-slate-100 group">
-                                    <Image src={url} alt="Gallery" fill unoptimized className="object-cover" />
+                                    <img src={url} alt="Gallery" className="object-cover w-full h-full" />
                                     <button onClick={() => removeGalleryImage(url)} className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100"><X className="w-3 h-3" /></button>
                                 </div>
                             ))}
@@ -459,7 +428,7 @@ export function AdminProjectsPage() {
                     <Button variant="ghost" onClick={() => setIsDialogOpen(false)} className="h-14 font-black uppercase tracking-widest text-xs text-gray-400">Cancel</Button>
                     <Button 
                     onClick={handleSave}
-                    disabled={isSaving || uploading}
+                    disabled={isSaving || isUploading}
                     className="bg-[#E31B23] hover:bg-[#c4171e] text-white font-black h-14 px-12 rounded-2xl shadow-xl uppercase tracking-widest text-xs"
                     >
                     {isSaving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}

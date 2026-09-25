@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
@@ -8,15 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Save, Plus, Trash2, Upload, Loader2, Link as LinkIcon, ShieldAlert, CheckCircle2 } from 'lucide-react';
+import { Save, Plus, Trash2, Upload, Loader2, UserCircle, CheckCircle2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { updateProfile } from '@/app/admin/actions';
-import { useDoc, useFirestore, useStorage } from '@/firebase';
+import { useDoc, useFirestore } from '@/firebase';
 import { doc } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import type { Profile } from '@/lib/types';
 import Image from 'next/image';
-import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 const DEFAULT_PROFILE: Profile = {
   full_name: 'Michael Gabriel Orozco',
@@ -32,74 +29,72 @@ const DEFAULT_PROFILE: Profile = {
 export default function AdminProfilePage() {
   const { toast } = useToast();
   const db = useFirestore();
-  const storage = useStorage();
   const profileRef = useMemo(() => doc(db, 'profile', 'data'), [db]);
   const { data: profileData, loading } = useDoc(profileRef);
 
   const [profile, setProfile] = useState<Profile>(DEFAULT_PROFILE);
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [corsError, setCorsError] = useState(false);
+  const [hasInitialized, setHasInitialized] = useState(false);
 
   useEffect(() => {
-    if (!loading) {
-      if (profileData) {
-        setProfile(profileData as Profile);
-      } else {
-        setProfile(DEFAULT_PROFILE);
-      }
+    if (profileData && !hasInitialized) {
+      setProfile(profileData as Profile);
+      setHasInitialized(true);
     }
-  }, [profileData, loading]);
+  }, [profileData, hasInitialized]);
 
   const handleSave = async () => {
     setIsSaving(true);
     const result = await updateProfile(profile);
     setIsSaving(false);
     if (result.success) {
-      toast({ title: 'Success', description: 'Profile information updated!' });
+      toast({ title: 'Success ✨', description: 'Profile information updated!' });
     } else {
-      toast({ variant: 'destructive', title: 'Error', description: result.error || 'Failed to update profile.' });
+      toast({ variant: 'destructive', title: 'Error', description: 'Failed to update profile.' });
     }
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  // DIRETSO UPLOAD LOGIC (Base64)
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file || !storage) return;
+    if (!file) return;
 
-    setPreviewUrl(URL.createObjectURL(file));
+    // 250KB Limit for Firestore stability
+    const limit = 250 * 1024;
+    if (file.size > limit) {
+      toast({ 
+        variant: "destructive", 
+        title: "File too large ⚠️", 
+        description: `Mangyaring gumamit ng file na maliit sa 250KB para sa bilis ng database.` 
+      });
+      e.target.value = '';
+      return;
+    }
+
     setIsUploading(true);
-    setCorsError(false);
-
-    try {
-      console.log('[Upload] Starting fast upload for:', file.name);
-      const fileName = `profile-${Date.now()}.${file.name.split('.').pop()}`;
-      const storageRef = ref(storage, `uploads/profile/${fileName}`);
-
-      // DIRECT UPLOAD - No compression, fastest way
-      const snapshot = await uploadBytes(storageRef, file);
-      const downloadURL = await getDownloadURL(snapshot.ref);
-
-      // AUTOMATIC DATABASE SYNC - Update Firestore immediately
-      const updatedProfile = { ...profile, profile_image: downloadURL };
+    const reader = new FileReader();
+    
+    reader.onload = async () => {
+      const base64 = reader.result as string;
+      const updatedProfile = { ...profile, profile_image: base64 };
       setProfile(updatedProfile);
       
+      // AUTO-SYNC TO DATABASE
       const result = await updateProfile(updatedProfile);
-      if (result.success) {
-        toast({ title: 'Upload Success', description: 'Photo is now live in the database!' });
-      } else {
-        throw new Error('Upload succeeded but database sync failed.');
-      }
-    } catch (error: any) {
-      console.error('[Profile Upload Error]:', error);
-      if (error.message?.toLowerCase().includes('cors') || error.code?.includes('cors')) {
-        setCorsError(true);
-      }
-      toast({ variant: 'destructive', title: 'Upload Failed', description: error.message });
-      setPreviewUrl(null);
-    } finally {
       setIsUploading(false);
-    }
+      
+      if (result.success) {
+        toast({ title: "Upload Success! 📂", description: "Lumalabas na agad ito sa showroom." });
+      }
+    };
+
+    reader.onerror = () => {
+      setIsUploading(null);
+      toast({ variant: "destructive", title: "Read Error", description: "Failed to process file." });
+    };
+
+    reader.readAsDataURL(file);
   };
 
   const addSocialLink = () => {
@@ -119,7 +114,7 @@ export default function AdminProfilePage() {
     setProfile({ ...profile, social_links: profile.social_links.filter((_, i) => i !== index) });
   };
 
-  if (loading) {
+  if (loading && !hasInitialized) {
     return (
       <div className="flex flex-col items-center justify-center h-[60vh] gap-4">
         <Loader2 className="w-10 h-10 animate-spin text-[#E31B23]" />
@@ -147,30 +142,9 @@ export default function AdminProfilePage() {
           className="bg-[#E31B23] hover:bg-[#c4171e] text-white font-black px-8 h-14 rounded-2xl shadow-xl shadow-red-100 uppercase tracking-widest text-xs"
         >
           {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
-          Save Profile Data
+          Update All Details
         </Button>
       </div>
-
-      {corsError && (
-        <Alert variant="destructive" className="mb-10 border-red-200 bg-red-50 text-red-700 p-8 rounded-[32px]">
-          <ShieldAlert className="h-8 w-8 mb-4" />
-          <AlertTitle className="font-black uppercase tracking-widest text-sm mb-4">Security Block Detected (CORS Error)</AlertTitle>
-          <AlertDescription className="text-xs leading-relaxed space-y-4">
-            <p>Bina-block ng Firebase ang iyong domain. Sundin ang mga hakbang na ito sa iyong <strong>Terminal</strong>:</p>
-            <div className="bg-white p-4 rounded-xl border border-red-100 space-y-3 font-mono">
-              <p className="text-[10px] text-gray-400 uppercase font-black">Step 1: Set the correct project</p>
-              <code className="block bg-slate-50 p-2 rounded select-all text-blue-600">gcloud config set project studio-7714200755-d4b21</code>
-
-              <p className="text-[10px] text-gray-400 uppercase font-black">Step 2: Alamin ang iyong bucket name</p>
-              <code className="block bg-slate-50 p-2 rounded select-all text-blue-600">gsutil ls</code>
-              
-              <p className="text-[10px] text-gray-400 uppercase font-black">Step 3: Gamitin ang saktong bucket name (yung may gs://...)</p>
-              <code className="block bg-slate-50 p-2 rounded select-all text-red-600">gsutil cors set cors.json [LUMABAS_SA_STEP_2]</code>
-            </div>
-            <p className="mt-2 text-[10px] opacity-70 italic font-medium">Pagkatapos nito, magiging "upload agad" na ang karanasan mo.</p>
-          </AlertDescription>
-        </Alert>
-      )}
 
       <div className="space-y-10">
         {/* Profile Photo Section */}
@@ -178,30 +152,30 @@ export default function AdminProfilePage() {
           <Card className="bg-white border-none shadow-xl shadow-slate-200/50 rounded-[32px] overflow-hidden">
             <CardHeader className="p-8">
               <CardTitle className="text-[#0E2356] font-black uppercase tracking-tight text-xl">Profile Photo</CardTitle>
-              <CardDescription className="text-gray-400 font-medium italic">Changes here sync instantly to the database after upload.</CardDescription>
+              <CardDescription className="text-gray-400 font-medium italic">Diretso upload agad sa database pagkapili ng file.</CardDescription>
             </CardHeader>
             <CardContent className="p-8 pt-0">
               <div className="flex flex-col md:flex-row items-center gap-10">
-                <div className="relative w-48 h-48 rounded-[40px] overflow-hidden bg-slate-50 border-4 border-white shadow-2xl shrink-0 group">
-                  {(previewUrl || profile.profile_image) ? (
-                    <Image
-                      src={previewUrl || profile.profile_image}
+                <div 
+                  className="relative w-48 h-48 rounded-[40px] overflow-hidden bg-slate-50 border-4 border-white shadow-2xl shrink-0 group cursor-pointer"
+                  onClick={() => !isUploading && document.getElementById('profile-upload')?.click()}
+                >
+                  {profile.profile_image ? (
+                    <img
+                      src={profile.profile_image}
                       alt="Profile"
-                      fill
-                      unoptimized
-                      className="object-cover"
+                      className="object-cover w-full h-full"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-slate-200">
-                      <Plus className="w-12 h-12" />
+                    <div className="w-full h-full flex flex-col items-center justify-center text-slate-200 italic gap-2">
+                      <UserCircle className="w-16 h-16 opacity-10" />
+                      <span className="text-[10px] uppercase font-black tracking-widest">Select Image</span>
                     </div>
                   )}
-                  {isUploading && (
-                    <div className="absolute inset-0 bg-[#0E2356]/70 flex flex-col items-center justify-center backdrop-blur-sm">
-                        <Loader2 className="w-8 h-8 animate-spin text-white mb-2" />
-                        <span className="text-white text-[8px] font-black uppercase tracking-widest">Uploading...</span>
-                    </div>
-                  )}
+                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white gap-2 backdrop-blur-sm">
+                    {isUploading ? <Loader2 className="animate-spin w-10 h-10" /> : <Upload className="w-10 h-10" />}
+                    <span className="text-xs font-bold uppercase tracking-widest">Upload New</span>
+                  </div>
                 </div>
                 
                 <div className="flex-1 w-full space-y-6">
@@ -212,31 +186,18 @@ export default function AdminProfilePage() {
                       onChange={handleImageUpload}
                       className="hidden"
                       id="profile-upload"
-                      disabled={isUploading}
                     />
-                    <Label htmlFor="profile-upload">
-                      <Button variant="outline" className="w-full h-16 border-gray-100 text-[#0E2356] font-black text-xs tracking-widest uppercase rounded-2xl hover:bg-slate-50 transition-all" asChild disabled={isUploading}>
-                        <span>
-                          {isUploading ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Upload className="w-5 h-5 mr-2" />}
-                          UPLOAD NEW PHOTO
-                        </span>
-                      </Button>
-                    </Label>
-
-                    <div className="space-y-2">
-                      <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">External Image Link (Optional)</Label>
-                      <div className="relative">
-                        <LinkIcon className="absolute left-4 top-4.5 w-4 h-4 text-gray-300" />
-                        <Input
-                          value={profile.profile_image}
-                          onChange={(e) => {
-                            setProfile({...profile, profile_image: e.target.value});
-                            setPreviewUrl(null); 
-                          }}
-                          placeholder="https://images.unsplash.com/..."
-                          className="h-14 bg-slate-50 border-gray-100 pl-11 rounded-2xl font-bold text-[#0E2356] focus:border-[#E31B23]"
-                        />
-                      </div>
+                    <div className="space-y-4">
+                        <p className="text-[10px] uppercase font-bold text-gray-400 tracking-widest">Sync Limit: 250KB</p>
+                        <div className="space-y-2">
+                          <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Or paste external Link</Label>
+                          <Input
+                            value={profile.profile_image}
+                            onChange={(e) => setProfile({...profile, profile_image: e.target.value})}
+                            placeholder="https://images.unsplash.com/..."
+                            className="h-14 bg-slate-50 border-gray-100 rounded-2xl font-bold text-[#0E2356] focus:border-[#E31B23]"
+                          />
+                        </div>
                     </div>
                   </div>
                 </div>
@@ -300,15 +261,6 @@ export default function AdminProfilePage() {
                             placeholder="Tell your clients about your expertise..."
                             rows={6}
                             className="bg-slate-50 border-gray-100 rounded-xl resize-none p-5 font-bold text-[#0E2356] leading-relaxed"
-                        />
-                    </div>
-                    <div className="space-y-3">
-                        <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Resume/Credential URL</Label>
-                        <Input
-                            value={profile.resume_url}
-                            onChange={(e) => setProfile({...profile, resume_url: e.target.value})}
-                            placeholder="https://..."
-                            className="h-14 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356]"
                         />
                     </div>
                 </CardContent>

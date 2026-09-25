@@ -1,8 +1,6 @@
-
 'use client';
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import Image from 'next/image';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,25 +8,19 @@ import { Label } from "@/components/ui/label";
 import { 
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter 
 } from "@/components/ui/dialog";
-import { Plus, Trash2, Edit2, Loader2, Upload, RotateCw, Award, Link as LinkIcon, ShieldAlert } from 'lucide-react';
+import { Plus, Trash2, Edit2, Loader2, Upload, RotateCw, Award, Link as LinkIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getCertificates, addCertificate, updateCertificate, deleteCertificate } from '@/app/admin/actions';
-import { useStorage } from '@/firebase';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import type { Certificate } from '@/lib/types';
-import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 export function AdminCertificatesPage() {
     const { toast } = useToast();
-    const storage = useStorage();
     const [certificates, setCertificates] = useState<Certificate[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [editingCert, setEditingCert] = useState<Certificate | null>(null);
     const [isSaving, setIsSaving] = useState(false);
-    const [uploading, setUploading] = useState(false);
-    const [uploadPreview, setUploadPreview] = useState<string | null>(null);
-    const [corsError, setCorsError] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
 
     const [formData, setFormData] = useState<Omit<Certificate, 'id'>>({
         title: '',
@@ -62,8 +54,6 @@ export function AdminCertificatesPage() {
             rotation: 0
         });
         setEditingCert(null);
-        setUploadPreview(null);
-        setCorsError(false);
     };
 
     const openCreateDialog = () => {
@@ -82,8 +72,6 @@ export function AdminCertificatesPage() {
             order: cert.order || 0,
             rotation: cert.rotation || 0
         });
-        setUploadPreview(null);
-        setCorsError(false);
         setIsDialogOpen(true);
     };
 
@@ -114,33 +102,34 @@ export function AdminCertificatesPage() {
         }
     };
 
-    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    // DIRETSO UPLOAD LOGIC (Base64)
+    const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        if (!file || !storage) return;
+        if (!file) return;
         
-        setUploadPreview(URL.createObjectURL(file));
-        setUploading(true);
-        setCorsError(false);
-        
-        try {
-          const fileName = `cert-${Date.now()}.${file.name.split('.').pop()}`;
-          const storageRef = ref(storage, `uploads/certificates/${fileName}`);
-          
-          const snapshot = await uploadBytes(storageRef, file);
-          const downloadURL = await getDownloadURL(snapshot.ref);
-          
-          setFormData(prev => ({ ...prev, imageUrl: downloadURL }));
-          toast({ title: 'Success', description: 'Image uploaded.' });
-        } catch (err: any) {
-          console.error('[Cert Upload Error]:', err);
-          if (err.message?.toLowerCase().includes('cors') || err.code?.includes('cors')) {
-            setCorsError(true);
-          }
-          toast({ variant: 'destructive', title: 'Upload Failed', description: err.message });
-          setUploadPreview(null);
-        } finally {
-          setUploading(false);
+        const limit = 250 * 1024; // 250KB
+        if (file.size > limit) {
+          toast({ 
+            variant: "destructive", 
+            title: "File too large ⚠️", 
+            description: "Please use a file under 250KB for fast sync." 
+          });
+          e.target.value = '';
+          return;
         }
+
+        setIsUploading(true);
+        const reader = new FileReader();
+        reader.onload = () => {
+          setFormData(prev => ({ ...prev, imageUrl: reader.result as string }));
+          setIsUploading(false);
+          toast({ title: "Image Ready! 📂" });
+        };
+        reader.onerror = () => {
+          setIsUploading(false);
+          toast({ variant: 'destructive', title: 'Error', description: 'Upload failed.' });
+        };
+        reader.readAsDataURL(file);
     };
 
     const rotateImage = () => {
@@ -184,7 +173,7 @@ export function AdminCertificatesPage() {
                         <div className="relative aspect-[4/3] bg-slate-50 overflow-hidden">
                           {cert.imageUrl ? (
                             <div className="w-full h-full relative" style={{ transform: `rotate(${cert.rotation || 0}deg)` }}>
-                                <Image src={cert.imageUrl} alt={cert.title} fill unoptimized className="object-contain p-4" />
+                                <img src={cert.imageUrl} alt={cert.title} className="object-contain w-full h-full p-4" />
                             </div>
                           ) : (
                             <div className="w-full h-full flex items-center justify-center text-slate-200">
@@ -218,32 +207,25 @@ export function AdminCertificatesPage() {
                     </DialogTitle>
                 </DialogHeader>
 
-                {corsError && (
-                  <Alert variant="destructive" className="mb-6 border-red-200 bg-red-50 text-red-700">
-                    <ShieldAlert className="h-5 w-5" />
-                    <AlertTitle className="font-black uppercase tracking-widest text-[10px] mb-2">Security Block (CORS Error)</AlertTitle>
-                    <AlertDescription className="text-[10px] leading-relaxed">
-                      Mangyaring patakbuhin ang command na ito sa iyong terminal:<br />
-                      <div className="bg-white p-2 rounded mt-2 border border-red-100 font-mono">
-                        <code className="block select-all">gsutil ls</code>
-                        <code className="block select-all mt-1">gsutil cors set cors.json [BUCKET_GS_LINK]</code>
-                      </div>
-                    </AlertDescription>
-                  </Alert>
-                )}
-
                 <div className="space-y-6 py-6">
                     <div className="space-y-4">
                         <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Record Image</Label>
                         <div className="flex flex-col gap-4">
                             <div className="flex items-center gap-4">
-                                <div className="relative w-24 h-24 rounded-2xl overflow-hidden bg-slate-50 border border-gray-100 shrink-0">
-                                    {(uploadPreview || formData.imageUrl) && (
+                                <div 
+                                  className="relative w-24 h-24 rounded-2xl overflow-hidden bg-slate-50 border border-gray-100 shrink-0 group cursor-pointer"
+                                  onClick={() => document.getElementById('cert-image')?.click()}
+                                >
+                                    {formData.imageUrl ? (
                                         <div className="w-full h-full relative" style={{ transform: `rotate(${formData.rotation || 0}deg)` }}>
-                                            <Image src={uploadPreview || formData.imageUrl} alt="Preview" fill unoptimized className="object-contain p-2" />
+                                            <img src={formData.imageUrl} alt="Preview" className="object-contain w-full h-full p-2" />
                                         </div>
+                                    ) : (
+                                      <div className="w-full h-full flex items-center justify-center text-slate-100">
+                                        <Award className="w-8 h-8" />
+                                      </div>
                                     )}
-                                    {uploading && (
+                                    {isUploading && (
                                       <div className="absolute inset-0 bg-white/60 flex items-center justify-center">
                                         <Loader2 className="w-6 h-6 animate-spin text-[#E31B23]" />
                                       </div>
@@ -252,8 +234,8 @@ export function AdminCertificatesPage() {
                                 <div className="flex-1 flex flex-col gap-2">
                                     <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" id="cert-image" />
                                     <Label htmlFor="cert-image">
-                                        <Button variant="outline" size="sm" asChild disabled={uploading} className="w-full h-12 border-gray-100 font-black text-[10px] tracking-widest uppercase rounded-xl">
-                                            <span>{uploading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}Upload</span>
+                                        <Button variant="outline" size="sm" asChild disabled={isUploading} className="w-full h-12 border-gray-100 font-black text-[10px] tracking-widest uppercase rounded-xl">
+                                            <span>{isUploading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}Select Photo</span>
                                         </Button>
                                     </Label>
                                     {formData.imageUrl && (
@@ -288,7 +270,7 @@ export function AdminCertificatesPage() {
                 </div>
                 <DialogFooter className="pt-4">
                     <Button variant="ghost" onClick={() => setIsDialogOpen(false)} className="h-12 font-black uppercase tracking-widest text-[10px] text-gray-400">Cancel</Button>
-                    <Button onClick={handleSave} disabled={isSaving || uploading} className="bg-[#E31B23] text-white font-black h-12 px-8 rounded-xl shadow-xl uppercase tracking-widest text-[10px]">
+                    <Button onClick={handleSave} disabled={isSaving || isUploading} className="bg-[#E31B23] text-white font-black h-12 px-8 rounded-xl shadow-xl uppercase tracking-widest text-[10px]">
                         {isSaving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                         {editingCert ? 'Update' : 'Create'}
                     </Button>
