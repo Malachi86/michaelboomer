@@ -1,3 +1,4 @@
+
 'use client';
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -168,7 +169,7 @@ export function AdminProjectsPage() {
           }
         } catch (err: any) {
           console.error('[Inventory Upload Error]:', err);
-          if (err.message?.includes('CORS')) {
+          if (err.message?.includes('CORS') || err.code === 'storage/retry-limit-exceeded') {
             toast({ variant: 'destructive', title: 'CORS Blocked', description: 'Please authorize this domain in Firebase Storage CORS settings.' });
           } else {
             toast({ variant: 'destructive', title: 'Upload Failed', description: err.message });
