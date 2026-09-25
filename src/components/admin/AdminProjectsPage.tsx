@@ -1,4 +1,3 @@
-
 'use client';
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -14,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { 
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription 
 } from "@/components/ui/dialog";
-import { Plus, Trash2, Edit2, Loader2, Upload, Star, Car, Link as LinkIcon, Info, X, ImageIcon, Play } from 'lucide-react';
+import { Plus, Trash2, Edit2, Loader2, Upload, Star, Car, Link as LinkIcon, Info, X, Play } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getProjects, addProject, updateProject, deleteProject } from '@/app/admin/actions';
 import { useStorage } from '@/firebase';
@@ -134,38 +133,48 @@ export function AdminProjectsPage() {
     }
 
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: 'image_url' | 'additional_images') => {
-        const file = e.target.files?.[0];
-        if (!file || !storage) return;
+        const files = e.target.files;
+        if (!files || files.length === 0 || !storage) return;
         
-        if (field === 'image_url') setUploadPreview(URL.createObjectURL(file));
         setUploading(true);
         
         try {
-          const options = {
+          const compressionOptions = {
             maxSizeMB: 1,
             maxWidthOrHeight: 1200,
             useWebWorker: true
           };
-          const compressedFile = await imageCompression(file, options);
 
-          const fileExtension = file.name.split('.').pop();
-          const fileName = `vehicle-${Date.now()}.${fileExtension}`;
-          const storageRef = ref(storage, `uploads/vehicles/${fileName}`);
-          
-          await uploadBytes(storageRef, compressedFile);
-          const downloadURL = await getDownloadURL(storageRef);
-          
           if (field === 'image_url') {
+            const file = files[0];
+            setUploadPreview(URL.createObjectURL(file));
+            const compressedFile = await imageCompression(file, compressionOptions);
+            const fileName = `main-${Date.now()}-${file.name}`;
+            const storageRef = ref(storage, `uploads/vehicles/${fileName}`);
+            await uploadBytes(storageRef, compressedFile);
+            const downloadURL = await getDownloadURL(storageRef);
             setFormData(prev => ({ ...prev, image_url: downloadURL }));
           } else {
-            setFormData(prev => ({ ...prev, additional_images: [...(prev.additional_images || []), downloadURL] }));
+            // Multi-upload for gallery
+            const newUrls: string[] = [];
+            for (let i = 0; i < files.length; i++) {
+              const file = files[i];
+              const compressedFile = await imageCompression(file, compressionOptions);
+              const fileName = `gallery-${Date.now()}-${file.name}`;
+              const storageRef = ref(storage, `uploads/vehicles/gallery/${fileName}`);
+              await uploadBytes(storageRef, compressedFile);
+              const downloadURL = await getDownloadURL(storageRef);
+              newUrls.push(downloadURL);
+            }
+            setFormData(prev => ({ ...prev, additional_images: [...(prev.additional_images || []), ...newUrls] }));
           }
-          toast({ title: 'Success', description: 'Vehicle photo uploaded.' });
+          toast({ title: 'Success', description: `${files.length} photo(s) uploaded successfully.` });
         } catch (err: any) {
           console.error('Upload error:', err);
           toast({ variant: 'destructive', title: 'Error', description: err.message || 'Upload failed.' });
+        } finally {
+          setUploading(false);
         }
-        setUploading(false);
     };
 
     const addGalleryLink = () => {
@@ -225,18 +234,7 @@ export function AdminProjectsPage() {
                 </Button>
             </div>
             
-            {projects.length === 0 ? (
-                <Card className="bg-white border-none shadow-xl shadow-slate-200/50 rounded-[40px]">
-                    <CardContent className="py-24 text-center">
-                    <Car className="w-16 h-16 mx-auto text-slate-100 mb-6" />
-                    <p className="text-gray-400 font-black uppercase text-[10px] tracking-widest mb-6">Your inventory is empty.</p>
-                    <Button onClick={openCreateDialog} variant="outline" className="border-gray-100 text-[#0E2356] font-black uppercase tracking-widest text-xs h-12 rounded-xl">
-                        Add Your First Suzuki Unit
-                    </Button>
-                    </CardContent>
-                </Card>
-            ) : (
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                 <AnimatePresence>
                   {projects.sort((a, b) => (a.order || 0) - (b.order || 0)).map((project, index) => (
                     <motion.div
@@ -259,18 +257,10 @@ export function AdminProjectsPage() {
                           )}
                           
                           <div className="absolute inset-0 bg-[#0E2356]/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4 backdrop-blur-sm">
-                            <Button
-                              size="icon"
-                              className="bg-white text-[#0E2356] hover:bg-[#E31B23] hover:text-white rounded-xl shadow-xl"
-                              onClick={() => openEditDialog(project)}
-                            >
+                            <Button size="icon" className="bg-white text-[#0E2356] hover:bg-[#E31B23] hover:text-white rounded-xl shadow-xl" onClick={() => openEditDialog(project)}>
                               <Edit2 className="w-4 h-4" />
                             </Button>
-                            <Button
-                              size="icon"
-                              className="bg-white text-[#E31B23] hover:bg-red-600 hover:text-white rounded-xl shadow-xl"
-                              onClick={() => handleDelete(project.id)}
-                            >
+                            <Button size="icon" className="bg-white text-[#E31B23] hover:bg-red-600 hover:text-white rounded-xl shadow-xl" onClick={() => handleDelete(project.id)}>
                               <Trash2 className="w-4 h-4" />
                             </Button>
                           </div>
@@ -306,9 +296,6 @@ export function AdminProjectsPage() {
                                 ₱{(project.price || 0).toLocaleString()}
                               </span>
                             </div>
-                            {project.additional_images && project.additional_images.length > 0 && (
-                                <Badge variant="secondary" className="bg-slate-50 text-[8px] font-black">{project.additional_images.length} PHOTOS</Badge>
-                            )}
                           </div>
                         </CardContent>
                       </Card>
@@ -316,7 +303,6 @@ export function AdminProjectsPage() {
                   ))}
                 </AnimatePresence>
               </div>
-            )}
 
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogContent className="bg-white border-none text-[#0E2356] max-w-2xl max-h-[90vh] overflow-y-auto rounded-[40px] shadow-2xl p-10">
@@ -362,7 +348,7 @@ export function AdminProjectsPage() {
                                     value={formData.image_url}
                                     onChange={(e) => setFormData(prev => ({ ...prev, image_url: e.target.value }))}
                                     placeholder="External Image URL"
-                                    className="h-12 bg-slate-50 border-gray-100 pl-10 rounded-xl font-bold text-[#0E2356] focus:border-[#E31B23] focus:ring-0"
+                                    className="h-12 bg-slate-50 border-gray-100 pl-10 rounded-xl font-bold text-[#0E2356] focus:border-[#E31B23]"
                                 />
                             </div>
                         </div>
@@ -370,13 +356,20 @@ export function AdminProjectsPage() {
                     </div>
 
                     <div className="space-y-4">
-                        <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">GALLERY PHOTOS (ADDITIONAL)</Label>
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">GALLERY PHOTOS (MULTI-UPLOAD)</Label>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, 'additional_images')} className="hidden" id="gallery-upload" />
+                                <input 
+                                  type="file" 
+                                  accept="image/*" 
+                                  multiple 
+                                  onChange={(e) => handleImageUpload(e, 'additional_images')} 
+                                  className="hidden" 
+                                  id="gallery-upload" 
+                                />
                                 <Label htmlFor="gallery-upload">
                                     <Button variant="outline" className="w-full h-12 border-gray-100 font-black text-[10px] tracking-widest uppercase rounded-xl" asChild disabled={uploading}>
-                                        <span><Plus className="w-4 h-4 mr-2" /> UPLOAD PHOTO</span>
+                                        <span><Plus className="w-4 h-4 mr-2" /> UPLOAD PHOTOS</span>
                                     </Button>
                                 </Label>
                             </div>
@@ -412,13 +405,13 @@ export function AdminProjectsPage() {
                         value={formData.title}
                         onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
                         placeholder="e.g. S-PRESSO"
-                        className="h-12 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356] focus:border-[#E31B23] focus:ring-0"
+                        className="h-12 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356]"
                         />
                     </div>
                     <div className="space-y-2">
                         <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Body Type</Label>
                         <Select value={formData.category} onValueChange={(v: any) => setFormData(prev => ({ ...prev, category: v }))}>
-                        <SelectTrigger className="h-12 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356] focus:border-[#E31B23] focus:ring-0 uppercase">
+                        <SelectTrigger className="h-12 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356] uppercase">
                             <SelectValue />
                         </SelectTrigger>
                         <SelectContent className="bg-white border-gray-100 text-[#0E2356] font-bold">
@@ -437,7 +430,7 @@ export function AdminProjectsPage() {
                         onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
                         placeholder="Describe the unit's key features..."
                         rows={6}
-                        className="bg-slate-50 border-gray-100 rounded-xl resize-none p-5 font-bold text-[#0E2356] leading-relaxed focus:border-[#E31B23] focus:ring-0"
+                        className="bg-slate-50 border-gray-100 rounded-xl resize-none p-5 font-bold text-[#0E2356] leading-relaxed"
                     />
                     </div>
 
@@ -451,7 +444,7 @@ export function AdminProjectsPage() {
                         value={formData.live_demo_url}
                         onChange={(e) => setFormData(prev => ({ ...prev, live_demo_url: e.target.value }))}
                         placeholder="Google Form / External Link"
-                        className="h-12 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356] focus:border-[#E31B23] focus:ring-0"
+                        className="h-12 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356]"
                         />
                     </div>
                     <div className="space-y-2">
@@ -462,7 +455,7 @@ export function AdminProjectsPage() {
                             value={formData.video_url}
                             onChange={(e) => setFormData(prev => ({ ...prev, video_url: e.target.value }))}
                             placeholder="https://youtube.com/..."
-                            className="h-12 bg-slate-50 border-gray-100 pl-10 rounded-xl font-bold text-[#0E2356] focus:border-[#E31B23] focus:ring-0"
+                            className="h-12 bg-slate-50 border-gray-100 pl-10 rounded-xl font-bold text-[#0E2356]"
                             />
                         </div>
                     </div>
@@ -476,7 +469,7 @@ export function AdminProjectsPage() {
                         value={formData.price}
                         onChange={(e) => setFormData(prev => ({ ...prev, price: parseFloat(e.target.value) || 0 }))}
                         placeholder="798000"
-                        className="h-12 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356] focus:border-[#E31B23] focus:ring-0"
+                        className="h-12 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356]"
                         />
                     </div>
                     <div className="space-y-4">
@@ -485,7 +478,7 @@ export function AdminProjectsPage() {
                                 type="number"
                                 value={formData.order}
                                 onChange={(e) => setFormData(prev => ({ ...prev, order: parseInt(e.target.value) || 0 }))}
-                                className="h-12 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356] focus:border-[#E31B23] focus:ring-0"
+                                className="h-12 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356]"
                             />
                         </div>
                     </div>
@@ -512,7 +505,7 @@ export function AdminProjectsPage() {
                         onChange={(e) => setTechInput(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTech())}
                         placeholder="Add spec (e.g. 7-Seater)..."
-                        className="h-12 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356] focus:border-[#E31B23] focus:ring-0"
+                        className="h-12 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356]"
                         />
                         <Button type="button" onClick={addTech} variant="outline" className="h-12 border-gray-100 px-6 rounded-xl font-black text-[10px] uppercase">
                         Add
@@ -537,9 +530,7 @@ export function AdminProjectsPage() {
                     disabled={isSaving || uploading}
                     className="bg-[#E31B23] hover:bg-[#c4171e] text-white font-black h-14 px-12 rounded-2xl shadow-xl shadow-red-100 uppercase tracking-widest text-xs"
                     >
-                    {isSaving && (
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    )}
+                    {isSaving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                     {editingProject ? 'Update Vehicle' : 'Save Vehicle'}
                     </Button>
                 </DialogFooter>

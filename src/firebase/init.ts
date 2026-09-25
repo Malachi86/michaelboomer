@@ -5,7 +5,8 @@ import {
   initializeFirestore, 
   persistentLocalCache, 
   persistentMultipleTabManager,
-  Firestore 
+  Firestore,
+  getFirestore
 } from 'firebase/firestore';
 import { getAuth, Auth } from 'firebase/auth';
 import { getStorage, FirebaseStorage } from 'firebase/storage';
@@ -29,16 +30,22 @@ export function initializeFirebase(): {
   }
 
   try {
-    const firebaseApp =
-      getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
+    const existingApps = getApps();
+    const firebaseApp = existingApps.length > 0 ? getApp() : initializeApp(firebaseConfig);
     
-    // Using initializeFirestore instead of getFirestore to enable persistent caching.
-    // This reduces Firestore read costs by storing data in IndexedDB.
-    const firestore = initializeFirestore(firebaseApp, {
-      localCache: persistentLocalCache({
-        tabManager: persistentMultipleTabManager()
-      })
-    });
+    // Check if Firestore is already initialized to avoid "initializeFirestore() has already been called" error.
+    // If the app exists, we attempt to get the existing Firestore instance.
+    // If it's a new app initialization, we use initializeFirestore with persistent settings.
+    let firestore: Firestore;
+    if (existingApps.length > 0) {
+      firestore = getFirestore(firebaseApp);
+    } else {
+      firestore = initializeFirestore(firebaseApp, {
+        localCache: persistentLocalCache({
+          tabManager: persistentMultipleTabManager()
+        })
+      });
+    }
 
     const auth = getAuth(firebaseApp);
     const storage = getStorage(firebaseApp);

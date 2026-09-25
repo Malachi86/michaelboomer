@@ -10,6 +10,7 @@ import { FirebaseStorage } from 'firebase/storage';
 import { Loader2, AlertCircle, RefreshCcw, ExternalLink } from 'lucide-react';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import { firebaseConfig } from './config';
 
 interface FirebaseClientProviderProps {
   children: ReactNode;
@@ -56,7 +57,7 @@ export function FirebaseClientProvider({
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-4">
         <Loader2 className="w-10 h-10 animate-spin text-primary" />
-        <p className="text-muted-foreground animate-pulse">Initializing Firebase services...</p>
+        <p className="text-muted-foreground animate-pulse font-bold tracking-widest uppercase text-[10px]">Initializing Suzuki Backend...</p>
       </div>
     );
   }
@@ -69,12 +70,12 @@ export function FirebaseClientProvider({
         <Alert variant="destructive" className="max-w-md border-destructive/20 bg-destructive/5 py-8">
           <AlertCircle className="h-6 w-6" />
           <AlertTitle className="text-xl font-bold mb-4">
-            {isUnavailable ? 'Firestore Backend Unavailable' : 'Firebase Error'}
+            {isUnavailable ? 'Service Temporarily Offline' : 'Firebase Error'}
           </AlertTitle>
           <AlertDescription className="space-y-6">
             <p className="text-muted-foreground leading-relaxed">
               {isUnavailable 
-                ? "Hindi maabot ang Firestore backend. Siguraduhin na ang iyong internet ay stable at ang Firestore database ay naka-provision na sa iyong Firebase Console."
+                ? "Hindi maabot ang database. Siguraduhin na ang iyong internet ay stable at ang Firestore ay naka-enable sa iyong console."
                 : (error?.message || 'Could not initialize Firebase services.')}
             </p>
             
@@ -92,7 +93,7 @@ export function FirebaseClientProvider({
                 className="w-full justify-start border-white/10 hover:bg-white/5"
                 asChild
               >
-                <a href={`https://console.firebase.google.com/project/myportfolio-48bb2/firestore`} target="_blank" rel="noopener noreferrer">
+                <a href={`https://console.firebase.google.com/project/${firebaseConfig.projectId}/firestore`} target="_blank" rel="noopener noreferrer">
                   <ExternalLink className="mr-2 h-4 w-4" />
                   Open Firebase Console
                 </a>
