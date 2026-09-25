@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useMemo, Suspense, useState, useRef } from 'react';
@@ -31,6 +30,7 @@ function VehicleDetailContent() {
     Autoplay({ delay: 3500, stopOnInteraction: false })
   );
 
+  // Memoize document reference to avoid redundant fetching
   const projectRef = useMemo(() => (db && id ? doc(db, 'projects', id) : null), [db, id]);
   const { data: project, loading: projectLoading } = useDoc<Project>(projectRef);
 
@@ -94,7 +94,6 @@ function VehicleDetailContent() {
               animate={{ opacity: 1, x: 0 }}
               className="lg:sticky lg:top-32"
             >
-              {/* Main Image Carousel */}
               <div className="relative rounded-[40px] overflow-hidden shadow-2xl bg-white border-8 border-white group">
                 <Carousel 
                   plugins={[plugin.current]}
@@ -136,7 +135,6 @@ function VehicleDetailContent() {
                   </div>
                 )}
 
-                {/* Interaction Hint */}
                 <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex gap-1.5 px-4 py-2 bg-black/20 backdrop-blur-md rounded-full">
                   {allImages.map((_, i) => (
                     <div key={i} className="w-1.5 h-1.5 rounded-full bg-white/60" />
@@ -144,7 +142,6 @@ function VehicleDetailContent() {
                 </div>
               </div>
 
-              {/* Video Section */}
               {project.video_url && (
                 <div className="mt-10 space-y-4">
                   <div className="flex items-center gap-3 mb-4">
@@ -236,8 +233,9 @@ function VehicleDetailContent() {
                       <motion.div 
                         key={i}
                         initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.2 + (i * 0.05) }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: 0.1 + (i * 0.05) }}
                         className="bg-white p-6 rounded-[32px] flex items-center gap-5 shadow-xl shadow-slate-100/50 hover:shadow-2xl transition-all group border border-transparent hover:border-red-50"
                       >
                         <div className="w-2.5 h-2.5 rounded-full bg-[#E31B23] shrink-0" />

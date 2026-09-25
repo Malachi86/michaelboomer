@@ -17,7 +17,7 @@ import { Loader2 } from 'lucide-react';
 export default function Home() {
   const db = useFirestore();
 
-  // Path alignment: Adjusted to match backend.json and firestore.rules
+  // Memoizing queries to prevent redundant re-fetching and save on reads
   const profileRef = useMemo(() => doc(db, 'profile', 'data'), [db]);
   const { data: profileData, loading: profileLoading } = useDoc(profileRef);
 
@@ -41,7 +41,7 @@ export default function Home() {
     return (
       <div className="min-h-screen bg-white flex flex-col items-center justify-center text-[#0E2356] gap-4">
         <Loader2 className="w-10 h-10 animate-spin text-[#E31B23]" />
-        <p className="text-[#0E2356] animate-pulse font-bold tracking-widest">OPENING SUZUKI SHOWROOM...</p>
+        <p className="text-[#0E2356] animate-pulse font-black tracking-widest uppercase text-xs">Opening Suzuki Showroom...</p>
       </div>
     );
   }
@@ -51,9 +51,7 @@ export default function Home() {
       <Navigation profile={profile} />
       <main>
         <HeroSection profile={profile} />
-        {/* Inventory / Vehicles */}
         <ProjectsSection projects={projects} />
-        {/* Agent Professional Status / Certificates */}
         <CertificatesSection certificates={certificates} />
         <TestimonialsSection testimonials={testimonials} />
         <ContactSection profile={profile} />
