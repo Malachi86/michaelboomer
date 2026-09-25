@@ -153,8 +153,8 @@ function VehicleDetailContent() {
                 <h1 className="text-6xl lg:text-7xl font-black text-[#0E2356] mb-6 leading-none uppercase tracking-tighter">
                   {project.title}
                 </h1>
-                <p className="text-gray-500 text-lg leading-relaxed font-medium max-w-xl">
-                  🚗 {project.description}
+                <p className="text-gray-500 text-lg leading-relaxed font-medium max-w-xl whitespace-pre-wrap">
+                  {project.description}
                 </p>
               </div>
 
