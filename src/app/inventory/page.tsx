@@ -65,7 +65,7 @@ function VehicleDetailContent() {
           </Link>
 
           <div className="grid lg:grid-cols-2 gap-16 items-start">
-            {/* Left Column: Image Display */}
+            {/* Left Column: Image Display - Sticky on Desktop */}
             <motion.div 
               initial={{ opacity: 0, x: -30 }}
               animate={{ opacity: 1, x: 0 }}
@@ -105,7 +105,7 @@ function VehicleDetailContent() {
                   </div>
                   <div>
                     <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Availability</p>
-                    <p className="text-sm font-black text-[#0E2356]">Ready Stock</p>
+                    <p className="text-sm font-black text-[#0E2356] uppercase">Ready Stock</p>
                   </div>
                 </div>
                 <div className="bg-white p-6 rounded-[32px] border border-gray-100 flex items-center gap-4 shadow-sm">
@@ -114,7 +114,7 @@ function VehicleDetailContent() {
                   </div>
                   <div>
                     <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Warranty</p>
-                    <p className="text-sm font-black text-[#0E2356]">Suzuki Guaranteed</p>
+                    <p className="text-sm font-black text-[#0E2356] uppercase">Suzuki Guaranteed</p>
                   </div>
                 </div>
               </div>
@@ -150,10 +150,10 @@ function VehicleDetailContent() {
                 </div>
               </div>
 
-              {/* Specifications List */}
+              {/* Specifications List - Exact Match to Screenshot */}
               {project.tech_stack && project.tech_stack.length > 0 && (
                 <div className="space-y-6">
-                  <div className="flex items-center gap-4 mb-8">
+                  <div className="flex items-center gap-4 mb-4">
                     <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.5em]">Key Specifications</h4>
                     <div className="h-px flex-grow bg-gray-100" />
                   </div>
@@ -164,10 +164,10 @@ function VehicleDetailContent() {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 + (i * 0.05) }}
-                        className="bg-white border border-gray-100 p-5 rounded-2xl flex items-center gap-5 shadow-sm hover:shadow-md transition-shadow group"
+                        className="bg-white border border-gray-100/50 p-6 rounded-[24px] flex items-center gap-6 shadow-md shadow-slate-100/30 hover:shadow-lg transition-all group"
                       >
-                        <div className="w-2.5 h-2.5 rounded-full bg-[#E31B23] group-hover:scale-125 transition-transform shrink-0 shadow-sm shadow-red-200" />
-                        <span className="text-[13px] font-black text-[#0E2356] uppercase tracking-wide leading-tight">
+                        <div className="w-3 h-3 rounded-full bg-[#E31B23] shrink-0 shadow-sm shadow-red-200" />
+                        <span className="text-[14px] font-black text-[#0E2356] uppercase tracking-wide leading-tight">
                           {spec}
                         </span>
                       </motion.div>
