@@ -10,14 +10,18 @@ import {
   deleteDoc, 
   getDocs, 
   query, 
-  orderBy 
+  orderBy,
+  Firestore
 } from 'firebase/firestore';
 import { initializeFirebase } from '@/firebase/init';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError, type SecurityRuleContext } from '@/firebase/errors';
 import type { Profile, Skill, Project, Message, Analytics, Testimonial, Certificate } from '@/lib/types';
 
-const db = initializeFirebase()?.firestore;
+// Singleton-style getter for Firestore to ensure it's initialized on the client
+const getFirestoreDb = (): Firestore | undefined => {
+  return initializeFirebase()?.firestore;
+};
 
 // Helper to handle permission errors
 const handlePermissionError = (path: string, operation: SecurityRuleContext['operation'], data?: any) => {
@@ -31,90 +35,143 @@ const handlePermissionError = (path: string, operation: SecurityRuleContext['ope
 
 // --- Profile ---
 export async function updateProfile(updatedProfile: Profile) {
-  if (!db) return { success: false };
+  const db = getFirestoreDb();
+  if (!db) return { success: false, error: 'DB not initialized' };
+  
   const docRef = doc(db, 'profile', 'data');
-  setDoc(docRef, updatedProfile, { merge: true })
-    .catch(() => handlePermissionError(docRef.path, 'update', updatedProfile));
-  return { success: true };
+  try {
+    // We await here for the action response, but Firestore also has internal optimistic UI
+    await setDoc(docRef, updatedProfile, { merge: true });
+    return { success: true };
+  } catch (err: any) {
+    handlePermissionError(docRef.path, 'update', updatedProfile);
+    return { success: false, error: err.message };
+  }
 }
 
 // --- Skills ---
 export async function addSkill(skill: Omit<Skill, 'id'>) {
+  const db = getFirestoreDb();
   if (!db) return { success: false };
   const colRef = collection(db, 'skills');
-  addDoc(colRef, skill)
-    .catch(() => handlePermissionError(colRef.path, 'create', skill));
-  return { success: true };
+  try {
+    const docRef = await addDoc(colRef, skill);
+    return { success: true, id: docRef.id };
+  } catch (err) {
+    handlePermissionError(colRef.path, 'create', skill);
+    return { success: false };
+  }
 }
 
 export async function updateSkill(id: string, skillData: Partial<Skill>) {
+  const db = getFirestoreDb();
   if (!db) return { success: false };
   const docRef = doc(db, 'skills', id);
-  updateDoc(docRef, skillData)
-    .catch(() => handlePermissionError(docRef.path, 'update', skillData));
-  return { success: true };
+  try {
+    await updateDoc(docRef, skillData);
+    return { success: true };
+  } catch (err) {
+    handlePermissionError(docRef.path, 'update', skillData);
+    return { success: false };
+  }
 }
 
 export async function deleteSkill(id: string) {
+  const db = getFirestoreDb();
   if (!db) return { success: false };
   const docRef = doc(db, 'skills', id);
-  deleteDoc(docRef)
-    .catch(() => handlePermissionError(docRef.path, 'delete'));
-  return { success: true };
+  try {
+    await deleteDoc(docRef);
+    return { success: true };
+  } catch (err) {
+    handlePermissionError(docRef.path, 'delete');
+    return { success: false };
+  }
 }
 
 // --- Projects ---
 export async function addProject(project: Omit<Project, 'id'>) {
+  const db = getFirestoreDb();
   if (!db) return { success: false };
   const colRef = collection(db, 'projects');
-  addDoc(colRef, project)
-    .catch(() => handlePermissionError(colRef.path, 'create', project));
-  return { success: true };
+  try {
+    const docRef = await addDoc(colRef, project);
+    return { success: true, id: docRef.id };
+  } catch (err) {
+    handlePermissionError(colRef.path, 'create', project);
+    return { success: false };
+  }
 }
 
 export async function updateProject(id: string, projectData: Partial<Project>) {
+  const db = getFirestoreDb();
   if (!db) return { success: false };
   const docRef = doc(db, 'projects', id);
-  updateDoc(docRef, projectData)
-    .catch(() => handlePermissionError(docRef.path, 'update', projectData));
-  return { success: true };
+  try {
+    await updateDoc(docRef, projectData);
+    return { success: true };
+  } catch (err) {
+    handlePermissionError(docRef.path, 'update', projectData);
+    return { success: false };
+  }
 }
 
 export async function deleteProject(id: string) {
+  const db = getFirestoreDb();
   if (!db) return { success: false };
   const docRef = doc(db, 'projects', id);
-  deleteDoc(docRef)
-    .catch(() => handlePermissionError(docRef.path, 'delete'));
-  return { success: true };
+  try {
+    await deleteDoc(docRef);
+    return { success: true };
+  } catch (err) {
+    handlePermissionError(docRef.path, 'delete');
+    return { success: false };
+  }
 }
 
 // --- Certificates ---
 export async function addCertificate(cert: Omit<Certificate, 'id'>) {
+  const db = getFirestoreDb();
   if (!db) return { success: false };
   const colRef = collection(db, 'certificates');
-  addDoc(colRef, cert)
-    .catch(() => handlePermissionError(colRef.path, 'create', cert));
-  return { success: true };
+  try {
+    const docRef = await addDoc(colRef, cert);
+    return { success: true, id: docRef.id };
+  } catch (err) {
+    handlePermissionError(colRef.path, 'create', cert);
+    return { success: false };
+  }
 }
 
 export async function updateCertificate(id: string, certData: Partial<Certificate>) {
+  const db = getFirestoreDb();
   if (!db) return { success: false };
   const docRef = doc(db, 'certificates', id);
-  updateDoc(docRef, certData)
-    .catch(() => handlePermissionError(docRef.path, 'update', certData));
-  return { success: true };
+  try {
+    await updateDoc(docRef, certData);
+    return { success: true };
+  } catch (err) {
+    handlePermissionError(docRef.path, 'update', certData);
+    return { success: false };
+  }
 }
 
 export async function deleteCertificate(id: string) {
+  const db = getFirestoreDb();
   if (!db) return { success: false };
   const docRef = doc(db, 'certificates', id);
-  deleteDoc(docRef)
-    .catch(() => handlePermissionError(docRef.path, 'delete'));
-  return { success: true };
+  try {
+    await deleteDoc(docRef);
+    return { success: true };
+  } catch (err) {
+    handlePermissionError(docRef.path, 'delete');
+    return { success: false };
+  }
 }
 
 // --- Testimonials ---
 export async function submitTestimonial(testimonial: Omit<Testimonial, 'id' | 'approved' | 'createdAt'>) {
+  const db = getFirestoreDb();
   if (!db) return { success: false };
   const colRef = collection(db, 'testimonials');
   const newTestimonial = {
@@ -122,46 +179,71 @@ export async function submitTestimonial(testimonial: Omit<Testimonial, 'id' | 'a
     approved: false,
     createdAt: new Date().toISOString()
   };
-  addDoc(colRef, newTestimonial)
-    .catch(() => handlePermissionError(colRef.path, 'create', newTestimonial));
-  return { success: true };
+  try {
+    await addDoc(colRef, newTestimonial);
+    return { success: true };
+  } catch (err) {
+    handlePermissionError(colRef.path, 'create', newTestimonial);
+    return { success: false };
+  }
 }
 
 export async function updateTestimonial(id: string, updates: Partial<Testimonial>) {
+  const db = getFirestoreDb();
   if (!db) return { success: false };
   const docRef = doc(db, 'testimonials', id);
-  updateDoc(docRef, updates)
-    .catch(() => handlePermissionError(docRef.path, 'update', updates));
-  return { success: true };
+  try {
+    await updateDoc(docRef, updates);
+    return { success: true };
+  } catch (err) {
+    handlePermissionError(docRef.path, 'update', updates);
+    return { success: false };
+  }
 }
 
 export async function deleteTestimonial(id: string) {
+  const db = getFirestoreDb();
   if (!db) return { success: false };
   const docRef = doc(db, 'testimonials', id);
-  deleteDoc(docRef)
-    .catch(() => handlePermissionError(docRef.path, 'delete'));
-  return { success: true };
+  try {
+    await deleteDoc(docRef);
+    return { success: true };
+  } catch (err) {
+    handlePermissionError(docRef.path, 'delete');
+    return { success: false };
+  }
 }
 
 // --- Messages ---
 export async function updateMessage(id: string, data: { read: boolean }) {
+  const db = getFirestoreDb();
   if (!db) return { success: false };
   const docRef = doc(db, 'messages', id);
-  updateDoc(docRef, data)
-    .catch(() => handlePermissionError(docRef.path, 'update', data));
-  return { success: true };
+  try {
+    await updateDoc(docRef, data);
+    return { success: true };
+  } catch (err) {
+    handlePermissionError(docRef.path, 'update', data);
+    return { success: false };
+  }
 }
 
 export async function deleteMessage(id: string) {
+  const db = getFirestoreDb();
   if (!db) return { success: false };
   const docRef = doc(db, 'messages', id);
-  deleteDoc(docRef)
-    .catch(() => handlePermissionError(docRef.path, 'delete'));
-  return { success: true };
+  try {
+    await deleteDoc(docRef);
+    return { success: true };
+  } catch (err) {
+    handlePermissionError(docRef.path, 'delete');
+    return { success: false };
+  }
 }
 
 // --- Analytics ---
 export async function getAnalytics() {
+  const db = getFirestoreDb();
   if (!db) return [];
   const q = query(collection(db, 'analytics'), orderBy('createdAt', 'desc'));
   const querySnapshot = await getDocs(q);
@@ -170,6 +252,7 @@ export async function getAnalytics() {
 
 // --- Getters ---
 export async function getProfile() {
+  const db = getFirestoreDb();
   if (!db) return null;
   const docRef = doc(db, 'profile', 'data');
   const docSnap = await getDoc(docRef);
@@ -177,6 +260,7 @@ export async function getProfile() {
 }
 
 export async function getSkills() {
+  const db = getFirestoreDb();
   if (!db) return [];
   const q = query(collection(db, 'skills'), orderBy('order', 'asc'));
   const querySnapshot = await getDocs(q);
@@ -184,6 +268,7 @@ export async function getSkills() {
 }
 
 export async function getProjects() {
+  const db = getFirestoreDb();
   if (!db) return [];
   const q = query(collection(db, 'projects'), orderBy('order', 'asc'));
   const querySnapshot = await getDocs(q);
@@ -191,6 +276,7 @@ export async function getProjects() {
 }
 
 export async function getCertificates() {
+  const db = getFirestoreDb();
   if (!db) return [];
   const q = query(collection(db, 'certificates'), orderBy('order', 'asc'));
   const querySnapshot = await getDocs(q);
@@ -198,6 +284,7 @@ export async function getCertificates() {
 }
 
 export async function getTestimonials() {
+  const db = getFirestoreDb();
   if (!db) return [];
   const q = query(collection(db, 'testimonials'), orderBy('createdAt', 'desc'));
   const querySnapshot = await getDocs(q);
@@ -205,6 +292,7 @@ export async function getTestimonials() {
 }
 
 export async function getMessages() {
+  const db = getFirestoreDb();
   if (!db) return [];
   const q = query(collection(db, 'messages'), orderBy('createdAt', 'desc'));
   const querySnapshot = await getDocs(q);

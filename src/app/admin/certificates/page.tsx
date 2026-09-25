@@ -84,22 +84,29 @@ export function AdminCertificatesPage() {
 
     const handleSave = async () => {
         setIsSaving(true);
-        if (editingCert) {
-            await updateCertificate(editingCert.id, formData);
-            toast({ title: 'Success', description: 'Certificate updated.' });
-        } else {
-            await addCertificate(formData);
-            toast({ title: 'Success', description: 'Certificate added.' });
+        try {
+            if (editingCert) {
+                await updateCertificate(editingCert.id, formData);
+                toast({ title: 'Success', description: 'Certificate updated.' });
+            } else {
+                await addCertificate(formData);
+                toast({ title: 'Success', description: 'Certificate added.' });
+            }
+            await fetchCertificates();
+            setIsDialogOpen(false);
+        } catch (err) {
+            toast({ variant: 'destructive', title: 'Error', description: 'Failed to save record.' });
+        } finally {
+            setIsSaving(false);
         }
-        await fetchCertificates();
-        setIsSaving(false);
-        setIsDialogOpen(false);
     };
 
     const handleDelete = async (id: string) => {
-        await deleteCertificate(id);
-        await fetchCertificates();
-        toast({ title: 'Success', description: 'Certificate deleted.'});
+        if (confirm('Delete this record?')) {
+            await deleteCertificate(id);
+            await fetchCertificates();
+            toast({ title: 'Success', description: 'Certificate deleted.'});
+        }
     };
 
     const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -108,17 +115,15 @@ export function AdminCertificatesPage() {
         
         setUploadPreview(URL.createObjectURL(file));
         setUploading(true);
-        console.log(`[Certificate Upload] Starting...`);
+        console.log(`[Cert] Starting direct upload for ${file.name}...`);
         
         try {
-          console.time('CertImageUpload');
           const fileExtension = file.name.split('.').pop();
           const fileName = `cert-${Date.now()}.${fileExtension}`;
           const storageRef = ref(storage, `uploads/certificates/${fileName}`);
           
           const snapshot = await uploadBytes(storageRef, file);
           const downloadURL = await getDownloadURL(snapshot.ref);
-          console.timeEnd('CertImageUpload');
           
           setFormData(prev => ({ ...prev, imageUrl: downloadURL }));
           toast({ title: 'Success', description: 'Image uploaded successfully.' });
@@ -252,7 +257,7 @@ export function AdminCertificatesPage() {
                                 <div className="relative">
                                     <LinkIcon className="absolute left-3 top-3.5 w-4 h-4 text-gray-300" />
                                     <Input 
-                                        value={formData.imageUrl} 
+                                        value={formData.imageUrl || ''} 
                                         onChange={e => setFormData({...formData, imageUrl: e.target.value})} 
                                         placeholder="https://..." 
                                         className="h-12 bg-slate-50 border-gray-100 pl-10 rounded-xl font-bold text-[#0E2356]" 
@@ -281,7 +286,7 @@ export function AdminCertificatesPage() {
                     </div>
                     <div className="space-y-2">
                         <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Verify Link (Optional)</Label>
-                        <Input value={formData.credentialUrl} onChange={e => setFormData({...formData, credentialUrl: e.target.value})} placeholder="https://..." className="h-12 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356]" />
+                        <Input value={formData.credentialUrl || ''} onChange={e => setFormData({...formData, credentialUrl: e.target.value})} placeholder="https://..." className="h-12 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356]" />
                     </div>
                 </div>
                 <DialogFooter className="pt-4 flex items-center justify-end gap-3">

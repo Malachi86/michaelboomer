@@ -53,7 +53,7 @@ export function AdminProjectsPage() {
     const fetchProjects = async () => {
         setIsLoading(true);
         const fetchedProjects = await getProjects();
-        setProjects(fetchedProjects);
+        setProjects(fetchedProjects || []);
         setIsLoading(false);
     };
 
@@ -73,7 +73,7 @@ export function AdminProjectsPage() {
             github_url: '',
             tech_stack: [],
             featured: false,
-            order: 0,
+            order: projects.length,
             price: 0
         });
         setEditingProject(null);
@@ -84,7 +84,6 @@ export function AdminProjectsPage() {
 
     const openCreateDialog = () => {
         resetForm();
-        setFormData(prev => ({ ...prev, order: projects.length }));
         setIsDialogOpen(true);
     };
 
@@ -110,17 +109,21 @@ export function AdminProjectsPage() {
 
     const handleSave = async () => {
         setIsSaving(true);
-        if (editingProject) {
-            await updateProject(editingProject.id, formData);
-            toast({ title: 'Success', description: 'Vehicle unit updated.' });
-        } else {
-            await addProject(formData);
-            toast({ title: 'Success', description: 'New vehicle unit added.' });
+        try {
+            if (editingProject) {
+                await updateProject(editingProject.id, formData);
+                toast({ title: 'Success', description: 'Vehicle unit updated.' });
+            } else {
+                await addProject(formData);
+                toast({ title: 'Success', description: 'New vehicle unit added.' });
+            }
+            await fetchProjects();
+            setIsDialogOpen(false);
+        } catch (err) {
+            toast({ variant: 'destructive', title: 'Error', description: 'Failed to save changes.' });
+        } finally {
+            setIsSaving(false);
         }
-        await fetchProjects();
-        setIsSaving(false);
-        setIsDialogOpen(false);
-        resetForm();
     };
 
     const handleDelete = async (id: string) => {
@@ -136,23 +139,21 @@ export function AdminProjectsPage() {
         if (!files || files.length === 0 || !storage) return;
         
         setUploading(true);
-        console.log(`[Inventory Upload] Starting for ${field}...`);
+        console.log(`[Inventory] Starting direct upload for ${field}...`);
         
         try {
           if (field === 'image_url') {
             const file = files[0];
             setUploadPreview(URL.createObjectURL(file));
             
-            console.time('MainImageUpload');
             const fileName = `main-${Date.now()}-${file.name}`;
             const storageRef = ref(storage, `uploads/vehicles/${fileName}`);
             const snapshot = await uploadBytes(storageRef, file);
             const downloadURL = await getDownloadURL(snapshot.ref);
-            console.timeEnd('MainImageUpload');
             
             setFormData(prev => ({ ...prev, image_url: downloadURL }));
           } else {
-            console.time('GalleryUploadGroup');
+            // Parallel multi-upload for faster gallery processing
             const uploadPromises = Array.from(files).map(async (file) => {
               const fileName = `gallery-${Date.now()}-${file.name}`;
               const storageRef = ref(storage, `uploads/vehicles/gallery/${fileName}`);
@@ -161,8 +162,6 @@ export function AdminProjectsPage() {
             });
 
             const newUrls = await Promise.all(uploadPromises);
-            console.timeEnd('GalleryUploadGroup');
-            
             setFormData(prev => ({ ...prev, additional_images: [...(prev.additional_images || []), ...newUrls] }));
           }
           toast({ title: 'Success', description: `${files.length} photo(s) uploaded successfully.` });
@@ -342,7 +341,7 @@ export function AdminProjectsPage() {
                             <div className="relative">
                                 <LinkIcon className="absolute left-3 top-3.5 w-4 h-4 text-gray-300" />
                                 <Input
-                                    value={formData.image_url}
+                                    value={formData.image_url || ''}
                                     onChange={(e) => setFormData(prev => ({ ...prev, image_url: e.target.value }))}
                                     placeholder="External Image URL"
                                     className="h-12 bg-slate-50 border-gray-100 pl-10 rounded-xl font-bold text-[#0E2356] focus:border-[#E31B23]"
@@ -385,6 +384,7 @@ export function AdminProjectsPage() {
                                 <div key={i} className="relative aspect-square rounded-xl overflow-hidden bg-slate-100 group">
                                     <Image src={url} alt="Gallery" fill unoptimized className="object-cover" />
                                     <button 
+                                        type="button"
                                         onClick={() => removeGalleryImage(url)}
                                         className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                                     >
@@ -438,7 +438,7 @@ export function AdminProjectsPage() {
                           <Info className="w-3 h-3 text-red-400" />
                         </Label>
                         <Input
-                        value={formData.live_demo_url}
+                        value={formData.live_demo_url || ''}
                         onChange={(e) => setFormData(prev => ({ ...prev, live_demo_url: e.target.value }))}
                         placeholder="Google Form / External Link"
                         className="h-12 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356]"
@@ -449,7 +449,7 @@ export function AdminProjectsPage() {
                         <div className="relative">
                             <Play className="absolute left-3 top-3.5 w-4 h-4 text-gray-300" />
                             <Input
-                            value={formData.video_url}
+                            value={formData.video_url || ''}
                             onChange={(e) => setFormData(prev => ({ ...prev, video_url: e.target.value }))}
                             placeholder="https://youtube.com/..."
                             className="h-12 bg-slate-50 border-gray-100 pl-10 rounded-xl font-bold text-[#0E2356]"
@@ -463,7 +463,7 @@ export function AdminProjectsPage() {
                         <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Price (SRP)</Label>
                         <Input
                         type="number"
-                        value={formData.price}
+                        value={formData.price || 0}
                         onChange={(e) => setFormData(prev => ({ ...prev, price: parseFloat(e.target.value) || 0 }))}
                         placeholder="798000"
                         className="h-12 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356]"
@@ -512,7 +512,7 @@ export function AdminProjectsPage() {
                         {formData.tech_stack.map((tech, i) => (
                         <Badge key={i} className="bg-[#0E2356] text-white border-none font-black text-[9px] px-3 py-1.5 rounded-lg uppercase tracking-wider">
                             {tech}
-                            <button onClick={() => removeTech(tech)} className="ml-2 hover:text-[#E31B23]">×</button>
+                            <button type="button" onClick={() => removeTech(tech)} className="ml-2 hover:text-[#E31B23]">×</button>
                         </Badge>
                         ))}
                     </div>

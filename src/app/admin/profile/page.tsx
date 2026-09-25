@@ -56,7 +56,7 @@ export default function AdminProfilePage() {
     if (result.success) {
       toast({ title: 'Success', description: 'Profile updated successfully!' });
     } else {
-      toast({ variant: 'destructive', title: 'Error', description: 'Failed to update profile.' });
+      toast({ variant: 'destructive', title: 'Error', description: result.error || 'Failed to update profile.' });
     }
   };
 
@@ -64,46 +64,40 @@ export default function AdminProfilePage() {
     const file = e.target.files?.[0];
     if (!file || !storage) return;
 
-    // Isolate file size for debugging
-    console.log(`[Upload] Starting upload for ${file.name} (${(file.size / 1024).toFixed(2)} KB)`);
+    console.log(`[Upload] Starting direct upload for ${file.name} (${(file.size / 1024).toFixed(2)} KB)`);
     
-    // Show optimistic preview immediately to remove perceived hang
+    // Show optimistic preview immediately
     setPreviewUrl(URL.createObjectURL(file));
     setIsUploading(true);
 
     try {
-      console.time('StorageUpload');
+      console.time('DirectUpload');
       const fileExtension = file.name.split('.').pop();
       const fileName = `profile-${Date.now()}.${fileExtension}`;
       const storageRef = ref(storage, `uploads/profile/${fileName}`);
 
-      // Using uploadBytes instead of uploadBytesResumable for small profile pics
-      // to reduce network handshakes/roundtrips.
+      // uploadBytes is faster for smaller files (< 5MB) as it uses fewer handshakes
       const snapshot = await uploadBytes(storageRef, file);
-      console.timeEnd('StorageUpload');
+      console.timeEnd('DirectUpload');
 
-      console.time('GetDownloadURL');
       const downloadURL = await getDownloadURL(snapshot.ref);
-      console.timeEnd('GetDownloadURL');
 
       const updatedProfile = { ...profile, profile_image: downloadURL };
       setProfile(updatedProfile);
 
-      // Auto-save to Firestore immediately so the user doesn't have to click "Save"
-      console.time('FirestoreUpdate');
+      // Auto-save to Firestore immediately so it "appears in database"
       await updateProfile(updatedProfile);
-      console.timeEnd('FirestoreUpdate');
 
       toast({
         title: 'Success',
-        description: 'Profile picture updated instantly!'
+        description: 'Profile photo updated and saved!'
       });
     } catch (error: any) {
       console.error('[Upload Error Details]:', error);
       toast({ 
         variant: 'destructive', 
         title: 'Upload Failed', 
-        description: error.message || 'Check connection or Storage Rules.' 
+        description: error.message || 'Please check your connection or permissions.' 
       });
       setPreviewUrl(null);
     } finally {
