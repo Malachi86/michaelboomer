@@ -171,7 +171,7 @@ export function AdminProjectsPage() {
           }
         } catch (err: any) {
           console.error('[Inventory Upload Error]:', err);
-          if (err.message?.includes('CORS') || err.code?.includes('cors')) {
+          if (err.message?.toLowerCase().includes('cors') || err.code?.includes('cors')) {
             setCorsError(true);
           }
           toast({ variant: 'destructive', title: 'Upload Failed', description: err.message });
@@ -312,12 +312,12 @@ export function AdminProjectsPage() {
                   <Alert variant="destructive" className="mb-8 border-red-200 bg-red-50 text-red-700">
                     <ShieldAlert className="h-5 w-5" />
                     <AlertTitle className="font-black uppercase tracking-widest text-[10px] mb-2">Security Block (CORS Error)</AlertTitle>
-                    <AlertDescription className="text-xs leading-relaxed">
-                      Mangyaring patakbuhin ang command na ito sa iyong terminal:<br />
-                      <code className="bg-white p-2 rounded mt-2 block border border-red-100 text-[10px] select-all font-mono">
-                        gsutil cors set cors.json gs://studio-7714200755-d4b21.firebasestorage.app
-                      </code>
-                      <p className="mt-2 text-[9px] opacity-70">Kung mag-error ng 404, gamitin ang <code>gsutil ls</code> para malaman ang tamang bucket identifier.</p>
+                    <AlertDescription className="text-xs leading-relaxed space-y-4">
+                      <p>Sundin ang mga hakbang na ito sa iyong terminal:</p>
+                      <div className="bg-white p-3 rounded-lg border border-red-100 font-mono space-y-2">
+                        <code className="block bg-slate-50 p-2 rounded text-[10px] select-all">gsutil ls</code>
+                        <code className="block bg-slate-50 p-2 rounded text-[10px] select-all">gsutil cors set cors.json [BUCKET_FROM_LS]</code>
+                      </div>
                     </AlertDescription>
                   </Alert>
                 )}

@@ -133,7 +133,7 @@ export function AdminCertificatesPage() {
           toast({ title: 'Success', description: 'Image uploaded.' });
         } catch (err: any) {
           console.error('[Cert Upload Error]:', err);
-          if (err.message?.includes('CORS') || err.code?.includes('cors')) {
+          if (err.message?.toLowerCase().includes('cors') || err.code?.includes('cors')) {
             setCorsError(true);
           }
           toast({ variant: 'destructive', title: 'Upload Failed', description: err.message });
@@ -224,10 +224,10 @@ export function AdminCertificatesPage() {
                     <AlertTitle className="font-black uppercase tracking-widest text-[10px] mb-2">Security Block (CORS Error)</AlertTitle>
                     <AlertDescription className="text-[10px] leading-relaxed">
                       Mangyaring patakbuhin ang command na ito sa iyong terminal:<br />
-                      <code className="bg-white p-2 rounded mt-2 block border border-red-100 select-all font-mono">
-                        gsutil cors set cors.json gs://studio-7714200755-d4b21.firebasestorage.app
-                      </code>
-                      <p className="mt-2 text-[9px] opacity-70">Kung mag-error ng 404, subukan ang <code>gsutil ls</code> para malaman ang tamang bucket identifier.</p>
+                      <div className="bg-white p-2 rounded mt-2 border border-red-100 font-mono">
+                        <code className="block select-all">gsutil ls</code>
+                        <code className="block select-all mt-1">gsutil cors set cors.json [BUCKET_GS_LINK]</code>
+                      </div>
                     </AlertDescription>
                   </Alert>
                 )}

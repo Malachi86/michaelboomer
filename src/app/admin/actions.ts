@@ -19,13 +19,13 @@ import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError, type SecurityRuleContext } from '@/firebase/errors';
 import type { Profile, Skill, Project, Message, Analytics, Testimonial, Certificate } from '@/lib/types';
 
-// Singleton-style getter for Firestore to ensure it's initialized on the client
+// Robust Firestore getter
 const getFirestoreDb = (): Firestore | undefined => {
   const instances = initializeFirebase();
   return instances?.firestore;
 };
 
-// Helper to handle permission errors
+// Generic error handler
 const handlePermissionError = (path: string, operation: SecurityRuleContext['operation'], data?: any) => {
   const error = new FirestorePermissionError({
     path,
@@ -38,19 +38,16 @@ const handlePermissionError = (path: string, operation: SecurityRuleContext['ope
 // --- Profile ---
 export async function updateProfile(updatedProfile: Profile) {
   const db = getFirestoreDb();
-  if (!db) {
-    console.error('[Profile Action] Firestore not initialized');
-    return { success: false, error: 'Database not connected' };
-  }
+  if (!db) return { success: false, error: 'Database not initialized' };
   
   const docRef = doc(db, 'profile', 'data');
   try {
-    // Standardizing the payload to avoid circular refs or undefined
+    // Stringify/Parse to clean potential nested complex objects
     const payload = JSON.parse(JSON.stringify(updatedProfile));
     await setDoc(docRef, payload, { merge: true });
     return { success: true };
   } catch (err: any) {
-    console.error('[Profile Action Error]:', err);
+    console.error('[Action] Profile Sync Error:', err);
     handlePermissionError(docRef.path, 'update', updatedProfile);
     return { success: false, error: err.message };
   }
@@ -252,56 +249,85 @@ export async function deleteMessage(id: string) {
 export async function getAnalytics() {
   const db = getFirestoreDb();
   if (!db) return [];
-  const q = query(collection(db, 'analytics'), orderBy('createdAt', 'desc'));
-  const querySnapshot = await getDocs(q);
-  return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Analytics[];
+  try {
+    const q = query(collection(db, 'analytics'), orderBy('createdAt', 'desc'));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Analytics[];
+  } catch (err) {
+    console.error('[Get Analytics Error]:', err);
+    return [];
+  }
 }
 
 // --- Getters ---
 export async function getProfile() {
   const db = getFirestoreDb();
   if (!db) return null;
-  const docRef = doc(db, 'profile', 'data');
-  const docSnap = await getDoc(docRef);
-  return docSnap.exists() ? docSnap.data() as Profile : null;
+  try {
+    const docRef = doc(db, 'profile', 'data');
+    const docSnap = await getDoc(docRef);
+    return docSnap.exists() ? docSnap.data() as Profile : null;
+  } catch (err) {
+    return null;
+  }
 }
 
 export async function getSkills() {
   const db = getFirestoreDb();
   if (!db) return [];
-  const q = query(collection(db, 'skills'), orderBy('order', 'asc'));
-  const querySnapshot = await getDocs(q);
-  return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Skill[];
+  try {
+    const q = query(collection(db, 'skills'), orderBy('order', 'asc'));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Skill[];
+  } catch (err) {
+    return [];
+  }
 }
 
 export async function getProjects() {
   const db = getFirestoreDb();
   if (!db) return [];
-  const q = query(collection(db, 'projects'), orderBy('order', 'asc'));
-  const querySnapshot = await getDocs(q);
-  return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Project[];
+  try {
+    const q = query(collection(db, 'projects'), orderBy('order', 'asc'));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Project[];
+  } catch (err) {
+    return [];
+  }
 }
 
 export async function getCertificates() {
   const db = getFirestoreDb();
   if (!db) return [];
-  const q = query(collection(db, 'certificates'), orderBy('order', 'asc'));
-  const querySnapshot = await getDocs(q);
-  return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Certificate[];
+  try {
+    const q = query(collection(db, 'certificates'), orderBy('order', 'asc'));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Certificate[];
+  } catch (err) {
+    return [];
+  }
 }
 
 export async function getTestimonials() {
   const db = getFirestoreDb();
   if (!db) return [];
-  const q = query(collection(db, 'testimonials'), orderBy('createdAt', 'desc'));
-  const querySnapshot = await getDocs(q);
-  return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Testimonial[];
+  try {
+    const q = query(collection(db, 'testimonials'), orderBy('createdAt', 'desc'));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Testimonial[];
+  } catch (err) {
+    return [];
+  }
 }
 
 export async function getMessages() {
   const db = getFirestoreDb();
   if (!db) return [];
-  const q = query(collection(db, 'messages'), orderBy('createdAt', 'desc'));
-  const querySnapshot = await getDocs(q);
-  return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Message[];
+  try {
+    const q = query(collection(db, 'messages'), orderBy('createdAt', 'desc'));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Message[];
+  } catch (err) {
+    return [];
+  }
 }
