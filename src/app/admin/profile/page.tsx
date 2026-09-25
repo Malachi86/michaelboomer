@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Save, Plus, Trash2, Upload, Loader2 } from 'lucide-react';
+import { Save, Plus, Trash2, Upload, Loader2, Link as LinkIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { updateProfile } from '@/app/admin/actions';
 import { useDoc, useFirestore, useStorage } from '@/firebase';
@@ -164,7 +164,7 @@ export default function AdminProfilePage() {
             </CardHeader>
             <CardContent className="p-8 pt-0">
               <div className="flex items-center gap-10">
-                <div className="relative w-36 h-36 rounded-[32px] overflow-hidden bg-slate-50 border-4 border-white shadow-2xl">
+                <div className="relative w-36 h-36 rounded-[32px] overflow-hidden bg-slate-50 border-4 border-white shadow-2xl shrink-0">
                   {(previewUrl || profile.profile_image) ? (
                     <Image 
                       src={previewUrl || profile.profile_image} 
@@ -187,24 +187,42 @@ export default function AdminProfilePage() {
                     </div>
                   )}
                 </div>
-                <div className="space-y-4">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    className="hidden"
-                    id="profile-upload"
-                    disabled={isUploading}
-                  />
-                  <Label htmlFor="profile-upload">
-                    <Button variant="outline" className="h-14 border-gray-100 text-[#0E2356] font-black text-[10px] tracking-widest uppercase rounded-2xl px-6" asChild disabled={isUploading}>
-                      <span>
-                        {isUploading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}
-                        Upload New Photo
-                      </span>
-                    </Button>
-                  </Label>
-                  <p className="text-gray-400 text-[9px] font-black uppercase tracking-widest opacity-60">Automatic compression enabled for faster updates</p>
+                <div className="flex-1 space-y-6">
+                  <div className="space-y-4">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                      id="profile-upload"
+                      disabled={isUploading}
+                    />
+                    <Label htmlFor="profile-upload">
+                      <Button variant="outline" className="h-14 border-gray-100 text-[#0E2356] font-black text-[10px] tracking-widest uppercase rounded-2xl px-6" asChild disabled={isUploading}>
+                        <span>
+                          {isUploading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}
+                          Upload New Photo
+                        </span>
+                      </Button>
+                    </Label>
+                    <p className="text-gray-400 text-[9px] font-black uppercase tracking-widest opacity-60">Automatic compression enabled for faster updates</p>
+                  </div>
+
+                  <div className="space-y-3 pt-4 border-t border-gray-50">
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Or provide Image URL</Label>
+                    <div className="relative">
+                      <LinkIcon className="absolute left-3 top-4 w-4 h-4 text-gray-300" />
+                      <Input 
+                        value={profile.profile_image} 
+                        onChange={(e) => {
+                          setProfile({...profile, profile_image: e.target.value});
+                          setPreviewUrl(null); // Clear manual upload preview when typing URL
+                        }} 
+                        placeholder="https://..." 
+                        className="h-14 bg-slate-50 border-gray-100 pl-10 rounded-xl font-bold text-[#0E2356] focus:border-[#E31B23] focus:ring-0"
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
             </CardContent>
