@@ -103,40 +103,52 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [isAuthorized, setIsAuthorized] = useState(false);
 
   useEffect(() => {
-    if (!loading) {
-      if (!user) {
-        // Strictly redirect to login if no user is authenticated
-        router.push('/login');
-      } else if (user.email !== ADMIN_EMAIL) {
-        // Kick out unauthorized emails
+    // If auth state is still loading, do nothing
+    if (loading) return;
+
+    if (!user) {
+      // 1. NO USER: Strictly redirect to login page
+      router.replace('/login');
+    } else if (user.email !== ADMIN_EMAIL) {
+      // 2. UNAUTHORIZED USER: Immediate sign out and kick out
+      signOut(auth).then(() => {
         toast({
           variant: 'destructive',
-          title: 'Unauthorized Account',
+          title: 'Access Denied',
           description: 'This area is restricted to the administrator.',
         });
-        signOut(auth).then(() => router.push('/login'));
-      } else {
-        // Only allow entry if the email matches
-        setIsAuthorized(true);
-      }
+        router.replace('/login');
+      });
+    } else {
+      // 3. AUTHORIZED: Allow entry
+      setIsAuthorized(true);
     }
   }, [user, loading, router, auth, toast]);
 
-  // Loading or non-authorized screen (The Door)
+  // Mandatory Guard: Show absolutely NO content unless authorized
   if (loading || !isAuthorized) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="w-12 h-12 animate-spin text-[#E31B23]" />
-          <p className="text-[#0E2356] font-black text-[10px] uppercase tracking-widest animate-pulse">
-            Verifying Admin Credentials...
-          </p>
-        </div>
+      <div className="min-h-screen bg-white flex flex-col items-center justify-center">
+        <motion.div 
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="flex flex-col items-center gap-6"
+        >
+          <div className="w-20 h-20 bg-[#0E2356] rounded-3xl flex items-center justify-center shadow-2xl animate-pulse">
+            <Car className="text-white w-12 h-12" />
+          </div>
+          <div className="flex flex-col items-center gap-2">
+            <Loader2 className="w-6 h-6 animate-spin text-[#E31B23]" />
+            <p className="text-[#0E2356] font-black text-[10px] uppercase tracking-[0.4em] animate-pulse">
+              Security Check in Progress...
+            </p>
+          </div>
+        </motion.div>
       </div>
     );
   }
 
-  // Final authorized dashboard view
+  // The final dashboard view is protected and only rendered after verification
   return (
     <div className="min-h-screen bg-[#FFFBFA] text-gray-900 font-body">
       <AdminSidebar />
