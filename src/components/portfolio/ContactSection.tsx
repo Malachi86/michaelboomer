@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Send, Mail, MapPin, Loader2, Facebook, MessageCircle, Linkedin } from 'lucide-react';
+import { Send, Mail, MapPin, Loader2, Facebook, MessageCircle } from 'lucide-react';
 import type { Profile } from '@/lib/types';
 import { submitContactForm } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
@@ -101,7 +101,6 @@ export default function ContactSection({ profile }: { profile: Profile }) {
   };
 
   const facebookLink = getSocialValue('facebook');
-  const linkedinLink = getSocialValue('linkedin');
   const viberLink = getSocialValue('viber');
 
   return (
@@ -135,30 +134,23 @@ export default function ContactSection({ profile }: { profile: Profile }) {
             <ContactInfoCard 
               icon={Mail} 
               label="Gmail" 
-              value={profile?.email || "orozcomarvinpaul@gmail.com"} 
+              value={profile?.email || "michaelgabrielc.orozco@gmail.com"} 
               bgColor="bg-[#EA4335]"
-              href={profile?.email ? `mailto:${profile.email}` : undefined}
+              href={profile?.email ? `mailto:${profile.email}` : "mailto:michaelgabrielc.orozco@gmail.com"}
             />
             <ContactInfoCard 
               icon={Facebook} 
               label="Facebook" 
-              value={facebookLink?.value || "Suzuki Official Page"} 
+              value={facebookLink?.value || "Suzuki Auto Lipa by Michael Gabriel Orozco"} 
               bgColor="bg-[#1877F2]"
               href={facebookLink?.href}
             />
             <ContactInfoCard 
               icon={MessageCircle} 
               label="Viber" 
-              value={viberLink?.value || "+63 9XX XXX XXXX"} 
+              value={viberLink?.value || "09692721107"} 
               bgColor="bg-[#7360F2]"
               href={viberLink?.href}
-            />
-            <ContactInfoCard 
-              icon={Linkedin} 
-              label="Linkedin" 
-              value={linkedinLink?.value || "Agent Profile"} 
-              bgColor="bg-[#0A66C2]"
-              href={linkedinLink?.href}
             />
             <ContactInfoCard 
               icon={MapPin} 

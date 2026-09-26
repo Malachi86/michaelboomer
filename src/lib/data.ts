@@ -7,21 +7,21 @@ export const profile: Profile = {
   "bio": "I craft high-performance digital experiences and provide top-tier virtual assistance. With a focus on efficiency and creativity, I help businesses grow their online presence.",
   "profile_image": "",
   "resume_url": "#",
-  "email": "orozcomarvinpaul@gmail.com",
+  "email": "michaelgabrielc.orozco@gmail.com",
   "social_links": [
     {
-      "platform": "github",
-      "url": "https://github.com/marvinorozco",
-      "icon": "github"
+      "platform": "facebook",
+      "url": "https://www.facebook.com/SuzukiAutoLipaByMichaelGabrielOrozco",
+      "icon": "facebook"
     },
     {
-      "platform": "linkedin",
-      "url": "https://linkedin.com/in/marvin-paul-orozco-57bb77392/",
-      "icon": "linkedin"
+      "platform": "viber",
+      "url": "viber://chat?number=09692721107",
+      "icon": "message-circle"
     },
     {
       "platform": "email",
-      "url": "mailto:orozcomarvinpaul@gmail.com",
+      "url": "mailto:michaelgabrielc.orozco@gmail.com",
       "icon": "email"
     }
   ]
