@@ -23,7 +23,7 @@ const menuItems = [
   { icon: BarChart3, label: 'SALES ANALYTICS', href: '/admin/analytics' },
 ];
 
-const ADMIN_EMAIL = 'orozcomarvinpaul@gmail.com';
+export const ADMIN_EMAIL = 'orozcomarvinpaul@gmail.com';
 
 function AdminSidebar() {
   const pathname = usePathname();
@@ -107,10 +107,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     if (loading) return;
 
     if (!user) {
-      // 1. NO USER: Strictly redirect to login page
+      // 1. NO USER: Strictly redirect and ensure state is locked
+      setIsAuthorized(false);
       router.replace('/login');
     } else if (user.email !== ADMIN_EMAIL) {
       // 2. UNAUTHORIZED USER: Immediate sign out and kick out
+      setIsAuthorized(false);
       signOut(auth).then(() => {
         toast({
           variant: 'destructive',
@@ -125,8 +127,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     }
   }, [user, loading, router, auth, toast]);
 
-  // Mandatory Guard: Show absolutely NO content unless authorized
-  if (loading || !isAuthorized) {
+  // Mandatory Guard: Show absolutely NO content unless verified and authorized
+  const showContent = !loading && user && user.email === ADMIN_EMAIL && isAuthorized;
+
+  if (!showContent) {
     return (
       <div className="min-h-screen bg-white flex flex-col items-center justify-center">
         <motion.div 

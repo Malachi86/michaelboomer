@@ -5,23 +5,37 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Car, Mail, MessageSquare, Award, User, Loader2, TrendingUp } from "lucide-react";
 import Link from 'next/link';
-import { useCollection, useFirestore } from "@/firebase";
+import { useCollection, useFirestore, useUser } from "@/firebase";
 import { collection, query, orderBy } from 'firebase/firestore';
 import type { Skill, Project, Message } from "@/lib/types";
+import { ADMIN_EMAIL } from '@/app/admin/layout';
 
 export function DashboardPage() {
   const db = useFirestore();
+  const { user, loading: authLoading } = useUser();
 
-  const inventoryQuery = useMemo(() => query(collection(db, 'projects')), [db]);
+  // Ensure queries only run if the user is authenticated as the admin
+  const isAuthorized = !authLoading && user && user.email === ADMIN_EMAIL;
+
+  const inventoryQuery = useMemo(() => {
+    if (!db || !isAuthorized) return null;
+    return query(collection(db, 'projects'));
+  }, [db, isAuthorized]);
   const { data: inventoryData, loading: inventoryLoading } = useCollection<Project>(inventoryQuery);
 
-  const turnoversQuery = useMemo(() => query(collection(db, 'certificates')), [db]);
+  const turnoversQuery = useMemo(() => {
+    if (!db || !isAuthorized) return null;
+    return query(collection(db, 'certificates'));
+  }, [db, isAuthorized]);
   const { data: turnoversData, loading: turnoversLoading } = useCollection<Skill>(turnoversQuery);
 
-  const messagesQuery = useMemo(() => query(collection(db, 'messages'), orderBy('createdAt', 'desc')), [db]);
+  const messagesQuery = useMemo(() => {
+    if (!db || !isAuthorized) return null;
+    return query(collection(db, 'messages'), orderBy('createdAt', 'desc'));
+  }, [db, isAuthorized]);
   const { data: messagesData, loading: messagesLoading } = useCollection<Message>(messagesQuery);
 
-  const loading = inventoryLoading || turnoversLoading || messagesLoading;
+  const loading = inventoryLoading || turnoversLoading || messagesLoading || authLoading;
 
   if (loading) return (
     <div className="flex flex-col items-center justify-center h-[60vh] gap-4">
