@@ -11,7 +11,7 @@ import {
 } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, Suspense } from 'react';
-import { Mountain, Loader2, AlertCircle, Lock, Mail } from 'lucide-react';
+import { Mountain, Loader2, AlertCircle, Lock, Mail, Car } from 'lucide-react';
 import Link from "next/link";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
@@ -29,7 +29,6 @@ function LoginContent() {
   const [isLoading, setIsLoading] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
 
-  // Redirect if already logged in with correct email
   useEffect(() => {
     if (!authLoading && user && user.email === ADMIN_EMAIL) {
       router.push('/admin');
@@ -44,21 +43,18 @@ function LoginContent() {
     try {
       const result = await signInWithEmailAndPassword(auth, email, password);
       if (result.user.email === ADMIN_EMAIL) {
-        toast({ title: "Login Successful", description: `Welcome back, Michael!` });
+        toast({ title: "Welcome back!", description: "Access granted to dashboard." });
         router.push('/admin');
       } else {
-        setLoginError(`Unauthorized account. Access restricted.`);
+        setLoginError("Unauthorized account. Access restricted.");
         await signOut(auth);
       }
     } catch (error: any) {
       console.error("Sign-in error:", error);
-      // Detailed error messages for the user
-      if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-        setLoginError("Maling email o password. Pakisubukang muli at siguraduhing tama ang iyong credentials.");
-      } else if (error.code === 'auth/too-many-requests') {
-        setLoginError("Masyadong maraming failed attempts. Pakihintay muna bago sumubok ulit.");
+      if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password') {
+        setLoginError("Maling email o password. Pakisubukang muli.");
       } else {
-        setLoginError("Nagkaroon ng problema sa pag-login. Pakisiguradong naka-enable ang Email/Password sa Firebase Console.");
+        setLoginError("Nagkaroon ng problema sa pag-login. Pakisiguradong tama ang iyong credentials.");
       }
     } finally {
       setIsLoading(false);
@@ -67,71 +63,65 @@ function LoginContent() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="w-10 h-10 animate-spin text-primary" />
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <Loader2 className="w-10 h-10 animate-spin text-[#E31B23]" />
       </div>
     );
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-[#040403] p-4">
-      <Card className="w-full max-w-sm bg-[#0a0a09] border-white/5 text-white shadow-2xl overflow-hidden relative pt-8">
-        <CardHeader className="text-center space-y-6 relative">
+    <div className="flex items-center justify-center min-h-screen bg-[#F8F9FA] p-4 font-body">
+      <Card className="w-full max-w-md bg-white border-none shadow-2xl rounded-[40px] overflow-hidden pt-12 pb-8">
+        <CardHeader className="text-center space-y-4">
           <div className="flex justify-center">
-            <div className="w-20 h-20 rounded-2xl bg-primary/5 flex items-center justify-center border border-primary/20">
-              <Mountain className="w-10 h-10 text-primary" />
+            <div className="w-20 h-20 rounded-3xl bg-[#0E2356] flex items-center justify-center shadow-xl">
+              <Car className="w-10 h-10 text-white" />
             </div>
           </div>
-          <div className="space-y-2">
-            <CardTitle className="text-4xl font-serif font-bold tracking-tight">Admin Portal</CardTitle>
-            <CardDescription className="text-primary font-medium">
-              Verification for Michael Gabriel Orozco.
+          <div className="space-y-1">
+            <CardTitle className="text-3xl font-black text-[#0E2356] tracking-tighter uppercase">Admin Access</CardTitle>
+            <CardDescription className="text-[#E31B23] font-black uppercase text-[10px] tracking-widest">
+              Secure Portal for Michael Orozco
             </CardDescription>
           </div>
         </CardHeader>
         
-        <CardContent className="space-y-6 relative pt-4">
-          <p className="text-xs text-center text-muted-foreground px-4 leading-relaxed opacity-70">
-            Mangyaring ilagay ang iyong credentials para ma-access ang panel.
-          </p>
-
+        <CardContent className="space-y-6 pt-6">
           {loginError && (
-            <Alert variant="destructive" className="bg-destructive/10 border-destructive/20 text-destructive text-xs py-2">
-              <AlertCircle className="h-4 w-4 shrink-0" />
-              <AlertDescription>
+            <Alert variant="destructive" className="bg-red-50 border-red-100 text-red-600 rounded-2xl">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription className="text-xs font-bold uppercase tracking-tight">
                 {loginError}
               </AlertDescription>
             </Alert>
           )}
 
-          <form onSubmit={handleSignIn} className="space-y-4">
+          <form onSubmit={handleSignIn} className="space-y-5">
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-xs uppercase tracking-widest font-bold opacity-50">Email Address</Label>
+              <Label className="text-[10px] uppercase tracking-widest font-black text-gray-400 ml-1">Admin Email</Label>
               <div className="relative">
-                <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Mail className="absolute left-4 top-4 h-4 w-4 text-gray-300" />
                 <Input 
-                  id="email"
                   type="email"
-                  placeholder="name@example.com"
+                  placeholder="admin@email.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="bg-black border-white/10 pl-10 h-11 focus:border-primary"
+                  className="bg-slate-50 border-gray-100 h-12 pl-12 rounded-xl focus:border-[#E31B23] font-bold"
                   required
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-xs uppercase tracking-widest font-bold opacity-50">Password</Label>
+              <Label className="text-[10px] uppercase tracking-widest font-black text-gray-400 ml-1">Password</Label>
               <div className="relative">
-                <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Lock className="absolute left-4 top-4 h-4 w-4 text-gray-300" />
                 <Input 
-                  id="password"
                   type="password"
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="bg-black border-white/10 pl-10 h-11 focus:border-primary"
+                  className="bg-slate-50 border-gray-100 h-12 pl-12 rounded-xl focus:border-[#E31B23] font-bold"
                   required
                 />
               </div>
@@ -140,22 +130,18 @@ function LoginContent() {
             <Button 
               type="submit"
               disabled={isLoading}
-              className="w-full h-12 bg-primary text-primary-foreground hover:bg-primary/90 font-bold transition-all active:scale-[0.98] rounded-xl flex items-center justify-center gap-2 mt-2"
+              className="w-full h-14 bg-[#0E2356] hover:bg-[#1a2f6b] text-white font-black rounded-2xl shadow-xl transition-all uppercase tracking-widest text-xs mt-4"
             >
-              {isLoading ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
-              ) : (
-                "Sign In to Dashboard"
-              )}
+              {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Sign In to Dashboard"}
             </Button>
           </form>
         </CardContent>
 
-        <CardFooter className="flex flex-col gap-6 relative border-t border-white/5 py-8">
-            <p className="text-[10px] text-center text-muted-foreground uppercase tracking-[0.2em] font-medium opacity-60">
-              SECURE ADMIN ACCESS RESTRICTED
+        <CardFooter className="flex flex-col gap-6 border-t border-gray-50 mt-6 pt-8">
+            <p className="text-[9px] text-center text-gray-300 uppercase tracking-[0.2em] font-black">
+              AUTHORIZED PERSONNEL ONLY
             </p>
-            <Link href="/" className="text-primary hover:text-primary/80 text-sm font-bold flex items-center gap-2 transition-all">
+            <Link href="/" className="text-[#0E2356] hover:text-[#E31B23] text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all">
               Return to Website
             </Link>
         </CardFooter>
@@ -167,8 +153,8 @@ function LoginContent() {
 export default function LoginPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Loader2 className="w-10 h-10 animate-spin text-primary" />
+      <div className="min-h-screen bg-[#F8F9FA] flex items-center justify-center">
+        <Loader2 className="w-10 h-10 animate-spin text-[#E31B23]" />
       </div>
     }>
       <LoginContent />

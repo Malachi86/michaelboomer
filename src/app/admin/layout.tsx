@@ -105,38 +105,38 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   useEffect(() => {
     if (!loading) {
       if (!user) {
-        // Redirect to login if no user is authenticated
+        // Strictly redirect to login if no user is authenticated
         router.push('/login');
       } else if (user.email !== ADMIN_EMAIL) {
-        // Redirect if authenticated user is not the authorized admin
+        // Kick out unauthorized emails
         toast({
           variant: 'destructive',
-          title: 'Access Denied',
-          description: 'Unauthorized account. Access restricted to admin only.',
+          title: 'Unauthorized Account',
+          description: 'This area is restricted to the administrator.',
         });
         signOut(auth).then(() => router.push('/login'));
       } else {
-        // User is authenticated and authorized
+        // Only allow entry if the email matches
         setIsAuthorized(true);
       }
     }
   }, [user, loading, router, auth, toast]);
 
-  // Loading or non-authorized screen
+  // Loading or non-authorized screen (The Door)
   if (loading || !isAuthorized) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="w-12 h-12 animate-spin text-[#E31B23]" />
-          <p className="text-[#0E2356] font-black text-[10px] tracking-widest uppercase animate-pulse">
-            Authenticating Admin...
+          <p className="text-[#0E2356] font-black text-[10px] uppercase tracking-widest animate-pulse">
+            Verifying Admin Credentials...
           </p>
         </div>
       </div>
     );
   }
 
-  // Final authorized view
+  // Final authorized dashboard view
   return (
     <div className="min-h-screen bg-[#FFFBFA] text-gray-900 font-body">
       <AdminSidebar />
