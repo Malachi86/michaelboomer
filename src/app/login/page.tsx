@@ -11,12 +11,12 @@ import {
 } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, Suspense } from 'react';
-import { Mountain, Loader2, AlertCircle, Lock, Mail, Car } from 'lucide-react';
+import { Loader2, AlertCircle, Lock, Mail, Car } from 'lucide-react';
 import Link from "next/link";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 
-const ADMIN_EMAIL = 'orozcomarvinpaul@gmail.com';
+const ADMIN_EMAIL = 'michaelgabrielc.orozco@gmail.com';
 
 function LoginContent() {
   const auth = useAuth();
@@ -50,8 +50,8 @@ function LoginContent() {
         await signOut(auth);
       }
     } catch (error: any) {
-      console.error("Sign-in error:", error);
-      if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password') {
+      // Avoid console.error to prevent alarms during standard login failures
+      if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
         setLoginError("Maling email o password. Pakisubukang muli.");
       } else {
         setLoginError("Nagkaroon ng problema sa pag-login. Pakisiguradong tama ang iyong credentials.");

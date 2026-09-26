@@ -4,7 +4,7 @@ service cloud.firestore {
   match /databases/{database}/documents {
     // Helper function to check if the user is the authorized admin
     function isAdmin() {
-      return request.auth != null && request.auth.token.email == 'orozcomarvinpaul@gmail.com';
+      return request.auth != null && request.auth.token.email == 'michaelgabrielc.orozco@gmail.com';
     }
 
     // Profile data: Anyone can read, only admin can write

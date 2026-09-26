@@ -43,7 +43,7 @@ export async function submitContactForm(
   // Admin backdoor logic
   if (
     firstName.toLowerCase() === 'admin' &&
-    email === 'orozcomarvinpaul@gmail.com' &&
+    email === 'michaelgabrielc.orozco@gmail.com' &&
     message === 'ha pogi ako'
   ) {
     return { message: 'admin_redirect' };
