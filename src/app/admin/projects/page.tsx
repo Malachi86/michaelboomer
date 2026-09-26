@@ -12,14 +12,14 @@ import { Badge } from "@/components/ui/badge";
 import { 
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter 
 } from "@/components/ui/dialog";
-import { Plus, Trash2, Edit2, Loader2, Upload, Star, Car, Link as LinkIcon, X } from 'lucide-react';
+import { Plus, Trash2, Edit2, Loader2, Upload, Star, Car, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getProjects, addProject, updateProject, deleteProject } from '@/app/admin/actions';
 import type { Project } from '@/lib/types';
 
 const categories = ['HATCHBACK', 'SEDAN', 'SUV', 'MPV', 'VAN', 'PICKUP'];
 
-export function AdminProjectsPage() {
+export default function AdminProjectsPage() {
     const { toast } = useToast();
     const [projects, setProjects] = useState<Project[]>([]);
     const [isLoading, setIsLoading] = useState(true);

@@ -13,7 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { getCertificates, addCertificate, updateCertificate, deleteCertificate } from '@/app/admin/actions';
 import type { Certificate } from '@/lib/types';
 
-export function AdminCertificatesPage() {
+export default function AdminCertificatesPage() {
     const { toast } = useToast();
     const [certificates, setCertificates] = useState<Certificate[]>([]);
     const [isLoading, setIsLoading] = useState(true);
