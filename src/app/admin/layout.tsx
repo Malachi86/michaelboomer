@@ -23,7 +23,7 @@ const menuItems = [
   { icon: BarChart3, label: 'SALES ANALYTICS', href: '/admin/analytics' },
 ];
 
-export const ADMIN_EMAIL = 'orozcomarvinpaul@gmail.com';
+export const ADMIN_EMAIL = 'michaelgabrielc.orozco@gmail.com';
 
 function AdminSidebar() {
   const pathname = usePathname();

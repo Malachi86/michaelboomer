@@ -37,6 +37,9 @@ export default function HeroSection({ profile }: { profile: Profile }) {
     return { icon, bgColor, finalUrl };
   };
 
+  // Filter out LinkedIn
+  const filteredLinks = profile?.social_links?.filter(l => !l.platform.toLowerCase().includes('linkedin')) || [];
+
   return (
     <section id="hero" className="relative min-h-[95vh] flex items-center bg-[#FFFBFA] overflow-hidden pt-28 pb-20">
       <div className="max-w-[1440px] mx-auto px-6 lg:px-12 w-full relative z-10">
@@ -69,7 +72,7 @@ export default function HeroSection({ profile }: { profile: Profile }) {
 
             {/* Dynamic Social Link Buttons: Synchronized with Admin Panel */}
             <div className="flex flex-wrap gap-3 mb-10">
-              {profile?.social_links?.map((link, index) => {
+              {filteredLinks.map((link, index) => {
                 const styles = getPlatformStyles(link.platform, link.url);
                 return (
                   <Button 

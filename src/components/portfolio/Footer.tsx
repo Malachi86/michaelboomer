@@ -41,7 +41,8 @@ const formatUrl = (platform: string, url: string) => {
   if (p.includes('viber')) {
     const cleanNumber = url.replace(/[^0-9+]/g, '');
     if (cleanNumber.length >= 10) {
-      return `viber://chat?number=${cleanNumber}`;
+      const numberWithoutPlus = cleanNumber.startsWith('+') ? cleanNumber.slice(1) : cleanNumber;
+      return `viber://chat?number=${numberWithoutPlus}`;
     }
   }
   
@@ -55,8 +56,11 @@ export default function Footer({ profile }: { profile: Profile }) {
     setYear(new Date().getFullYear());
   }, []);
 
+  // Filter out LinkedIn
+  const filteredLinks = profile?.social_links?.filter(l => !l.platform.toLowerCase().includes('linkedin')) || [];
+
   return (
-    <footer className="relative py-12 bg-white border-t border-gray-100">
+    <footer className="relative py-12 bg-white border-t border-gray-100 group">
       <div className="max-w-[1440px] mx-auto px-6 lg:px-12 w-full">
         <div className="flex flex-col md:flex-row items-center justify-between gap-8">
           
@@ -85,7 +89,7 @@ export default function Footer({ profile }: { profile: Profile }) {
 
           {/* Right: Dynamic Social Icons */}
           <div className="flex items-center gap-6">
-            {profile?.social_links?.map((link, index) => {
+            {filteredLinks.map((link, index) => {
               const IconComponent = getIcon(link.platform);
               const finalUrl = formatUrl(link.platform, link.url);
               
@@ -104,7 +108,7 @@ export default function Footer({ profile }: { profile: Profile }) {
             })}
             
             {/* Direct message icon as fallback if no message link exists */}
-            {!profile?.social_links?.some(l => l.platform.toLowerCase().includes('message')) && (
+            {!filteredLinks.some(l => l.platform.toLowerCase().includes('message')) && (
               <a 
                 href="#contact" 
                 onClick={(e) => {

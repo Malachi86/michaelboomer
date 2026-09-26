@@ -94,14 +94,19 @@ export default function ContactSection({ profile }: { profile: Profile }) {
     }
   }, [state, toast, router]);
 
-  // Find dynamic links to display in info cards
-  const getSocialValue = (platform: string) => {
+  // Use requested hardcoded values as primary, with profile as secondary
+  const gmailValue = "michaelgabrielc.orozco@gmail.com";
+  const facebookName = "Suzuki Auto Lipa by Michael Gabriel Orozco";
+  const viberValue = "09692721107";
+
+  // Dynamic links from profile (excluding LinkedIn)
+  const getSocialUrl = (platform: string) => {
     const link = profile?.social_links?.find(l => l.platform.toLowerCase().includes(platform.toLowerCase()));
-    return link ? { value: link.url.replace(/^https?:\/\/(www\.)?/, '').split('/')[0], href: link.url } : null;
+    return link?.url;
   };
 
-  const facebookLink = getSocialValue('facebook');
-  const viberLink = getSocialValue('viber');
+  const facebookUrl = getSocialUrl('facebook') || "https://www.facebook.com/SuzukiAutoLipaByMichaelGabrielOrozco";
+  const viberUrl = getSocialUrl('viber') || `viber://chat?number=${viberValue}`;
 
   return (
     <section id="contact" className="relative py-32 bg-[#FFFBFA] overflow-hidden">
@@ -134,23 +139,23 @@ export default function ContactSection({ profile }: { profile: Profile }) {
             <ContactInfoCard 
               icon={Mail} 
               label="Gmail" 
-              value={profile?.email || "michaelgabrielc.orozco@gmail.com"} 
+              value={gmailValue} 
               bgColor="bg-[#EA4335]"
-              href={profile?.email ? `mailto:${profile.email}` : "mailto:michaelgabrielc.orozco@gmail.com"}
+              href={`mailto:${gmailValue}`}
             />
             <ContactInfoCard 
               icon={Facebook} 
               label="Facebook" 
-              value={facebookLink?.value || "Suzuki Auto Lipa by Michael Gabriel Orozco"} 
+              value={facebookName} 
               bgColor="bg-[#1877F2]"
-              href={facebookLink?.href}
+              href={facebookUrl}
             />
             <ContactInfoCard 
               icon={MessageCircle} 
               label="Viber" 
-              value={viberLink?.value || "09692721107"} 
+              value={viberValue} 
               bgColor="bg-[#7360F2]"
-              href={viberLink?.href}
+              href={viberUrl}
             />
             <ContactInfoCard 
               icon={MapPin} 
