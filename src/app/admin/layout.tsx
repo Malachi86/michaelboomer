@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { 
   LayoutDashboard, User, MessageSquare, LogOut, Eye, BarChart3, Car,
-  Loader2, Award, Star, MessageCircle
+  Loader2, Award, Star
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useUser, useAuth } from '@/firebase';
@@ -105,32 +105,38 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   useEffect(() => {
     if (!loading) {
       if (!user) {
+        // Redirect to login if no user is authenticated
         router.push('/login');
       } else if (user.email !== ADMIN_EMAIL) {
+        // Redirect if authenticated user is not the authorized admin
         toast({
           variant: 'destructive',
           title: 'Access Denied',
-          description: 'Unauthorized access.',
+          description: 'Unauthorized account. Access restricted to admin only.',
         });
         signOut(auth).then(() => router.push('/login'));
       } else {
+        // User is authenticated and authorized
         setIsAuthorized(true);
       }
     }
   }, [user, loading, router, auth, toast]);
 
-  if (loading && !isAuthorized) {
+  // Loading or non-authorized screen
+  if (loading || !isAuthorized) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
-        <Loader2 className="w-12 h-12 animate-spin text-[#E31B23]" />
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="w-12 h-12 animate-spin text-[#E31B23]" />
+          <p className="text-[#0E2356] font-black text-[10px] tracking-widest uppercase animate-pulse">
+            Authenticating Admin...
+          </p>
+        </div>
       </div>
     );
   }
 
-  if (!user || user.email !== ADMIN_EMAIL) {
-    return null;
-  }
-
+  // Final authorized view
   return (
     <div className="min-h-screen bg-[#FFFBFA] text-gray-900 font-body">
       <AdminSidebar />
