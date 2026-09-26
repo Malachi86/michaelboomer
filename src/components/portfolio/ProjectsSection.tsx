@@ -1,15 +1,21 @@
+
 'use client';
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Star, Car } from 'lucide-react';
-import type { Project } from '@/lib/types';
+import type { Project, Profile } from '@/lib/types';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 
-export default function ProjectsSection({ projects = [] }: { projects: Project[] }) {
+interface ProjectsSectionProps {
+  projects: Project[];
+  profile: Profile;
+}
+
+export default function ProjectsSection({ projects = [], profile }: ProjectsSectionProps) {
   const [activeCategory, setActiveCategory] = useState('ALL');
 
   const dynamicCategories = useMemo(() => {
@@ -18,11 +24,9 @@ export default function ProjectsSection({ projects = [] }: { projects: Project[]
     return ['ALL', ...uniqueCategories];
   }, [projects]);
 
-  const displayProjects = projects.length > 0 ? projects : [];
-
   const filteredProjects = activeCategory === 'ALL' 
-    ? displayProjects 
-    : displayProjects.filter(p => (p.category || 'Other').toUpperCase() === activeCategory);
+    ? projects 
+    : projects.filter(p => (p.category || 'Other').toUpperCase() === activeCategory);
 
   const sortedProjects = [...filteredProjects].sort((a, b) => {
     if (a.featured && !b.featured) return -1;
@@ -40,10 +44,10 @@ export default function ProjectsSection({ projects = [] }: { projects: Project[]
           className="text-center mb-20"
         >
           <p className="text-[#E31B23] font-black tracking-[0.3em] uppercase text-[10px] mb-4">
-            OUR INVENTORY
+            {profile.inventory_subtitle || 'OUR INVENTORY'}
           </p>
           <h2 className="text-5xl lg:text-7xl font-serif text-[#0E2356] mb-6">
-            Suzuki Vehicle Catalog
+            {profile.inventory_title || 'Suzuki Vehicle Catalog'}
           </h2>
           <div className="w-16 h-1 bg-[#E31B23] mx-auto rounded-full" />
         </motion.div>

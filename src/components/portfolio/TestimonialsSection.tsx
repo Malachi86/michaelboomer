@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useRef } from 'react';
@@ -17,13 +18,18 @@ import {
   CarouselItem,
 } from "@/components/ui/carousel";
 import Autoplay from 'embla-carousel-autoplay';
-import type { Testimonial } from '@/lib/types';
+import type { Testimonial, Profile } from '@/lib/types';
 import { submitTestimonial } from '@/app/admin/actions';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import Link from 'next/link';
 
-export default function TestimonialsSection({ testimonials = [] }: { testimonials: Testimonial[] }) {
+interface TestimonialsSectionProps {
+  testimonials: Testimonial[];
+  profile: Profile;
+}
+
+export default function TestimonialsSection({ testimonials = [], profile }: TestimonialsSectionProps) {
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -83,8 +89,11 @@ export default function TestimonialsSection({ testimonials = [] }: { testimonial
               Feedback
             </p>
             <h2 className="text-4xl lg:text-6xl font-serif text-[#0E2356] mb-6">
-              What Our Clients Say
+              {profile.testimonials_title || 'What Our Clients Say'}
             </h2>
+            <p className="text-gray-500 font-medium max-w-2xl mx-auto mb-10">
+              {profile.testimonials_description || 'Ang inyong tiwala ay ang aming inspirasyon sa de-kalidad na serbisyo.'}
+            </p>
             <div className="w-16 h-1 bg-[#E31B23] mx-auto mb-10 rounded-full" />
           </motion.div>
 
@@ -243,7 +252,6 @@ export default function TestimonialsSection({ testimonials = [] }: { testimonial
               </CarouselContent>
             </Carousel>
             
-            {/* Auto-Slide Indicator */}
             <div className="flex justify-center gap-1.5 mt-10">
               {approvedTestimonials.slice(0, Math.ceil(approvedTestimonials.length / 2)).map((_, i) => (
                 <div key={i} className="w-2 h-2 rounded-full bg-[#0E2356]/10" />

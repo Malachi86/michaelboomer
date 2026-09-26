@@ -1,13 +1,19 @@
+
 'use client';
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Award, ExternalLink, Calendar, ZoomIn } from 'lucide-react';
-import type { Certificate } from '@/lib/types';
+import type { Certificate, Profile } from '@/lib/types';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 
-export default function CertificatesSection({ certificates = [] }: { certificates: Certificate[] }) {
+interface CertificatesSectionProps {
+  certificates: Certificate[];
+  profile: Profile;
+}
+
+export default function CertificatesSection({ certificates = [], profile }: CertificatesSectionProps) {
   const [selectedCert, setSelectedCert] = useState<Certificate | null>(null);
 
   if (!certificates || certificates.length === 0) return null;
@@ -24,9 +30,11 @@ export default function CertificatesSection({ certificates = [] }: { certificate
           className="text-center mb-20"
         >
           <p className="text-[#E31B23] font-black tracking-[0.2em] uppercase text-xs mb-4">Expertise & Reliability</p>
-          <h2 className="text-4xl lg:text-5xl font-bold text-[#0E2356] mb-6">Agent Professional Status</h2>
+          <h2 className="text-4xl lg:text-5xl font-bold text-[#0E2356] mb-6">
+            {profile.certificates_title || 'Agent Professional Status'}
+          </h2>
           <p className="text-gray-600 text-lg font-medium max-w-2xl mx-auto mb-8">
-            Certified expertise to ensure a smooth and worry-free car buying journey.
+            {profile.certificates_description || 'Certified expertise to ensure a smooth and worry-free car buying journey.'}
           </p>
           <div className="w-24 h-1 bg-[#E31B23] mx-auto" />
         </motion.div>

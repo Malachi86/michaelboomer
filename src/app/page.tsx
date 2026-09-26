@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useMemo } from 'react';
@@ -13,11 +14,11 @@ import { doc, collection, query, orderBy } from 'firebase/firestore';
 import { useFirestore } from '@/firebase';
 import { profile as defaultProfile } from '@/lib/data';
 import { Loader2 } from 'lucide-react';
+import type { Profile } from '@/lib/types';
 
 export default function Home() {
   const db = useFirestore();
 
-  // Memoizing queries to prevent redundant re-fetching and save on reads
   const profileRef = useMemo(() => doc(db, 'profile', 'data'), [db]);
   const { data: profileData, loading: profileLoading } = useDoc(profileRef);
 
@@ -32,7 +33,7 @@ export default function Home() {
 
   const isLoading = profileLoading || projectsLoading || certificatesLoading || testimonialsLoading;
 
-  const profile = profileData || defaultProfile;
+  const profile = (profileData || defaultProfile) as Profile;
   const projects = projectsData || [];
   const certificates = certificatesData || [];
   const testimonials = testimonialsData || [];
@@ -51,9 +52,9 @@ export default function Home() {
       <Navigation profile={profile} />
       <main>
         <HeroSection profile={profile} />
-        <ProjectsSection projects={projects} />
-        <CertificatesSection certificates={certificates} />
-        <TestimonialsSection testimonials={testimonials} />
+        <ProjectsSection projects={projects} profile={profile} />
+        <CertificatesSection certificates={certificates} profile={profile} />
+        <TestimonialsSection testimonials={testimonials} profile={profile} />
         <ContactSection profile={profile} />
       </main>
       <Footer profile={profile} />

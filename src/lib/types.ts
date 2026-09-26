@@ -12,6 +12,13 @@ export type Profile = {
     url: string;
     icon: string;
   }[];
+  // Dynamic Website Copy
+  inventory_title?: string;
+  inventory_subtitle?: string;
+  certificates_title?: string;
+  certificates_description?: string;
+  testimonials_title?: string;
+  testimonials_description?: string;
 };
 
 export type Skill = {
