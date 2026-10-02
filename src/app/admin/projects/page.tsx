@@ -1,3 +1,4 @@
+
 'use client';
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -12,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { 
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter 
 } from "@/components/ui/dialog";
-import { Plus, Trash2, Edit2, Loader2, Upload, Star, Car, X } from 'lucide-react';
+import { Plus, Trash2, Edit2, Loader2, Upload, Star, Car, X, Link as LinkIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getProjects, addProject, updateProject, deleteProject } from '@/app/admin/actions';
 import type { Project } from '@/lib/types';
@@ -28,6 +29,7 @@ export default function AdminProjectsPage() {
     const [isSaving, setIsSaving] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
     const [galleryInput, setGalleryInput] = useState('');
+    const [techInput, setTechInput] = useState('');
 
     const [formData, setFormData] = useState<Omit<Project, 'id'>>({
         title: '',
@@ -38,7 +40,9 @@ export default function AdminProjectsPage() {
         tech_stack: [],
         featured: false,
         order: 0,
-        price: 0
+        price: 0,
+        video_url: '',
+        live_demo_url: '',
     });
 
     const fetchProjects = async () => {
@@ -56,9 +60,9 @@ export default function AdminProjectsPage() {
         setFormData({
             title: '', description: '', category: 'SUV', image_url: '',
             additional_images: [], tech_stack: [], featured: false, 
-            order: projects.length, price: 0
+            order: projects.length, price: 0, video_url: '', live_demo_url: ''
         });
-        setEditingProject(null); setGalleryInput('');
+        setEditingProject(null); setGalleryInput(''); setTechInput('');
     };
 
     const openCreateDialog = () => { resetForm(); setIsDialogOpen(true); };
@@ -70,7 +74,8 @@ export default function AdminProjectsPage() {
             category: project.category || 'SUV', image_url: project.image_url || '',
             additional_images: project.additional_images || [],
             tech_stack: project.tech_stack || [], featured: project.featured || false,
-            order: project.order || 0, price: project.price || 0
+            order: project.order || 0, price: project.price || 0,
+            video_url: project.video_url || '', live_demo_url: project.live_demo_url || ''
         });
         setIsDialogOpen(true);
     };
@@ -141,6 +146,17 @@ export default function AdminProjectsPage() {
 
     const removeGalleryImage = (urlToRemove: string) => {
         setFormData(prev => ({ ...prev, additional_images: prev.additional_images?.filter(url => url !== urlToRemove) }));
+    };
+
+    const addTech = () => {
+        if (techInput.trim() && !formData.tech_stack.includes(techInput.trim())) {
+          setFormData(prev => ({ ...prev, tech_stack: [...formData.tech_stack, techInput.trim()] }));
+          setTechInput('');
+        }
+    };
+    
+    const removeTech = (techToRemove: string) => {
+        setFormData(prev => ({ ...prev, tech_stack: prev.tech_stack.filter(tech => tech !== techToRemove) }));
     };
 
     if (isLoading) {
@@ -258,8 +274,33 @@ export default function AdminProjectsPage() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Price (SRP)</Label>
-                      <Input type="number" value={formData.price || 0} onChange={(e) => setFormData(prev => ({ ...prev, price: parseFloat(e.target.value) || 0 }))} className="h-12 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356]" />
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Price (SRP)</Label>
+                        <Input type="number" value={formData.price || 0} onChange={(e) => setFormData(prev => ({ ...prev, price: parseFloat(e.target.value) || 0 }))} className="h-12 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356]" />
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Video Presentation URL (YouTube)</Label>
+                        <Input value={formData.video_url} onChange={(e) => setFormData(prev => ({ ...prev, video_url: e.target.value }))} placeholder="https://www.youtube.com/watch?v=..." className="h-12 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356]" />
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Vehicle Description</Label>
+                        <Textarea value={formData.description} onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))} rows={4} placeholder="🚗 Ang Suzuki S-PRESSO ay..." className="bg-slate-50 border-gray-100 rounded-2xl p-4 font-bold text-[#0E2356]" />
+                    </div>
+
+                    <div className="space-y-4">
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Key Specifications</Label>
+                        <div className="flex gap-2">
+                            <Input value={techInput} onChange={(e) => setTechInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTech())} placeholder="e.g. Fuel Efficient" className="h-12 bg-slate-50 border-gray-100 rounded-xl font-bold text-[#0E2356]" />
+                            <Button onClick={addTech} variant="secondary" className="h-12 bg-[#0E2356] text-white rounded-xl px-6">ADD</Button>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                            {formData.tech_stack.map((tech, i) => (
+                                <Badge key={i} className="bg-slate-100 text-[#0E2356] hover:bg-red-50 hover:text-red-600 transition-colors border-none py-1.5 px-3 rounded-lg flex items-center gap-2 group cursor-pointer" onClick={() => removeTech(tech)}>
+                                    {tech} <X className="w-3 h-3" />
+                                </Badge>
+                            ))}
+                        </div>
                     </div>
 
                     <div className="flex items-center gap-4 p-5 bg-red-50 rounded-3xl border border-red-100 h-16">
