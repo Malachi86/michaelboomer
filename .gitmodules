@@ -1,0 +1,3 @@
+[submodule "my"]
+	path = my
+	url = https://github.com/mrvs123/my.git
